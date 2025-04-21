@@ -1,3 +1,22 @@
+#music-upload {
+  width: 100%;
+  max-width: 600px;
+  margin: 30px auto 20px auto;
+  padding: 20px;
+  border: 2px dashed #aaa;
+  border-radius: 8px;
+  text-align: center;
+  background-color: #f0f0f0;
+}
+
+#music-upload h2 {
+  margin-bottom: 10px;
+}
+
+#music-upload input[type="file"] {
+  padding: 8px;
+  font-size: 16px;
+}
 #video-tracks {
   width: 100%;
   max-width: 600px;
