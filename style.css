@@ -12,7 +12,13 @@
   margin: 40px auto;
   cursor: pointer;
   user-select: none;
-}
+}const diceUI = document.getElementById('dice-ui');
+
+diceUI.addEventListener('click', () => {
+  console.log('🎲 Dice rolled! (Placeholder)');
+  // We’ll hook this up to editing logic in Step 14
+});
+
 
 .dice {
   width: 80px;
