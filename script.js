@@ -1,22 +1,41 @@
 function rollDice() {
-  alert("Dice rolled! Random edit in progress...");
+  const videos = document.querySelectorAll('.video-track video');
+
+  if (videos.length < 10) {
+    alert("Make sure all 10 videos are loaded first!");
+    return;
+  }
+
+  console.log('🎲 Shuffling 8-bar segments...');
+
+  const segmentDuration = 8 * 2; // 8 bars at 2s per bar (adjust if needed)
+  const numSegments = 4; // How many segments in your remix
+
+  const sequence = [];
+
+  for (let i = 0; i < numSegments; i++) {
+    const trackIndex = Math.floor(Math.random() * videos.length);
+    const startTime = i * segmentDuration;
+
+    sequence.push({ trackIndex, startTime });
+  }
+
+  console.log('🧪 Remix sequence:', sequence);
+
+  // Reset all borders
+  videos.forEach(video => video.style.border = '2px solid transparent');
+
+  // Highlight selected videos
+  sequence.forEach(item => {
+    const vid = videos[item.trackIndex];
+    if (vid) {
+      vid.currentTime = item.startTime;
+      vid.play();
+      vid.style.border = '3px solid #00cc66';
+    }
+  });
 }
 
-// Get all Record buttons
-const recordButtons = document.querySelectorAll('.record-btn');
-recordButtons.forEach((btn, index) => {
-  btn.addEventListener('click', () => {
-    console.log(`🎙️ Record button clicked on track ${index + 1}`);
-  });
-});
-
-// Get all Upload buttons
-const uploadButtons = document.querySelectorAll('.upload-btn');
-uploadButtons.forEach((btn, index) => {
-  btn.addEventListener('click', () => {
-    console.log(`📁 Upload button clicked on track ${index + 1}`);
-  });
-});
 
 document.addEventListener('DOMContentLoaded', () => {
   const diceUI = document.getElementById('dice-ui');
