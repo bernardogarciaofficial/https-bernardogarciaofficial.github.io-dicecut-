@@ -7,7 +7,26 @@
   border-radius: 8px;
   text-align: center;
   background-color: #f0f0f0;
+}#dice-ui {
+  text-align: center;
+  margin: 40px auto;
+  cursor: pointer;
+  user-select: none;
 }
+
+.dice {
+  width: 80px;
+  margin: 0 10px;
+  transition: transform 0.3s ease;
+}
+
+.roll-label {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: #333;
+}
+
 
 #music-upload h2 {
   margin-bottom: 10px;
