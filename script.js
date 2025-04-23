@@ -1,3 +1,4 @@
+// Dice Rolling Function
 function rollDice() {
   const videos = document.querySelectorAll('.video-track video');
 
@@ -36,10 +37,11 @@ function rollDice() {
   });
 }
 
-
+// Wait for the DOM to fully load
 document.addEventListener('DOMContentLoaded', () => {
-  const diceUI = document.getElementById('dice-ui');
 
+  // Set up Dice Button
+  const diceUI = document.getElementById('dice-ui');
   diceUI.addEventListener('click', () => {
     const videoTracks = document.querySelectorAll('.video-track video');
 
@@ -69,10 +71,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log('🧪 Shuffle Result:', shuffledSequence);
 
+    // Reset the video track borders
     videoTracks.forEach((video) => {
       video.style.border = '2px solid transparent';
     });
 
+    // Highlight selected videos
     shuffledSequence.forEach(item => {
       const vid = videoTracks[item.track];
       if (vid) {
@@ -84,10 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Video recording logic
   document.querySelectorAll('.video-track').forEach((track, index) => {
     const recordBtn = track.querySelector('.record-btn');
+    const uploadBtn = track.querySelector('.upload-btn');
     const preview = track.querySelector('.preview');
     let mediaRecorder;
     let recordedChunks = [];
 
+    // Handle recording button click
     recordBtn.addEventListener('click', async () => {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       preview.srcObject = stream;
@@ -112,7 +118,13 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         mediaRecorder.stop();
         stream.getTracks().forEach(track => track.stop());
-      }, 15000);
+      }, 15000); // Stop after 15 seconds (you can adjust this)
+    });
+
+    // Handle upload button click (you can later link this to a file input)
+    uploadBtn.addEventListener('click', () => {
+      alert(`Upload functionality for Track ${index + 1} not yet implemented.`);
+      // Here you can trigger a file input or upload process
     });
   });
 });
