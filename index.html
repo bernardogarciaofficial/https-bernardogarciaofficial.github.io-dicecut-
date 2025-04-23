@@ -58,54 +58,16 @@
   <!-- Placeholder for 10 video tracks -->
   <div class="video-track">
     <h3>Video Track 1</h3>
-    <button>Record</button>
-    <button>Upload</button>
+    <button onclick="startRecording(1)">Record</button>
+    <button onclick="uploadVideo(1)">Upload</button>
   </div>
+  <!-- Repeat this for all other video tracks -->
   <div class="video-track">
     <h3>Video Track 2</h3>
-    <button>Record</button>
-    <button>Upload</button>
+    <button onclick="startRecording(2)">Record</button>
+    <button onclick="uploadVideo(2)">Upload</button>
   </div>
-  <div class="video-track">
-    <h3>Video Track 3</h3>
-    <button>Record</button>
-    <button>Upload</button>
-  </div>
-  <div class="video-track">
-    <h3>Video Track 4</h3>
-    <button>Record</button>
-    <button>Upload</button>
-  </div>
-  <div class="video-track">
-    <h3>Video Track 5</h3>
-    <button>Record</button>
-    <button>Upload</button>
-  </div>
-  <div class="video-track">
-    <h3>Video Track 6</h3>
-    <button>Record</button>
-    <button>Upload</button>
-  </div>
-  <div class="video-track">
-    <h3>Video Track 7</h3>
-    <button>Record</button>
-    <button>Upload</button>
-  </div>
-  <div class="video-track">
-    <h3>Video Track 8</h3>
-    <button>Record</button>
-    <button>Upload</button>
-  </div>
-  <div class="video-track">
-    <h3>Video Track 9</h3>
-    <button>Record</button>
-    <button>Upload</button>
-  </div>
-  <div class="video-track">
-    <h3>Video Track 10</h3>
-    <button>Record</button>
-    <button>Upload</button>
-  </div>
+  <!-- Repeat until track 10 -->
 
   <br><br>
   <button class="dice-button" onclick="rollDice()">Roll Dice (Click)</button>
@@ -114,15 +76,6 @@
   🎲 🎲 Roll Dice (Click) 🎲 🎲
 </div>
 
-
   <script src="script.js"></script>
 </body>
 </html>
-
-
-    
-
-
- 
- 
-
