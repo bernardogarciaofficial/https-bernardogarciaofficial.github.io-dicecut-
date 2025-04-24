@@ -1,130 +1,87 @@
-// Dice Rolling Function
+// 🎲 Dice Rolling Logic
 function rollDice() {
-  const videos = document.querySelectorAll('.video-track video');
+  const videos = document.querySelectorAll('.preview');
 
   if (videos.length < 10) {
     alert("Make sure all 10 videos are loaded first!");
     return;
   }
 
-  console.log('🎲 Shuffling 8-bar segments...');
-
-  const segmentDuration = 8 * 2; // 8 bars at 2s per bar (adjust if needed)
-  const numSegments = 4; // How many segments in your remix
-
+  const segmentDuration = 8 * 2; // 8 bars at 2s each
+  const numSegments = 4;
   const sequence = [];
 
   for (let i = 0; i < numSegments; i++) {
     const trackIndex = Math.floor(Math.random() * videos.length);
     const startTime = i * segmentDuration;
-
     sequence.push({ trackIndex, startTime });
   }
 
-  console.log('🧪 Remix sequence:', sequence);
+  videos.forEach(video => {
+    video.pause();
+    video.style.borderColor = 'transparent';
+  });
 
-  // Reset all borders
-  videos.forEach(video => video.style.border = '2px solid transparent');
-
-  // Highlight selected videos
   sequence.forEach(item => {
     const vid = videos[item.trackIndex];
     if (vid) {
       vid.currentTime = item.startTime;
       vid.play();
-      vid.style.border = '3px solid #00cc66';
+      vid.classList.add('playing');
+      setTimeout(() => vid.classList.remove('playing'), segmentDuration * 1000);
     }
   });
 }
 
-// Wait for the DOM to fully load
-document.addEventListener('DOMContentLoaded', () => {
+// 🎚️ Theme Toggle
+document.getElementById('themeSwitch').addEventListener('change', (e) => {
+  document.documentElement.setAttribute('data-theme', e.target.checked ? 'light' : 'dark');
+});
 
-  // Set up Dice Button
-  const diceUI = document.getElementById('dice-ui');
-  diceUI.addEventListener('click', () => {
-    const videoTracks = document.querySelectorAll('.video-track video');
+// 🎲 Dice UI Click
+document.getElementById('dice-ui').addEventListener('click', rollDice);
 
-    if (videoTracks.length < 10) {
-      console.warn('Not all video tracks are loaded yet.');
-      return;
-    }
+// 🎥 Recording Logic
+document.querySelectorAll('.video-track').forEach(track => {
+  const recordBtn = track.querySelector('.record-btn');
+  const preview = track.querySelector('.preview');
+  const spinner = track.querySelector('.spinner');
 
-    console.log('🎲 Shuffling 8-bar segments...');
+  let mediaRecorder;
+  let recordedChunks = [];
 
-    const barLength = 4; // seconds
-    const barsPerSegment = 8;
-    const totalSegments = 5;
+  recordBtn.addEventListener('click', async () => {
+    spinner.classList.remove('hidden');
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    preview.srcObject = stream;
 
-    let shuffledSequence = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.start();
+    recordedChunks = [];
 
-    for (let i = 0; i < totalSegments; i++) {
-      const randomTrackIndex = Math.floor(Math.random() * videoTracks.length);
-      const startTime = i * barLength * barsPerSegment;
+    mediaRecorder.ondataavailable = e => {
+      if (e.data.size > 0) recordedChunks.push(e.data);
+    };
 
-      shuffledSequence.push({
-        track: randomTrackIndex,
-        start: startTime,
-        duration: barLength * barsPerSegment
-      });
-    }
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(recordedChunks, { type: 'video/webm' });
+      const videoURL = URL.createObjectURL(blob);
+      preview.srcObject = null;
+      preview.src = videoURL;
+      preview.controls = true;
+      spinner.classList.add('hidden');
+    };
 
-    console.log('🧪 Shuffle Result:', shuffledSequence);
-
-    // Reset the video track borders
-    videoTracks.forEach((video) => {
-      video.style.border = '2px solid transparent';
-    });
-
-    // Highlight selected videos
-    shuffledSequence.forEach(item => {
-      const vid = videoTracks[item.track];
-      if (vid) {
-        vid.style.border = '3px solid #00cc66';
-      }
-    });
-  });
-
-  // Video recording logic
-  document.querySelectorAll('.video-track').forEach((track, index) => {
-    const recordBtn = track.querySelector('.record-btn');
-    const uploadBtn = track.querySelector('.upload-btn');
-    const preview = track.querySelector('.preview');
-    let mediaRecorder;
-    let recordedChunks = [];
-
-    // Handle recording button click
-    recordBtn.addEventListener('click', async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      preview.srcObject = stream;
-
-      mediaRecorder = new MediaRecorder(stream);
-      mediaRecorder.start();
-      recordedChunks = [];
-
-      mediaRecorder.ondataavailable = event => {
-        if (event.data.size > 0) recordedChunks.push(event.data);
-      };
-
-      mediaRecorder.onstop = () => {
-        const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
-        const videoURL = URL.createObjectURL(recordedBlob);
-        preview.srcObject = null;
-        preview.src = videoURL;
-        preview.controls = true;
-      };
-
-      // Auto-stop after 15 seconds (optional for testing)
-      setTimeout(() => {
-        mediaRecorder.stop();
-        stream.getTracks().forEach(track => track.stop());
-      }, 15000); // Stop after 15 seconds (you can adjust this)
-    });
-
-    // Handle upload button click (you can later link this to a file input)
-    uploadBtn.addEventListener('click', () => {
-      alert(`Upload functionality for Track ${index + 1} not yet implemented.`);
-      // Here you can trigger a file input or upload process
-    });
+    setTimeout(() => {
+      mediaRecorder.stop();
+      stream.getTracks().forEach(t => t.stop());
+    }, 15000);
   });
 });
+
+// 📂 Drag & Drop Upload for Music
+const musicZone = document.getElementById('music-upload');
+const audioInput = document.getElementById('audioInput');
+
+musicZone.addEventListener('click', () => audioInput.click());
+musicZone.addEventListener('dragover', (
