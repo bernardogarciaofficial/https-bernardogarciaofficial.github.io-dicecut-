@@ -2,44 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DiceCut</title>
   <link rel="stylesheet" href="style.css">
-  <script defer src="script.js"></script>
 </head>
 <body>
   <h1>🎲 DiceCut</h1>
 
-  <!-- Theme Toggle -->
-  <label for="theme-toggle">🌗 Light/Dark Mode</label>
-  <input type="checkbox" id="theme-toggle">
+  <!-- Light/Dark Mode Toggle -->
+  <button id="theme-toggle">🌗 Light/Dark Mode</button>
 
   <!-- Music Upload Section -->
   <div id="music-upload">
     <h2>Upload Your Music Track</h2>
-    <input type="file" id="music-upload-input" accept="audio/*">
-    <button id="music-delete-btn" style="display:none;">❌ Delete Music</button>
+    <input type="file" accept="audio/*" />
   </div>
 
-  <!-- Video Track Section -->
-  <div id="video-tracks">
-    ${[...Array(10)].map((_, i) => `
-      <div class="video-track">
-        <h3>Video Track ${i + 1}</h3>
-        <button class="record-btn">🎥 Record</button>
-        <button class="upload-btn">📁 Upload</button>
-        <video class="preview" controls></video>
-        <button class="delete-btn">❌ Delete</button>
-        <div class="spinner"></div>
-      </div>
-    `).join('')}
-  </div>
+  <!-- Video Tracks Container -->
+  <div id="video-tracks-container"></div>
 
   <!-- Dice Roll Section -->
   <button class="dice-button" onclick="rollDice()">🎲 Roll the Dice</button>
-  <div id="dice-ui">
-    🎲 🎲 Tap to Mix! 🎲
-  </div>
+  <div id="dice-ui">🎲 🎲 Tap to Mix! 🎲 🎲</div>
 
+  <script src="script.js"></script>
 </body>
 </html>
