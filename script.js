@@ -1,87 +1,100 @@
-// 🎲 Dice Rolling Logic
-function rollDice() {
-  const videos = document.querySelectorAll('.preview');
-
-  if (videos.length < 10) {
-    alert("Make sure all 10 videos are loaded first!");
-    return;
-  }
-
-  const segmentDuration = 8 * 2; // 8 bars at 2s each
-  const numSegments = 4;
-  const sequence = [];
-
-  for (let i = 0; i < numSegments; i++) {
-    const trackIndex = Math.floor(Math.random() * videos.length);
-    const startTime = i * segmentDuration;
-    sequence.push({ trackIndex, startTime });
-  }
-
-  videos.forEach(video => {
-    video.pause();
-    video.style.borderColor = 'transparent';
+document.addEventListener('DOMContentLoaded', () => {
+  // Toggle Light/Dark Mode
+  const themeToggle = document.getElementById('theme-toggle');
+  themeToggle.addEventListener('change', () => {
+    document.body.classList.toggle('dark-mode', themeToggle.checked);
   });
 
-  sequence.forEach(item => {
-    const vid = videos[item.trackIndex];
-    if (vid) {
-      vid.currentTime = item.startTime;
-      vid.play();
-      vid.classList.add('playing');
-      setTimeout(() => vid.classList.remove('playing'), segmentDuration * 1000);
+  // Handle video track recording logic
+  document.querySelectorAll('.video-track').forEach((track, index) => {
+    const recordBtn = track.querySelector('.record-btn');
+    const preview = track.querySelector('.preview');
+    const spinner = track.querySelector('.spinner');
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    recordBtn.addEventListener('click', async () => {
+      spinner.style.display = 'inline-block'; // Show spinner while recording
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      preview.srcObject = stream;
+
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.start();
+      recordedChunks = [];
+
+      mediaRecorder.ondataavailable = event => {
+        if (event.data.size > 0) recordedChunks.push(event.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
+        const videoURL = URL.createObjectURL(recordedBlob);
+        preview.srcObject = null;
+        preview.src = videoURL;
+        preview.controls = true;
+        spinner.style.display = 'none'; // Hide spinner after recording
+      };
+
+      // Auto-stop after 15 seconds (optional for testing)
+      setTimeout(() => {
+        mediaRecorder.stop();
+        stream.getTracks().forEach(track => track.stop());
+      }, 15000);
+    });
+  });
+
+  // Handle file upload for video tracks
+  document.querySelectorAll('.video-track .upload-btn').forEach((uploadBtn, index) => {
+    const preview = uploadBtn.closest('.video-track').querySelector('.preview');
+    uploadBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'video/*';
+
+      input.addEventListener('change', () => {
+        const file = input.files[0];
+        const url = URL.createObjectURL(file);
+        preview.src = url;
+        preview.controls = true;
+      });
+
+      input.click();
+    });
+  });
+
+  // Handle Dice Roll Logic
+  const rollDiceButton = document.querySelector('.dice-button');
+  rollDiceButton.addEventListener('click', () => {
+    const videos = document.querySelectorAll('.video-track video');
+
+    if (videos.length < 10) {
+      alert("Make sure all 10 videos are loaded first!");
+      return;
     }
-  });
-}
 
-// 🎚️ Theme Toggle
-document.getElementById('themeSwitch').addEventListener('change', (e) => {
-  document.documentElement.setAttribute('data-theme', e.target.checked ? 'light' : 'dark');
-});
+    console.log('🎲 Shuffling 8-bar segments...');
 
-// 🎲 Dice UI Click
-document.getElementById('dice-ui').addEventListener('click', rollDice);
+    const segmentDuration = 8 * 2; // 8 bars at 2s per bar (adjust if needed)
+    const numSegments = 4; // How many segments in your remix
 
-// 🎥 Recording Logic
-document.querySelectorAll('.video-track').forEach(track => {
-  const recordBtn = track.querySelector('.record-btn');
-  const preview = track.querySelector('.preview');
-  const spinner = track.querySelector('.spinner');
+    const sequence = [];
 
-  let mediaRecorder;
-  let recordedChunks = [];
+    for (let i = 0; i < numSegments; i++) {
+      const trackIndex = Math.floor(Math.random() * videos.length);
+      const startTime = i * segmentDuration;
 
-  recordBtn.addEventListener('click', async () => {
-    spinner.classList.remove('hidden');
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    preview.srcObject = stream;
+      sequence.push({ trackIndex, startTime });
+    }
 
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.start();
-    recordedChunks = [];
+    console.log('🧪 Remix sequence:', sequence);
 
-    mediaRecorder.ondataavailable = e => {
-      if (e.data.size > 0) recordedChunks.push(e.data);
-    };
+    // Reset all borders
+    videos.forEach(video => video.style.border = '2px solid transparent');
 
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(recordedChunks, { type: 'video/webm' });
-      const videoURL = URL.createObjectURL(blob);
-      preview.srcObject = null;
-      preview.src = videoURL;
-      preview.controls = true;
-      spinner.classList.add('hidden');
-    };
-
-    setTimeout(() => {
-      mediaRecorder.stop();
-      stream.getTracks().forEach(t => t.stop());
-    }, 15000);
-  });
-});
-
-// 📂 Drag & Drop Upload for Music
-const musicZone = document.getElementById('music-upload');
-const audioInput = document.getElementById('audioInput');
-
-musicZone.addEventListener('click', () => audioInput.click());
-musicZone.addEventListener('dragover', (
+    // Highlight selected videos
+    sequence.forEach(item => {
+      const vid = videos[item.trackIndex];
+      if (vid) {
+        vid.currentTime = item.startTime;
+        vid.play();
+        vid.style.border =
