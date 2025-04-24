@@ -14,50 +14,7 @@ body.dark-mode {
   color: #fff;
 }
 
-/* Heading 1 Styling */
-h1 {
-  font-size: 48px;
-  margin-bottom: 20px;
-}
-
-/* Dice Button Styling */
-.dice-button {
-  background-color: #ff4747;
-  border: none;
-  border-radius: 12px;
-  padding: 20px 40px;
-  font-size: 24px;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.dice-button:hover {
-  background-color: #e63e3e;
-}
-
-/* Dice UI Styling (for the dice images and label) */
-#dice-ui {
-  text-align: center;
-  margin: 40px auto;
-  cursor: pointer;
-  user-select: none;
-}
-
-.dice {
-  width: 80px;
-  margin: 0 10px;
-  transition: transform 0.3s ease;
-}
-
-.roll-label {
-  font-size: 24px;
-  font-weight: bold;
-  margin-top: 10px;
-  color: #333;
-}
-
-/* Light/Dark Mode Toggle Styling */
+/* Theme Toggle Styling */
 #theme-toggle {
   position: fixed;
   top: 20px;
@@ -68,6 +25,26 @@ h1 {
   color: #fff;
   border: none;
   border-radius: 5px;
+  display: inline-block;
+}
+
+#theme-toggle:checked + label {
+  background-color: #444;
+  color: white;
+}
+
+label[for="theme-toggle"] {
+  cursor: pointer;
+  font-size: 16px;
+  color: #fff;
+  background-color: #222;
+  border-radius: 5px;
+  padding: 8px 15px;
+  transition: background-color 0.3s;
+}
+
+#theme-toggle:checked + label {
+  background-color: #444;
 }
 
 /* Music Upload Section */
@@ -159,6 +136,23 @@ h1 {
   100% { transform: rotate(360deg); }
 }
 
-/* Dice Button Styling */
-.dice-button {
-  background-color: #ff4747;
+/* Drag & Drop Upload Area */
+#drag-drop-area {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 2px dashed #aaa;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+  text-align: center;
+}
+
+#drag-drop-area p {
+  margin: 0;
+  font-size: 16px;
+}
+
+#drag-drop-area:hover {
+  background-color: #e0e0e0;
+}
