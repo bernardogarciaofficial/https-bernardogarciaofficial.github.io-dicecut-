@@ -2,108 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🎲 DiceCut</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- Theme Toggle Button -->
-  <input type="checkbox" id="theme-toggle" hidden />
+  <!-- Theme Toggle -->
+  <input type="checkbox" id="theme-toggle" />
   <label for="theme-toggle">🌗 Light/Dark Mode</label>
 
+  <!-- Title -->
   <h1>🎲 DiceCut</h1>
 
   <!-- Music Upload Section -->
   <div id="music-upload">
     <h2>Upload Your Music Track</h2>
-    <div id="drag-drop-area">
-      <p>🎵 Drag & drop or click to upload</p>
-      <input type="file" accept="audio/*" style="margin-top:10px;">
-    </div>
+    <p>🎵 Drag & drop or click to upload</p>
+    <input type="file" id="music-file" accept="audio/*">
   </div>
 
-  <!-- 10 Video Tracks -->
+  <!-- Video Track Section -->
   <div id="video-tracks">
-    <div class="video-track">
-      <h3>Video Track 1</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-    <div class="video-track">
-      <h3>Video Track 2</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-    <div class="video-track">
-      <h3>Video Track 3</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-    <div class="video-track">
-      <h3>Video Track 4</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-    <div class="video-track">
-      <h3>Video Track 5</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-    <div class="video-track">
-      <h3>Video Track 6</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-    <div class="video-track">
-      <h3>Video Track 7</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-    <div class="video-track">
-      <h3>Video Track 8</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-    <div class="video-track">
-      <h3>Video Track 9</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-    <div class="video-track">
-      <h3>Video Track 10</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
+    ${[...Array(10)].map((_, i) => `
+      <div class="video-track">
+        <h3>Video Track ${i + 1}</h3>
+        <button class="record-btn">🎥 Record</button>
+        <button class="upload-btn">📁 Upload</button>
+        <video class="preview" controls></video>
+        <div class="spinner"></div>
+      </div>
+    `).join('')}
   </div>
 
-  <!-- Dice Button -->
-  <button class="dice-button" onclick="rollDice()">🎲 Roll the Dice</button>
+  <!-- Roll the Dice Section -->
+  <div id="dice-ui">
+    <button id="dice-button">🎲 Roll the Dice</button>
+    <p class="roll-label">🎲 🎲 Tap to Mix! 🎲</p>
+  </div>
 
-  <!-- Dice UI -->
-  <div id="dice-ui">🎲 🎲 Tap to Mix! 🎲</div>
+  <!-- Drag and Drop Section -->
+  <div id="drag-drop-area">
+    <p>Drag & drop or click to upload a file</p>
+  </div>
 
-  <!-- Link JS File -->
   <script src="script.js"></script>
-
 </body>
 </html>
