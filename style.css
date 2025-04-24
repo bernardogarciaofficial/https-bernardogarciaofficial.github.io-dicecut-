@@ -1,151 +1,89 @@
-/* 🔧 General Layout */
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #111;
-  color: #fff;
-  text-align: center;
-  padding: 40px 20px;
-  margin: 0;
+/* 🌍 Base Styles */
+:root {
+  --bg-color: #111;
+  --text-color: #fff;
+  --card-bg: #222;
+  --accent: #ff4747;
+  --border-color: #444;
+  --hover-bg: #333;
+  --highlight: #00cc66;
 }
 
-/* 🔠 Headings */
+[data-theme="light"] {
+  --bg-color: #f2f2f2;
+  --text-color: #111;
+  --card-bg: #fff;
+  --accent: #0077ff;
+  --border-color: #ccc;
+  --hover-bg: #eee;
+  --highlight: #0c8;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  padding: 30px 20px;
+  margin: 0;
+  transition: background 0.3s ease, color 0.3s ease;
+  text-align: center;
+}
+
+/* 🔠 Typography */
 h1 {
   font-size: 48px;
   margin-bottom: 20px;
 }
 
 h2, h3 {
-  margin: 0 0 10px;
+  margin-bottom: 10px;
 }
 
-/* 🎶 Music Upload Section */
-#music-upload {
-  max-width: 600px;
-  margin: 30px auto 20px;
-  padding: 20px;
-  border: 2px dashed #aaa;
-  border-radius: 8px;
-  background-color: #1e1e1e;
-}
-
-#music-upload input[type="file"] {
-  padding: 10px;
-  font-size: 16px;
-  background-color: #fff;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-}
-
-/* 🎥 Video Tracks Container */
-#video-tracks {
-  max-width: 800px;
-  margin: 0 auto;
+/* 🎛 Theme Toggle */
+.theme-toggle {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-/* 🎛️ Individual Video Track */
-.video-track {
-  background-color: #222;
-  border: 2px solid #444;
-  padding: 20px;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  position: relative;
 }
 
-.video-track h3 {
-  font-size: 20px;
-  margin-bottom: 12px;
+.theme-toggle input {
+  display: none;
 }
 
-/* 🎬 Video Preview (Optional if added later) */
-.preview {
-  width: 100%;
-  max-width: 480px;
-  height: auto;
-  margin: 10px 0;
-  border-radius: 6px;
-  background-color: #000;
+.theme-toggle .slider {
+  width: 50px;
+  height: 26px;
+  background-color: var(--border-color);
+  border-radius: 15px;
+  position: relative;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: background 0.3s ease;
 }
 
-/* ⏺️ Buttons for Record/Upload */
-.video-track button {
-  margin: 5px;
-  padding: 10px 20px;
-  font-size: 15px;
+.theme-toggle .slider::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  background: var(--accent);
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle input:checked + .slider::before {
+  transform: translateX(24px);
+}
+
+.theme-toggle .label {
   font-weight: 600;
-  border: none;
-  border-radius: 6px;
-  background-color: #555;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.video-track button:hover {
-  background-color: #777;
-}
-
-/* 🎲 Dice Button Styling */
-.dice-button {
-  background-color: #ff4747;
-  border: none;
-  border-radius: 12px;
-  padding: 20px 40px;
-  font-size: 24px;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  margin-top: 40px;
-}
-
-.dice-button:hover {
-  background-color: #e63e3e;
-  transform: scale(1.05);
-}
-
-/* 🎲 Dice Display UI */
-#dice-ui {
-  font-size: 32px;
-  margin-top: 30px;
-  cursor: pointer;
-  user-select: none;
-  color: #ffc107;
-  transition: transform 0.2s ease;
-}
-
-#dice-ui:hover {
-  transform: scale(1.1);
-}
-
-/* 🟩 Highlighted Video When Playing */
-.video-track video {
-  border-radius: 6px;
-  border: 3px solid transparent;
-  transition: border-color 0.3s ease;
-}
-
-.video-track video.playing {
-  border-color: #00cc66;
-}
-
-/* 📱 Responsive Design */
-@media (max-width: 768px) {
-  .video-track {
-    padding: 15px;
-  }
-
-  .dice-button {
-    width: 90%;
-    font-size: 20px;
-    padding: 15px;
-  }
-
-  #music-upload input[type="file"] {
-    width: 100%;
-  }
-}
+/* 📂 Drag & Drop Zones */
+.drop-zone {
+  border: 2px dashed var(--border-color);
+  background-color: var(--
