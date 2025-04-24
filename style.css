@@ -1,19 +1,96 @@
-/* General Body Styling */
+/* 🔧 General Layout */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #111;
   color: #fff;
   text-align: center;
-  padding: 40px;
+  padding: 40px 20px;
+  margin: 0;
 }
 
-/* Heading 1 Styling */
+/* 🔠 Headings */
 h1 {
   font-size: 48px;
   margin-bottom: 20px;
 }
 
-/* Dice Button Styling */
+h2, h3 {
+  margin: 0 0 10px;
+}
+
+/* 🎶 Music Upload Section */
+#music-upload {
+  max-width: 600px;
+  margin: 30px auto 20px;
+  padding: 20px;
+  border: 2px dashed #aaa;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+}
+
+#music-upload input[type="file"] {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #fff;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+/* 🎥 Video Tracks Container */
+#video-tracks {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 🎛️ Individual Video Track */
+.video-track {
+  background-color: #222;
+  border: 2px solid #444;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.video-track h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+}
+
+/* 🎬 Video Preview (Optional if added later) */
+.preview {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  margin: 10px 0;
+  border-radius: 6px;
+  background-color: #000;
+}
+
+/* ⏺️ Buttons for Record/Upload */
+.video-track button {
+  margin: 5px;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  background-color: #555;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.video-track button:hover {
+  background-color: #777;
+}
+
+/* 🎲 Dice Button Styling */
 .dice-button {
   background-color: #ff4747;
   border: none;
@@ -22,104 +99,53 @@ h1 {
   font-size: 24px;
   color: white;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 40px;
 }
 
 .dice-button:hover {
   background-color: #e63e3e;
+  transform: scale(1.05);
 }
 
-/* Dice UI Styling (for the dice images and label) */
+/* 🎲 Dice Display UI */
 #dice-ui {
-  text-align: center;
-  margin: 40px auto;
+  font-size: 32px;
+  margin-top: 30px;
   cursor: pointer;
   user-select: none;
+  color: #ffc107;
+  transition: transform 0.2s ease;
 }
 
-.dice {
-  width: 80px;
-  margin: 0 10px;
-  transition: transform 0.3s ease;
+#dice-ui:hover {
+  transform: scale(1.1);
 }
 
-.roll-label {
-  font-size: 24px;
-  font-weight: bold;
-  margin-top: 10px;
-  color: #333;
+/* 🟩 Highlighted Video When Playing */
+.video-track video {
+  border-radius: 6px;
+  border: 3px solid transparent;
+  transition: border-color 0.3s ease;
 }
 
-/* Music Upload Section */
-#music-upload {
-  width: 100%;
-  max-width: 600px;
-  margin: 30px auto 20px auto;
-  padding: 20px;
-  border: 2px dashed #aaa;
-  border-radius: 8px;
-  text-align: center;
-  background-color: #f0f0f0;
+.video-track video.playing {
+  border-color: #00cc66;
 }
 
-#music-upload h2 {
-  margin-bottom: 10px;
-}
+/* 📱 Responsive Design */
+@media (max-width: 768px) {
+  .video-track {
+    padding: 15px;
+  }
 
-#music-upload input[type="file"] {
-  padding: 8px;
-  font-size: 16px;
-}
+  .dice-button {
+    width: 90%;
+    font-size: 20px;
+    padding: 15px;
+  }
 
-/* Video Track Section */
-#video-tracks {
-  width: 100%;
-  max-width: 600px;
-  margin: 20px auto;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.video-track {
-  padding: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f8f8f8;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.video-track h3 {
-  margin: 0;
-  font-size: 18px;
-  flex: 1;
-}
-
-.video-track button {
-  margin-left: 10px;
-  padding: 8px 12px;
-  font-size: 14px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.video-track button:hover {
-  background-color: #ddd;
-}
-
-/* Video Track Border Styling */
-.video-track {
-  background-color: #222;
-  border: 2px solid #444;
-  margin: 10px auto;
-  padding: 20px;
-  width: 80%;
-  border-radius: 8px;
-}
-
-.video-track h3 {
-  margin-bottom: 10px;
+  #music-upload input[type="file"] {
+    width: 100%;
+  }
 }
