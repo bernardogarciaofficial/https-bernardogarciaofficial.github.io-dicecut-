@@ -1,26 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>DiceCut</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>🎲 DiceCut</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <button id="theme-toggle">🌗 Light/Dark Mode</button>
   <h1>🎲 DiceCut</h1>
 
-  <!-- Light/Dark Mode Toggle -->
-  <button id="theme-toggle">🌗 Light/Dark Mode</button>
-
-  <!-- Music Upload Section -->
-  <div id="music-upload">
+  <section id="music-upload">
     <h2>Upload Your Music Track</h2>
-    <input type="file" accept="audio/*" />
+    <div id="drag-drop-area">
+      <p>🎵 Drag & drop or click to upload</p>
+      <input type="file" accept="audio/*" id="music-input" />
+      <button id="delete-music">❌ Delete</button>
+    </div>
+  </section>
+
+  <div id="video-tracks">
+    <!-- JavaScript dynamically injects 10 video track elements here -->
   </div>
 
-  <!-- Video Tracks Container -->
-  <div id="video-tracks-container"></div>
-
-  <!-- Dice Roll Section -->
   <button class="dice-button" onclick="rollDice()">🎲 Roll the Dice</button>
   <div id="dice-ui">🎲 🎲 Tap to Mix! 🎲 🎲</div>
 
