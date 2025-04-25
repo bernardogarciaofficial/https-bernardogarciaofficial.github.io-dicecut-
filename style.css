@@ -17,6 +17,12 @@
   margin-top: 10px;
   display: none; /* Hide video preview until file is selected */
 }
+.video-track video.preview {
+  width: 150px;
+  height: auto;
+  margin-top: 10px;
+  border-radius: 6px;
+}
 
 .video-track .spinner {
   display: none; /* Hide spinner for now */
