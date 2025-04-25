@@ -46,9 +46,13 @@
         document.getElementById('member-count').textContent = 'Unavailable';
       });
 
-    // Dynamically generate 10 video tracks
+    // Dynamically generate 10 video tracks (Only once!)
     document.addEventListener('DOMContentLoaded', function () {
       const videoTracksContainer = document.getElementById('video-tracks');
+
+      // Remove any existing tracks before adding new ones
+      videoTracksContainer.innerHTML = '';
+
       for (let i = 1; i <= 10; i++) {
         const track = document.createElement('div');
         track.className = 'video-track';
