@@ -1,102 +1,79 @@
-// Get the elements
-const themeToggle = document.getElementById('theme-toggle-checkbox');
-const videoTracksContainer = document.getElementById('video-tracks');
+document.addEventListener("DOMContentLoaded", function () {
+  const videoTracksContainer = document.getElementById("video-tracks-container");
+  const memberCountElement = document.getElementById("member-count");
+  const lightDarkModeToggle = document.getElementById("light-dark-mode-toggle");
+  let isDarkMode = false;
 
-// Function to toggle light/dark theme
-themeToggle.addEventListener('change', () => {
-  document.body.classList.toggle('dark-mode', themeToggle.checked);
+  // Create 10 video tracks dynamically
+  for (let i = 1; i <= 10; i++) {
+    const videoTrackDiv = document.createElement("div");
+    videoTrackDiv.classList.add("video-track");
+    videoTrackDiv.innerHTML = `
+      <h3>Video Track ${i}</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
+      <div class="spinner" style="display: none;"></div>
+    `;
+    videoTracksContainer.appendChild(videoTrackDiv);
+  }
+
+  // Initialize light/dark mode toggle
+  lightDarkModeToggle.addEventListener("click", function () {
+    document.body.classList.toggle("dark-mode");
+    document.body.classList.toggle("light-mode");
+    isDarkMode = !isDarkMode;
+  });
+
+  // Fetch and update member count from the backend
+  fetch('get_member_count.php')
+    .then(response => response.json())
+    .then(data => {
+      if (data && data.memberCount !== undefined) {
+        memberCountElement.textContent = data.memberCount;
+      } else {
+        memberCountElement.textContent = "Unavailable";
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching member count:', error);
+      memberCountElement.textContent = "Unavailable";
+    });
+
+  // Record functionality
+  const recordBtns = document.querySelectorAll(".record-btn");
+  recordBtns.forEach((recordBtn, index) => {
+    recordBtn.addEventListener("click", async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const preview = document.querySelectorAll("video.preview")[index];
+        preview.srcObject = stream;
+        preview.style.display = 'block';
+        preview.play();
+      } catch (err) {
+        alert("Camera access denied or unavailable. Please check your camera settings.");
+        console.error("Error accessing camera:", err);
+      }
+    });
+  });
+
+  // Upload functionality
+  const uploadBtns = document.querySelectorAll(".upload-btn");
+  uploadBtns.forEach((uploadBtn, index) => {
+    uploadBtn.addEventListener("click", () => {
+      alert("Upload functionality will be implemented here.");
+    });
+  });
+
+  // Delete functionality
+  const deleteBtns = document.querySelectorAll(".delete-btn");
+  deleteBtns.forEach((deleteBtn, index) => {
+    deleteBtn.addEventListener("click", () => {
+      alert("Delete functionality will be implemented here.");
+    });
+  });
 });
 
-// Function to generate video tracks dynamically
-function generateVideoTracks() {
-  const numberOfTracks = 10; // We want 10 video tracks
-  let videoTracksHTML = '';
 
-  // Loop to create the video track HTML
-  for (let i = 1; i <= numberOfTracks; i++) {
-    videoTracksHTML += `
-      <div class="video-track" id="video-track-${i}">
-        <h3>Video Track ${i}</h3>
-        <button class="record-btn">🎥 Record</button>
-        <button class="upload-btn">📁 Upload</button>
-        <button class="delete-btn">❌ Delete</button>
-        <video class="preview" controls></video>
-      </div>
-    `;
-  }
 
-  // Insert the generated video track HTML into the container
-  videoTracksContainer.innerHTML = videoTracksHTML;
-
-  // Now handle the event listeners for the dynamically created buttons
-  const recordBtns = document.querySelectorAll('.record-btn');
-  const uploadBtns = document.querySelectorAll('.upload-btn');
-  const deleteBtns = document.querySelectorAll('.delete-btn');
-  const previews = document.querySelectorAll('.preview');
-
-  recordBtns.forEach((button, index) => {
-    button.addEventListener('click', () => startRecording(index));
-  });
-
-  uploadBtns.forEach((button, index) => {
-    button.addEventListener('click', () => uploadFile(index));
-  });
-
-  deleteBtns.forEach((button, index) => {
-    button.addEventListener('click', () => deleteTrack(index));
-  });
-}
-
-// Function to start recording video
-async function startRecording(trackIndex) {
-  const videoElement = document.querySelector(`#video-track-${trackIndex + 1} .preview`);
-  
-  try {
-    // Request access to webcam
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoElement.srcObject = stream;
-    videoElement.play();
-
-    // You can now implement further logic for video recording
-    // For example, use MediaRecorder API to record the stream if needed
-
-    // Log to confirm successful video access
-    console.log('Recording started for Video Track ' + (trackIndex + 1));
-  } catch (error) {
-    console.error('Error accessing camera: ', error);
-  }
-}
-
-// Function to upload video file (you can customize it)
-function uploadFile(trackIndex) {
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.accept = 'video/*';
-
-  fileInput.onchange = function (e) {
-    const file = e.target.files[0];
-    const videoElement = document.querySelector(`#video-track-${trackIndex + 1} .preview`);
-
-    // Set the uploaded video as the source
-    const videoURL = URL.createObjectURL(file);
-    videoElement.src = videoURL;
-
-    // Log to confirm file upload
-    console.log('Video uploaded for Video Track ' + (trackIndex + 1));
-  };
-
-  fileInput.click();
-}
-
-// Function to delete video track
-function deleteTrack(trackIndex) {
-  const trackElement = document.getElementById(`video-track-${trackIndex + 1}`);
-  trackElement.remove();
-  console.log('Deleted Video Track ' + (trackIndex + 1));
-}
-
-// Call the function to generate video tracks when the page loads
-generateVideoTracks();
-
-// Optional: Add any additional functions you might need
-// For example: For the 'Roll the Dice' and 'Mix' buttons
