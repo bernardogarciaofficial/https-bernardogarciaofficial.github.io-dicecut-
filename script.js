@@ -46,12 +46,16 @@ document.addEventListener("DOMContentLoaded", function () {
   recordBtns.forEach((recordBtn, index) => {
     recordBtn.addEventListener("click", async () => {
       try {
+        // Request camera access
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+        // If camera is available, show the preview
         const preview = document.querySelectorAll("video.preview")[index];
         preview.srcObject = stream;
         preview.style.display = 'block';
         preview.play();
       } catch (err) {
+        // Handle permission denied or other errors
         alert("Camera access denied or unavailable. Please check your camera settings.");
         console.error("Error accessing camera:", err);
       }
@@ -74,6 +78,3 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-
-
-
