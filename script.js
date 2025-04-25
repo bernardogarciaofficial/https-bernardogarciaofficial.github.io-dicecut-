@@ -1,42 +1,29 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const videoTracksContainer = document.getElementById("video-tracks");
+// Toggle between light and dark mode
+document.getElementById('theme-toggle-checkbox').addEventListener('change', function () {
+  document.body.classList.toggle('dark-mode', this.checked);
+});
 
-  // Create 10 video track blocks dynamically
-  for (let i = 1; i <= 10; i++) {
-    const track = document.createElement("div");
-    track.classList.add("video-track");
-    track.innerHTML = `
-      <h3>Video Track ${i}</h3>
+// Generate the video tracks dynamically
+window.onload = function () {
+  const videoTracksContainer = document.getElementById('video-tracks');
+  const tracks = [...Array(10)].map((_, i) => `
+    <div class="video-track">
+      <h3>Video Track ${i + 1}</h3>
       <button class="record-btn">🎥 Record</button>
       <button class="upload-btn">📁 Upload</button>
-      <video class="preview" controls></video>
       <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
       <div class="spinner"></div>
-    `;
-    videoTracksContainer.appendChild(track);
-  }
+    </div>
+  `).join('');
+  videoTracksContainer.innerHTML = tracks;
 
-  // Toggle light/dark mode
-  const themeToggle = document.getElementById("theme-toggle");
-  themeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark-mode");
-  });
-
-  // Delete music track
-  const musicInput = document.getElementById("music-input");
-  const deleteMusic = document.getElementById("delete-music");
-  deleteMusic.addEventListener("click", () => {
-    musicInput.value = "";
-  });
-
-  // Handle delete for each video track
-  document.querySelectorAll(".delete-btn").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      const track = e.target.closest(".video-track");
-      if (track) track.remove();
+  // Add event listeners to Delete buttons
+  const deleteButtons = document.querySelectorAll('.delete-btn');
+  deleteButtons.forEach(button => {
+    button.addEventListener('click', function () {
+      const videoTrack = this.closest('.video-track');
+      videoTrack.remove();
     });
   });
-
-  // Placeholder dice logic (we’ll expand this later)
-  window.rollDice = function () {
-    alert("
+};
