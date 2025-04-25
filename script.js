@@ -1,80 +1,55 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const videoTracksContainer = document.getElementById("video-tracks-container");
-  const memberCountElement = document.getElementById("member-count");
-  const lightDarkModeToggle = document.getElementById("light-dark-mode-toggle");
-  let isDarkMode = false;
+const recordBtns = document.querySelectorAll('.record-btn');
 
-  // Create 10 video tracks dynamically
-  for (let i = 1; i <= 10; i++) {
-    const videoTrackDiv = document.createElement("div");
-    videoTrackDiv.classList.add("video-track");
-    videoTrackDiv.innerHTML = `
-      <h3>Video Track ${i}</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <video class="preview" controls></video>
-      <div class="spinner" style="display: none;"></div>
-    `;
-    videoTracksContainer.appendChild(videoTrackDiv);
-  }
+// Loop through each record button and add the event listener
+recordBtns.forEach((btn, index) => {
+  let mediaRecorder;
+  let stream;
+  let isRecording = false;
+  let chunks = [];
 
-  // Initialize light/dark mode toggle
-  lightDarkModeToggle.addEventListener("click", function () {
-    document.body.classList.toggle("dark-mode");
-    document.body.classList.toggle("light-mode");
-    isDarkMode = !isDarkMode;
-  });
-
-  // Fetch and update member count from the backend
-  fetch('get_member_count.php')
-    .then(response => response.json())
-    .then(data => {
-      if (data && data.memberCount !== undefined) {
-        memberCountElement.textContent = data.memberCount;
-      } else {
-        memberCountElement.textContent = "Unavailable";
-      }
-    })
-    .catch(error => {
-      console.error('Error fetching member count:', error);
-      memberCountElement.textContent = "Unavailable";
-    });
-
-  // Record functionality
-  const recordBtns = document.querySelectorAll(".record-btn");
-  recordBtns.forEach((recordBtn, index) => {
-    recordBtn.addEventListener("click", async () => {
+  btn.addEventListener('click', async () => {
+    const videoTrack = document.querySelector(`#video-track-${index + 1} video`);
+    const recordButton = btn;
+    const videoContainer = document.querySelector(`#video-track-${index + 1}`);
+    
+    // If currently recording, stop the recording
+    if (isRecording) {
+      mediaRecorder.stop();
+      recordButton.textContent = "🎥 Record";  // Reset button text
+      videoContainer.style.border = ""; // Reset border style
+      isRecording = false;
+    } else {
       try {
-        // Request camera access
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-
-        // If camera is available, show the preview
-        const preview = document.querySelectorAll("video.preview")[index];
-        preview.srcObject = stream;
-        preview.style.display = 'block';
-        preview.play();
-      } catch (err) {
-        // Handle permission denied or other errors
+        // Request user media (camera) access
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        
+        // Set the video source to the camera stream
+        videoTrack.srcObject = stream;
+        
+        // Initialize media recorder
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = (event) => {
+          chunks.push(event.data);
+        };
+        
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: 'video/webm' });
+          const videoURL = URL.createObjectURL(blob);
+          videoTrack.srcObject = null;  // Reset the camera stream
+          videoTrack.src = videoURL;  // Set recorded video as the source
+          chunks = [];  // Reset chunks array
+        };
+        
+        // Start recording
+        mediaRecorder.start();
+        recordButton.textContent = "⏺ Stop Recording";  // Change button text
+        videoContainer.style.border = "5px solid red"; // Show red border while recording
+        isRecording = true;
+      } catch (error) {
+        // Handle error if access is denied or unavailable
         alert("Camera access denied or unavailable. Please check your camera settings.");
-        console.error("Error accessing camera:", err);
       }
-    });
-  });
-
-  // Upload functionality
-  const uploadBtns = document.querySelectorAll(".upload-btn");
-  uploadBtns.forEach((uploadBtn, index) => {
-    uploadBtn.addEventListener("click", () => {
-      alert("Upload functionality will be implemented here.");
-    });
-  });
-
-  // Delete functionality
-  const deleteBtns = document.querySelectorAll(".delete-btn");
-  deleteBtns.forEach((deleteBtn, index) => {
-    deleteBtn.addEventListener("click", () => {
-      alert("Delete functionality will be implemented here.");
-    });
+    }
   });
 });
+
