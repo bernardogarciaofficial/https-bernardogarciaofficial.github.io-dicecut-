@@ -1,29 +1,32 @@
-// Toggle between light and dark mode
-document.getElementById('theme-toggle-checkbox').addEventListener('change', function () {
-  document.body.classList.toggle('dark-mode', this.checked);
+// Handle the theme toggle
+const themeToggleCheckbox = document.getElementById("theme-toggle-checkbox");
+themeToggleCheckbox.addEventListener("change", function () {
+  document.body.classList.toggle("dark-mode", themeToggleCheckbox.checked);
 });
 
-// Generate the video tracks dynamically
-window.onload = function () {
-  const videoTracksContainer = document.getElementById('video-tracks');
-  const tracks = [...Array(10)].map((_, i) => `
-    <div class="video-track">
+// Generate video tracks dynamically
+const videoTracksContainer = document.getElementById("video-tracks");
+
+function generateVideoTracks() {
+  const videoTracksHTML = [...Array(10)].map((_, i) => `
+    <div class="video-track" id="video-track-${i + 1}">
       <h3>Video Track ${i + 1}</h3>
       <button class="record-btn">🎥 Record</button>
       <button class="upload-btn">📁 Upload</button>
       <button class="delete-btn">❌ Delete</button>
       <video class="preview" controls></video>
-      <div class="spinner"></div>
     </div>
   `).join('');
-  videoTracksContainer.innerHTML = tracks;
+  videoTracksContainer.innerHTML = videoTracksHTML;
+}
 
-  // Add event listeners to Delete buttons
-  const deleteButtons = document.querySelectorAll('.delete-btn');
-  deleteButtons.forEach(button => {
-    button.addEventListener('click', function () {
-      const videoTrack = this.closest('.video-track');
-      videoTrack.remove();
-    });
-  });
-};
+// Call function to generate video tracks on page load
+generateVideoTracks();
+
+// Handle delete functionality for each video track
+videoTracksContainer.addEventListener("click", function (event) {
+  if (event.target.classList.contains("delete-btn")) {
+    const videoTrack = event.target.closest(".video-track");
+    videoTrack.remove();
+  }
+});
