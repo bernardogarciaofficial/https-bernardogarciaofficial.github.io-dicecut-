@@ -1,43 +1,75 @@
-/* Video track styles */
-.video-track {
-  padding: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f8f8f8;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  margin-bottom: 10px;
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  color: #333;
 }
 
-.video-track video {
-  width: 100px;
-  height: 100px;
-  margin-top: 10px;
-  display: none; /* Hide video preview until file is selected */
+header {
+  text-align: center;
+  padding: 20px;
+  background-color: #282c34;
+  color: white;
 }
-.video-track video.preview {
+
+.upload-section {
+  text-align: center;
+  padding: 20px;
+}
+
+.upload-section input {
+  margin-top: 10px;
+}
+
+.video-tracks {
+  margin-top: 20px;
+}
+
+.video-track {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+button {
+  margin: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+button#roll-dice-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+button#light-dark-mode-toggle {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.member-counter {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.spinner {
+  display: none;
+  margin-top: 10px;
+}
+
+video.preview {
   width: 150px;
   height: auto;
   margin-top: 10px;
   border-radius: 6px;
 }
 
-.video-track .spinner {
-  display: none; /* Hide spinner for now */
+.light-mode {
+  background-color: #f4f4f4;
+  color: #333;
 }
 
-/* Optional: Style delete button */
-.video-track .delete-btn {
-  background-color: red;
-  color: white;
-  border: none;
-  padding: 8px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.video-track .delete-btn:hover {
-  background-color: darkred;
+.dark-mode {
+  background-color: #333;
+  color: #f4f4f4;
 }
