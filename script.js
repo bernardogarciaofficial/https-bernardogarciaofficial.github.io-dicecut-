@@ -1,45 +1,42 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const videoTracks = document.querySelectorAll('.video-track');
-  const musicDeleteBtn = document.getElementById('music-delete-btn');
-  const musicInput = document.getElementById('music-upload-input');
+document.addEventListener("DOMContentLoaded", () => {
+  const videoTracksContainer = document.getElementById("video-tracks");
 
-  // Show the delete button when a music file is uploaded
-  musicInput.addEventListener('change', () => {
-    if (musicInput.files.length > 0) {
-      musicDeleteBtn.style.display = 'inline-block'; // Show delete button
-    }
-  });
-
-  // Music delete button functionality
-  musicDeleteBtn.addEventListener('click', () => {
-    musicInput.value = ''; // Clear music input
-    musicDeleteBtn.style.display = 'none'; // Hide delete button
-    alert('Music track deleted!');
-  });
-
-  // Delete video track functionality
-  videoTracks.forEach((track, index) => {
-    const deleteBtn = track.querySelector('.delete-btn');
-    const preview = track.querySelector('.preview');
-
-    deleteBtn.addEventListener('click', () => {
-      if (preview.src) {
-        URL.revokeObjectURL(preview.src); // Clean up the object URL
-      }
-      track.remove(); // Remove the video track from the DOM
-      alert(`Video Track ${index + 1} deleted!`);
-    });
-  });
-});
-
-function rollDice() {
-  const videoTracks = document.querySelectorAll('.video-track video');
-  if (videoTracks.length < 10) {
-    alert('Make sure all 10 videos are loaded first!');
-    return;
+  // Create 10 video track blocks dynamically
+  for (let i = 1; i <= 10; i++) {
+    const track = document.createElement("div");
+    track.classList.add("video-track");
+    track.innerHTML = `
+      <h3>Video Track ${i}</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <video class="preview" controls></video>
+      <button class="delete-btn">❌ Delete</button>
+      <div class="spinner"></div>
+    `;
+    videoTracksContainer.appendChild(track);
   }
 
-  console.log('🎲 Shuffling 8-bar segments...');
+  // Toggle light/dark mode
+  const themeToggle = document.getElementById("theme-toggle");
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+  });
 
-  // Add your dice roll logic here
-}
+  // Delete music track
+  const musicInput = document.getElementById("music-input");
+  const deleteMusic = document.getElementById("delete-music");
+  deleteMusic.addEventListener("click", () => {
+    musicInput.value = "";
+  });
+
+  // Handle delete for each video track
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const track = e.target.closest(".video-track");
+      if (track) track.remove();
+    });
+  });
+
+  // Placeholder dice logic (we’ll expand this later)
+  window.rollDice = function () {
+    alert("
