@@ -1,72 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎲 DiceCut</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiceCut</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="theme-toggle">
-    <label for="theme-toggle-checkbox">🌗 Light/Dark Mode</label>
-    <input type="checkbox" id="theme-toggle-checkbox">
-  </div>
+  <header>
+    <h1>🎲 DiceCut</h1>
+  </header>
 
-  <h1>🎲 DiceCut</h1>
+  <main>
+    <section class="upload-section">
+      <h2>Upload Your Music Track</h2>
+      <p>🎵 Drag & drop or click to upload</p>
+      <input type="file" id="music-upload" accept="audio/*">
+    </section>
 
-  <!-- Music Upload Section -->
-  <div id="music-upload">
-    <h2>Upload Your Music Track</h2>
-    <p>🎵 Drag & drop or click to upload</p>
-    <input type="file" id="music-upload-input">
-    <div id="music-upload-message"></div>
-  </div>
+    <section class="video-tracks">
+      <h3>Video Tracks</h3>
+      <!-- Generate Video Track Blocks Dynamically (10 video tracks) -->
+      <div id="video-tracks-container"></div>
+    </section>
 
-  <!-- Video Tracks Section (Will be generated dynamically) -->
-  <div id="video-tracks"></div>
+    <div class="member-counter">
+      <p>👥 Members joined: <span id="member-count">Unavailable</span></p>
+    </div>
 
-  <!-- Control Buttons -->
-  <button id="roll-dice-btn" class="dice-button">🎲 Roll the Dice</button>
-  <button id="mix-btn" class="dice-button">🎲 Tap to Mix!</button>
-
-  <!-- Member Counter -->
-  <div id="member-counter" style="margin-top: 20px;">
-    👥 Members joined: <span id="member-count">Loading...</span>
-  </div>
+    <footer>
+      <button id="roll-dice-btn">🎲 Roll the Dice 🎲 Tap to Mix!</button>
+      <button id="light-dark-mode-toggle">🌗 Light/Dark Mode</button>
+    </footer>
+  </main>
 
   <script src="script.js"></script>
-  <script>
-    // Fetch member count from the PHP file
-    fetch('get_member_count.php')
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('member-count').textContent = data.count || '0';
-      })
-      .catch(() => {
-        document.getElementById('member-count').textContent = 'Unavailable';
-      });
-
-    // Dynamically generate 10 video tracks (Only once!)
-    document.addEventListener('DOMContentLoaded', function () {
-      const videoTracksContainer = document.getElementById('video-tracks');
-
-      // If tracks already exist, don't add them again
-      if (videoTracksContainer.children.length === 0) {
-        for (let i = 1; i <= 10; i++) {
-          const track = document.createElement('div');
-          track.className = 'video-track';
-          track.innerHTML = `
-            <h3>Video Track ${i}</h3>
-            <button class="record-btn">🎥 Record</button>
-            <button class="upload-btn">📁 Upload</button>
-            <button class="delete-btn">❌ Delete</button>
-            <video class="preview" controls></video>
-            <div class="spinner" style="display: none;"></div>
-          `;
-          videoTracksContainer.appendChild(track);
-        }
-      }
-    });
-  </script>
 </body>
 </html>
+
