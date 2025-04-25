@@ -11,12 +11,14 @@ recordBtns.forEach((btn, index) => {
     const videoTrack = document.querySelector(`#video-track-${index + 1} video`);
     const recordButton = btn;
     const videoContainer = document.querySelector(`#video-track-${index + 1}`);
+    const recordingIndicator = document.querySelector(`#video-track-${index + 1} .recording-indicator`);
     
     // If currently recording, stop the recording
     if (isRecording) {
       mediaRecorder.stop();
       recordButton.textContent = "🎥 Record";  // Reset button text
       videoContainer.style.border = ""; // Reset border style
+      recordingIndicator.style.display = "none"; // Stop blinking indicator
       isRecording = false;
     } else {
       try {
@@ -44,6 +46,7 @@ recordBtns.forEach((btn, index) => {
         mediaRecorder.start();
         recordButton.textContent = "⏺ Stop Recording";  // Change button text
         videoContainer.style.border = "5px solid red"; // Show red border while recording
+        recordingIndicator.style.display = "block"; // Show the blinking red light
         isRecording = true;
       } catch (error) {
         // Handle error if access is denied or unavailable
