@@ -1,119 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>DiceCut</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <button id="theme-toggle">🌗 Light/Dark Mode</button>
+
   <h1>🎲 DiceCut</h1>
 
   <section id="music-upload">
     <h2>Upload Your Music Track</h2>
     <div id="drag-drop-area">
       <p>🎵 Drag & drop or click to upload</p>
-      <input type="file" accept="audio/*" />
-      <button class="delete-btn">❌ Delete</button>
+      <input type="file" accept="audio/*">
     </div>
+    <button class="delete-btn">❌ Delete</button>
   </section>
 
-  <!-- 🎥 10 Video Tracks -->
-  <section id="video-tracks">
-    <div class="video-track">
-      <h3>Video Track 1</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
+  <div id="video-tracks">
+    <!-- 10 video tracks -->
+    ${[...Array(10)].map((_, i) => `
+      <div class="video-track">
+        <h3>Video Track ${i + 1}</h3>
+        <button class="record-btn">🎥 Record</button>
+        <button class="upload-btn">📁 Upload</button>
+        <button class="delete-btn">❌ Delete</button>
+        <video class="preview" controls></video>
+        <div class="spinner"></div>
+      </div>
+    `).join('')}
+  </div>
 
-    <div class="video-track">
-      <h3>Video Track 2</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-
-    <div class="video-track">
-      <h3>Video Track 3</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-
-    <div class="video-track">
-      <h3>Video Track 4</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-
-    <div class="video-track">
-      <h3>Video Track 5</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-
-    <div class="video-track">
-      <h3>Video Track 6</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-
-    <div class="video-track">
-      <h3>Video Track 7</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-
-    <div class="video-track">
-      <h3>Video Track 8</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-
-    <div class="video-track">
-      <h3>Video Track 9</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-
-    <div class="video-track">
-      <h3>Video Track 10</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-    </div>
-  </section>
-
-  <button class="dice-button" onclick="rollDice()">🎲 Roll the Dice</button>
-  <div id="dice-ui">🎲 🎲 Tap to Mix! 🎲 🎲</div>
+  <div id="dice-ui">
+    <button class="dice-button" onclick="rollDice()">🎲 Roll the Dice</button>
+    <div style="margin-top: 20px;">🎲 🎲 Tap to Mix! 🎲 🎲</div>
+  </div>
 
   <script src="script.js"></script>
 </body>
