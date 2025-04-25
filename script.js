@@ -1,78 +1,59 @@
-document.addEventListener('DOMContentLoaded', function () {
-  const videoTracksContainer = document.getElementById('video-tracks');
+// Function to handle starting the recording
+function startRecording(videoTrackId) {
+    const videoElement = document.querySelector(`#video-track-${videoTrackId} video.preview`);
+    const recordButton = document.querySelector(`#video-track-${videoTrackId} .record-btn`);
+    const spinner = document.querySelector(`#video-track-${videoTrackId} .spinner`);
+    const mediaConstraints = {
+        video: true,
+        audio: true
+    };
+    
+    // Start loading spinner
+    spinner.style.display = 'inline-block';
 
-  [...Array(10)].forEach((_, i) => {
-    const trackDiv = document.createElement('div');
-    trackDiv.classList.add('video-track');
-    trackDiv.innerHTML = `
-      <h3>Video Track ${i + 1}</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <input type="file" class="upload-input" accept="video/*" style="display:none">
-      <video class="preview" controls></video>
-      <div class="spinner"></div>
-      <button class="delete-btn">❌ Delete</button>
-    `;
+    // Access the camera and microphone
+    navigator.mediaDevices.getUserMedia(mediaConstraints)
+        .then((stream) => {
+            // Show the video preview
+            videoElement.srcObject = stream;
+            videoElement.play();
+            
+            // Disable the record button while recording
+            recordButton.disabled = true;
 
-    const uploadBtn = trackDiv.querySelector('.upload-btn');
-    const uploadInput = trackDiv.querySelector('.upload-input');
-    const videoPreview = trackDiv.querySelector('.preview');
-    const deleteBtn = trackDiv.querySelector('.delete-btn');
-    const recordBtn = trackDiv.querySelector('.record-btn');
+            const mediaRecorder = new MediaRecorder(stream);
+            const recordedChunks = [];
 
-    let mediaRecorder;
-    let recordedChunks = [];
+            // When data is available, push it to the recordedChunks array
+            mediaRecorder.ondataavailable = (event) => {
+                recordedChunks.push(event.data);
+            };
 
-    // 🎥 Handle RECORD button click
-    recordBtn.addEventListener('click', async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        videoPreview.srcObject = stream;
-        videoPreview.muted = true;
-        videoPreview.play();
+            // When recording is stopped, we can save the video
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const videoURL = URL.createObjectURL(blob);
+                videoElement.srcObject = null;
+                videoElement.src = videoURL;
+                videoElement.controls = true;
+                spinner.style.display = 'none';
+            };
 
-        mediaRecorder = new MediaRecorder(stream);
-        recordedChunks = [];
+            // Start recording
+            mediaRecorder.start();
 
-        mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) recordedChunks.push(event.data);
-        };
+            // Return the mediaRecorder and stream for later use
+            return { mediaRecorder, stream, recordButton };
+        })
+        .catch((err) => {
+            console.error("Error accessing the camera: ", err);
+            spinner.style.display = 'none';
+        });
+}
 
-        mediaRecorder.onstop = () => {
-          const blob = new Blob(recordedChunks, { type: 'video/webm' });
-          const videoURL = URL.createObjectURL(blob);
-          videoPreview.srcObject = null;
-          videoPreview.src = videoURL;
-          videoPreview.controls = true;
-        };
-
-        mediaRecorder.start();
-
-        // Auto-stop after 10 seconds
-        setTimeout(() => {
-          mediaRecorder.stop();
-          stream.getTracks().forEach(track => track.stop());
-        }, 10000);
-      } catch (err) {
-        alert("Error accessing camera: " + err.message);
-        console.error(err);
-      }
+// Add event listeners to each record button
+document.querySelectorAll('.record-btn').forEach((button, index) => {
+    button.addEventListener('click', () => {
+        startRecording(index + 1);
     });
-
-    // Upload file
-    uploadBtn.addEventListener('click', () => uploadInput.click());
-    uploadInput.addEventListener('change', function () {
-      const file = uploadInput.files[0];
-      if (file) {
-        const videoURL = URL.createObjectURL(file);
-        videoPreview.src = videoURL;
-        videoPreview.style.display = 'block';
-      }
-    });
-
-    // Delete
-    deleteBtn.addEventListener('click', () => trackDiv.remove());
-
-    videoTracksContainer.appendChild(trackDiv);
-  });
 });
