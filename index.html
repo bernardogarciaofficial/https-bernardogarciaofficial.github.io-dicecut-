@@ -22,9 +22,9 @@
     <div id="music-upload-message"></div>
   </div>
 
-  <!-- Video Tracks -->
+  <!-- Video Tracks Section -->
   <div id="video-tracks">
-    <!-- JavaScript will generate 10 video tracks here -->
+    <!-- JavaScript will dynamically generate 10 video tracks here -->
   </div>
 
   <!-- Control Buttons -->
@@ -38,7 +38,7 @@
 
   <script src="script.js"></script>
   <script>
-    // Fetch member count
+    // Fetch member count from the PHP file
     fetch('get_member_count.php')
       .then(res => res.json())
       .then(data => {
@@ -48,7 +48,7 @@
         document.getElementById('member-count').textContent = 'Unavailable';
       });
 
-    // Generate 10 video tracks dynamically
+    // Dynamically generate 10 video tracks
     const videoTracksContainer = document.getElementById('video-tracks');
     for (let i = 1; i <= 10; i++) {
       const track = document.createElement('div');
