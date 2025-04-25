@@ -1,47 +1,123 @@
-<div id="video-tracks"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiceCut</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="theme-toggle">
+    <label for="theme-toggle">🌗 Light/Dark Mode</label>
+    <input type="checkbox" id="theme-toggle-checkbox">
+  </div>
 
-<!-- The following section will dynamically generate video tracks and add file upload functionality -->
-<script>
-  // Dynamically create video tracks with upload functionality
-  document.addEventListener('DOMContentLoaded', function () {
-    const videoTracksContainer = document.getElementById('video-tracks');
-    
-    [...Array(10)].forEach((_, i) => {
-      const trackDiv = document.createElement('div');
-      trackDiv.classList.add('video-track');
-      trackDiv.innerHTML = `
-        <h3>Video Track ${i + 1}</h3>
-        <button class="record-btn">🎥 Record</button>
-        <button class="upload-btn">📁 Upload</button>
-        <input type="file" class="upload-input" accept="video/*" style="display:none">
-        <video class="preview" controls></video>
-        <div class="spinner"></div>
-        <button class="delete-btn">❌ Delete</button>
-      `;
-      
-      const uploadBtn = trackDiv.querySelector('.upload-btn');
-      const uploadInput = trackDiv.querySelector('.upload-input');
-      const videoPreview = trackDiv.querySelector('.preview');
+  <h1>🎲 DiceCut</h1>
 
-      // When the Upload button is clicked, trigger the file input
-      uploadBtn.addEventListener('click', () => uploadInput.click());
+  <div id="music-upload">
+    <h2>Upload Your Music Track</h2>
+    <p>🎵 Drag & drop or click to upload</p>
+    <input type="file" id="music-upload-input">
+    <div id="music-upload-message"></div>
+  </div>
 
-      // When a file is selected, display the video preview
-      uploadInput.addEventListener('change', function() {
-        const file = uploadInput.files[0];
-        if (file) {
-          const videoURL = URL.createObjectURL(file);
-          videoPreview.src = videoURL;
-          videoPreview.style.display = 'block';
-        }
-      });
+  <!-- For each video track, you'll have a corresponding record button and preview -->
+  <div id="video-tracks">
+    <!-- Dynamically insert 10 video tracks here with JavaScript -->
+    <div id="video-track-1" class="video-track">
+      <h3>Video Track 1</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
+      <div class="spinner" style="display: none;"></div>
+    </div>
 
-      // Handle delete button (Remove the video track from DOM)
-      const deleteBtn = trackDiv.querySelector('.delete-btn');
-      deleteBtn.addEventListener('click', () => trackDiv.remove());
+    <div id="video-track-2" class="video-track">
+      <h3>Video Track 2</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
+      <div class="spinner" style="display: none;"></div>
+    </div>
 
-      // Append the track to the video-tracks container
-      videoTracksContainer.appendChild(trackDiv);
-    });
-  });
-</script>
+    <div id="video-track-3" class="video-track">
+      <h3>Video Track 3</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
+      <div class="spinner" style="display: none;"></div>
+    </div>
+
+    <div id="video-track-4" class="video-track">
+      <h3>Video Track 4</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
+      <div class="spinner" style="display: none;"></div>
+    </div>
+
+    <div id="video-track-5" class="video-track">
+      <h3>Video Track 5</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
+      <div class="spinner" style="display: none;"></div>
+    </div>
+
+    <div id="video-track-6" class="video-track">
+      <h3>Video Track 6</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
+      <div class="spinner" style="display: none;"></div>
+    </div>
+
+    <div id="video-track-7" class="video-track">
+      <h3>Video Track 7</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
+      <div class="spinner" style="display: none;"></div>
+    </div>
+
+    <div id="video-track-8" class="video-track">
+      <h3>Video Track 8</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
+      <div class="spinner" style="display: none;"></div>
+    </div>
+
+    <div id="video-track-9" class="video-track">
+      <h3>Video Track 9</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
+      <div class="spinner" style="display: none;"></div>
+    </div>
+
+    <div id="video-track-10" class="video-track">
+      <h3>Video Track 10</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
+      <div class="spinner" style="display: none;"></div>
+    </div>
+  </div>
+
+  <button id="roll-dice-btn" class="dice-button">🎲 Roll the Dice</button>
+  <button id="mix-btn" class="dice-button">🎲 🎲 Tap to Mix! 🎲</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
