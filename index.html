@@ -3,38 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DiceCut</title>
+  <title>🎲 DiceCut</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
+  <div class="container">
     <h1>🎲 DiceCut</h1>
-  </header>
+    <h2>Upload Your Music Track</h2>
+    <p>🎵 Drag & drop or click to upload</p>
 
-  <main>
-    <section class="upload-section">
-      <h2>Upload Your Music Track</h2>
-      <p>🎵 Drag & drop or click to upload</p>
-      <input type="file" id="music-upload" accept="audio/*">
-    </section>
-
-    <section class="video-tracks">
-      <h3>Video Tracks</h3>
-      <!-- Generate Video Track Blocks Dynamically (10 video tracks) -->
-      <div id="video-tracks-container"></div>
-    </section>
-
-    <div class="member-counter">
-      <p>👥 Members joined: <span id="member-count">Unavailable</span></p>
+    <!-- Video Tracks -->
+    <div class="video-tracks">
+      <div id="video-track-1" class="video-track">
+        <h3>Video Track 1</h3>
+        <button class="record-btn">🎥 Record</button>
+        <button class="upload-btn">📁 Upload</button>
+        <button class="delete-btn">❌ Delete</button>
+        <video class="preview" controls></video>
+      </div>
+      <div id="video-track-2" class="video-track">
+        <h3>Video Track 2</h3>
+        <button class="record-btn">🎥 Record</button>
+        <button class="upload-btn">📁 Upload</button>
+        <button class="delete-btn">❌ Delete</button>
+        <video class="preview" controls></video>
+      </div>
+      <!-- Add other tracks as needed -->
     </div>
 
-    <footer>
-      <button id="roll-dice-btn">🎲 Roll the Dice 🎲 Tap to Mix!</button>
-      <button id="light-dark-mode-toggle">🌗 Light/Dark Mode</button>
-    </footer>
-  </main>
+    <div class="footer">
+      <p>🎲 Roll the Dice 🎲 Tap to Mix!</p>
+      <p>🌗 Light/Dark Mode</p>
+      <p>👥 Members joined: Unavailable</p>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
 </html>
-
