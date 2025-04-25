@@ -1,76 +1,127 @@
-// Get the elements for all the video tracks
-document.querySelectorAll('.record-btn').forEach((button, index) => {
-  button.addEventListener('click', async function () {
-    const videoTrack = document.getElementById(`video-track-${index + 1}`);
-    const previewVideo = videoTrack.querySelector('.preview');
-    
-    try {
-      // Get user media (camera feed)
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      
-      // Assign the stream to the video element (preview)
-      previewVideo.srcObject = stream;
-      previewVideo.style.display = "block";  // Show the video preview
+document.addEventListener('DOMContentLoaded', () => {
+  const videoTracksContainer = document.getElementById('video-tracks');
 
-      // Change the button text to "Stop" after recording has started
-      button.textContent = "🎥 Stop Recording";
-      
-      // Optionally, you can handle stopping the recording and stream when clicked again
-      button.addEventListener('click', () => {
-        // Stop the stream if needed when clicking again
-        let tracks = stream.getTracks();
-        tracks.forEach(track => track.stop());
-        previewVideo.style.display = "none";  // Hide the video preview
-        button.textContent = "🎥 Record";  // Reset button text
-      });
-      
-    } catch (err) {
-      console.error("Error accessing camera: ", err);
-    }
-  });
-});
+  // Create 10 video tracks
+  for (let i = 1; i <= 10; i++) {
+    const track = document.createElement('div');
+    track.classList.add('video-track');
+    track.innerHTML = `
+      <h3>Video Track ${i}</h3>
+      <button class="record-btn">🎥 Record</button>
+      <button class="upload-btn">📁 Upload</button>
+      <button class="delete-btn">❌ Delete</button>
+      <video class="preview" controls></video>
+      <div class="spinner" style="display: none;"></div>
+    `;
+    videoTracksContainer.appendChild(track);
 
-// Handle the file upload for each video track
-document.querySelectorAll('.upload-btn').forEach((button, index) => {
-  button.addEventListener('click', function () {
-    const videoTrack = document.getElementById(`video-track-${index + 1}`);
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'video/*';
+    const recordBtn = track.querySelector('.record-btn');
+    const uploadBtn = track.querySelector('.upload-btn');
+    const deleteBtn = track.querySelector('.delete-btn');
+    const preview = track.querySelector('.preview');
+    const spinner = track.querySelector('.spinner');
 
-    // Trigger the file selection
-    fileInput.click();
+    // 🎥 RECORD BUTTON
+    recordBtn.addEventListener('click', async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
 
-    fileInput.addEventListener('change', function (event) {
-      const file = event.target.files[0];
-      if (file) {
-        const previewVideo = videoTrack.querySelector('.preview');
-        const objectURL = URL.createObjectURL(file);
-        previewVideo.src = objectURL;
-        previewVideo.style.display = "block";  // Show the video preview
+        preview.srcObject = stream;
+        preview.autoplay = true;
+        preview.muted = true;
+        preview.playsInline = true;
+        preview.style.display = 'block';
+
+        const mediaRecorder = new MediaRecorder(stream);
+        const chunks = [];
+
+        mediaRecorder.ondataavailable = e => {
+          if (e.data.size > 0) chunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: 'video/webm' });
+          const videoURL = URL.createObjectURL(blob);
+          preview.srcObject = null;
+          preview.src = videoURL;
+          preview.controls = true;
+
+          stream.getTracks().forEach(track => track.stop());
+          spinner.style.display = 'none';
+        };
+
+        mediaRecorder.start();
+        spinner.style.display = 'block';
+
+        setTimeout(() => {
+          mediaRecorder.stop();
+        }, 15000);
+      } catch (err) {
+        console.error('Error accessing camera:', err);
+        alert('Camera access denied or unavailable.');
       }
     });
+
+    // 📁 UPLOAD BUTTON
+    uploadBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'video/*';
+      input.onchange = () => {
+        const file = input.files[0];
+        if (file) {
+          const url = URL.createObjectURL(file);
+          preview.src = url;
+          preview.controls = true;
+        }
+      };
+      input.click();
+    });
+
+    // ❌ DELETE BUTTON
+    deleteBtn.addEventListener('click', () => {
+      preview.src = '';
+      preview.removeAttribute('src');
+      preview.load();
+    });
+  }
+
+  // 🎲 ROLL THE DICE - SHUFFLE VIDEOS
+  const rollDiceBtn = document.getElementById('roll-dice-btn');
+  const mixBtn = document.getElementById('mix-btn');
+
+  function shuffleVideos() {
+    const videos = document.querySelectorAll('.video-track video');
+    const activeVideos = Array.from(videos).filter(video => video.src);
+
+    if (activeVideos.length < 1) {
+      alert("Please upload or record videos first!");
+      return;
+    }
+
+    const barLength = 4;
+    const barsPerSegment = 8;
+    const totalSegments = 5;
+
+    const shuffled = [];
+
+    for (let i = 0; i < totalSegments; i++) {
+      const randomVideo = activeVideos[Math.floor(Math.random() * activeVideos.length)];
+      randomVideo.currentTime = i * barLength * barsPerSegment;
+      randomVideo.play();
+      shuffled.push(randomVideo);
+    }
+
+    console.log("🎲 Playing remix with", shuffled.length, "segments.");
+  }
+
+  rollDiceBtn.addEventListener('click', shuffleVideos);
+  mixBtn.addEventListener('click', shuffleVideos);
+
+  // 🌗 LIGHT/DARK MODE
+  const themeToggle = document.getElementById('theme-toggle-checkbox');
+  themeToggle.addEventListener('change', () => {
+    document.body.classList.toggle('dark-mode', themeToggle.checked);
   });
-});
-
-// Handle the delete button for each video track
-document.querySelectorAll('.delete-btn').forEach((button, index) => {
-  button.addEventListener('click', function () {
-    const videoTrack = document.getElementById(`video-track-${index + 1}`);
-    const previewVideo = videoTrack.querySelector('.preview');
-    previewVideo.src = "";  // Clear the video
-    previewVideo.style.display = "none";  // Hide the video preview
-  });
-});
-
-// Handle the Roll Dice and Mix buttons
-document.getElementById('roll-dice-btn').addEventListener('click', function () {
-  // Add functionality for rolling dice (e.g., random selection, etc.)
-  console.log("Rolling the dice...");
-});
-
-document.getElementById('mix-btn').addEventListener('click', function () {
-  // Add functionality for mixing the tracks (e.g., mixing audio or video effects)
-  console.log("Mixing the tracks...");
 });
 
