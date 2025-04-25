@@ -21,7 +21,7 @@ function generateVideoTracks() {
 }
 
 // Call function to generate video tracks on page load
-generateVideoTracks();
+window.onload = generateVideoTracks;
 
 // Handle delete functionality for each video track
 videoTracksContainer.addEventListener("click", function (event) {
