@@ -1,57 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🎲 DiceCut</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>🎲 DiceCut</h1>
-    <p>Upload Your Music Track</p>
+  <div id="theme-toggle">
+    <label for="theme-toggle-checkbox">🌗 Light/Dark Mode</label>
+    <input type="checkbox" id="theme-toggle-checkbox">
+  </div>
+
+  <h1>🎲 DiceCut</h1>
+
+  <!-- Music Upload Section -->
+  <div id="music-upload">
+    <h2>Upload Your Music Track</h2>
     <p>🎵 Drag & drop or click to upload</p>
-  </header>
+    <input type="file" id="music-upload-input">
+    <div id="music-upload-message"></div>
+  </div>
 
-  <section id="video-tracks">
-    <!-- Video Tracks 1 to 10 -->
-    <div class="video-track">
-      <h3>Video Track 1</h3>
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <video class="preview" controls></video>
-      <div class="spinner" style="display: none;"></div>
-    </div>
-    <!-- Repeat for Video Tracks 2 to 10 -->
-  </section>
+  <!-- Video Tracks -->
+  <div id="video-tracks">
+    <!-- JavaScript will generate 10 video tracks here -->
+  </div>
 
-  <section id="controls">
-    <button id="roll-dice-btn">🎲 Roll the Dice</button>
-    <button id="mix-btn">🎲 Tap to Mix!</button>
-  </section>
+  <!-- Control Buttons -->
+  <button id="roll-dice-btn" class="dice-button">🎲 Roll the Dice</button>
+  <button id="mix-btn" class="dice-button">🎲 Tap to Mix!</button>
 
   <!-- Member Counter -->
-  <div id="member-counter" style="margin: 20px 0; font-size: 18px;">
+  <div id="member-counter" style="margin-top: 20px;">
     👥 Members joined: <span id="member-count">Loading...</span>
   </div>
 
-  <!-- Light/Dark Mode Toggle -->
-  <label for="theme-toggle-checkbox">🌗 Light/Dark Mode</label>
-  <input type="checkbox" id="theme-toggle-checkbox">
-
   <script src="script.js"></script>
   <script>
-    // Fetch the member count from the PHP file
+    // Fetch member count
     fetch('get_member_count.php')
-      .then(response => response.json())
+      .then(res => res.json())
       .then(data => {
         document.getElementById('member-count').textContent = data.count || '0';
       })
-      .catch(error => {
-        console.error('Error fetching member count:', error);
+      .catch(() => {
         document.getElementById('member-count').textContent = 'Unavailable';
       });
+
+    // Generate 10 video tracks dynamically
+    const videoTracksContainer = document.getElementById('video-tracks');
+    for (let i = 1; i <= 10; i++) {
+      const track = document.createElement('div');
+      track.className = 'video-track';
+      track.innerHTML = `
+        <h3>Video Track ${i}</h3>
+        <button class="record-btn">🎥 Record</button>
+        <button class="upload-btn">📁 Upload</button>
+        <button class="delete-btn">❌ Delete</button>
+        <video class="preview" controls></video>
+        <div class="spinner" style="display: none;"></div>
+      `;
+      videoTracksContainer.appendChild(track);
+    }
   </script>
 </body>
 </html>
