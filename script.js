@@ -23,9 +23,9 @@ recordBtns.forEach((btn, index) => {
         // Request user media (camera) access
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
         
-        // Set the video source to the camera stream
+        // Set the video source to the camera stream for preview
         videoTrack.srcObject = stream;
-        
+
         // Initialize media recorder
         mediaRecorder = new MediaRecorder(stream);
         mediaRecorder.ondataavailable = (event) => {
@@ -52,4 +52,3 @@ recordBtns.forEach((btn, index) => {
     }
   });
 });
-
