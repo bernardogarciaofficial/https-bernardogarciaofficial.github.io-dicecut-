@@ -20,10 +20,10 @@
   </section>
 
   <div id="video-tracks">
-    <!-- 10 video tracks -->
-    ${[...Array(10)].map((_, i) => `
+    <!-- Manually writing out all 10 tracks -->
+    ${[1,2,3,4,5,6,7,8,9,10].map(i => `
       <div class="video-track">
-        <h3>Video Track ${i + 1}</h3>
+        <h3>Video Track ${i}</h3>
         <button class="record-btn">🎥 Record</button>
         <button class="upload-btn">📁 Upload</button>
         <button class="delete-btn">❌ Delete</button>
