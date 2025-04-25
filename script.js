@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const videoTracksContainer = document.getElementById('video-tracks');
+  const audioTrack = document.getElementById('audio-track'); // Assuming you have an audio element with this ID
 
   // Create 10 video tracks
   for (let i = 1; i <= 10; i++) {
@@ -24,8 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 🎥 RECORD BUTTON
     recordBtn.addEventListener('click', async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        // Wait for audio to start playing
+        await new Promise(resolve => {
+          if (audioTrack.paused) {
+            audioTrack.play();
+          }
+          audioTrack.onplay = resolve;
+        });
 
+        // Start video recording
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         preview.srcObject = stream;
         preview.autoplay = true;
         preview.muted = true;
@@ -53,9 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
         mediaRecorder.start();
         spinner.style.display = 'block';
 
-        setTimeout(() => {
+        // Stop recording when audio ends
+        audioTrack.onended = () => {
           mediaRecorder.stop();
-        }, 15000);
+        };
       } catch (err) {
         console.error('Error accessing camera:', err);
         alert('Camera access denied or unavailable.');
@@ -124,4 +134,3 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.toggle('dark-mode', themeToggle.checked);
   });
 });
-
