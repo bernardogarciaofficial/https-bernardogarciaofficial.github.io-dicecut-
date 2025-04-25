@@ -1,75 +1,41 @@
+/* Add custom styles */
 body {
   font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
   margin: 0;
   padding: 0;
-  background-color: #f4f4f4;
-  color: #333;
 }
 
-header {
-  text-align: center;
+.container {
   padding: 20px;
-  background-color: #282c34;
-  color: white;
-}
-
-.upload-section {
   text-align: center;
-  padding: 20px;
 }
 
-.upload-section input {
-  margin-top: 10px;
-}
-
-.video-tracks {
-  margin-top: 20px;
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
 }
 
 .video-track {
-  margin-bottom: 20px;
-  text-align: center;
+  display: inline-block;
+  margin: 10px;
+  padding: 10px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+}
+
+.video-track.recording {
+  border: 5px solid red; /* Red border for recording */
 }
 
 button {
   margin: 5px;
-  padding: 10px 20px;
+  padding: 10px;
+  font-size: 14px;
   cursor: pointer;
 }
 
-button#roll-dice-btn {
-  background-color: #28a745;
-  color: white;
-}
-
-button#light-dark-mode-toggle {
-  background-color: #17a2b8;
-  color: white;
-}
-
-.member-counter {
-  text-align: center;
+footer {
+  font-size: 14px;
   margin-top: 20px;
-}
-
-.spinner {
-  display: none;
-  margin-top: 10px;
-}
-
-video.preview {
-  width: 150px;
-  height: auto;
-  margin-top: 10px;
-  border-radius: 6px;
-}
-
-.light-mode {
-  background-color: #f4f4f4;
-  color: #333;
-}
-
-.dark-mode {
-  background-color: #333;
-  color: #f4f4f4;
 }
