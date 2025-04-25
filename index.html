@@ -9,31 +9,28 @@
 <body>
   <div class="container">
     <h1>🎲 DiceCut</h1>
-    <h2>Upload Your Music Track</h2>
-    <p>🎵 Drag & drop or click to upload</p>
-
-    <!-- Video Tracks -->
-    <div class="video-tracks">
-      <div id="video-track-1" class="video-track">
-        <h3>Video Track 1</h3>
-        <button class="record-btn">🎥 Record</button>
-        <button class="upload-btn">📁 Upload</button>
-        <button class="delete-btn">❌ Delete</button>
-        <video class="preview" controls></video>
-      </div>
-      <div id="video-track-2" class="video-track">
-        <h3>Video Track 2</h3>
-        <button class="record-btn">🎥 Record</button>
-        <button class="upload-btn">📁 Upload</button>
-        <button class="delete-btn">❌ Delete</button>
-        <video class="preview" controls></video>
-      </div>
-      <!-- Add other tracks as needed -->
+    <div class="upload-section">
+      <label for="music-upload">Upload Your Music Track</label>
+      <input type="file" id="music-upload" accept="audio/*">
     </div>
 
-    <div class="footer">
-      <p>🎲 Roll the Dice 🎲 Tap to Mix!</p>
-      <p>🌗 Light/Dark Mode</p>
+    <div class="video-tracks">
+      <div class="video-track" id="video-track-1">
+        <video id="video-preview-1" autoplay muted></video>
+        <div class="recording-indicator"></div>
+        <button class="record-btn">🎥 Record</button>
+        <button class="upload-btn">📁 Upload</button>
+        <button class="delete-btn">❌ Delete</button>
+      </div>
+      <!-- Repeat for other video tracks as needed -->
+    </div>
+
+    <div class="controls">
+      <button class="roll-dice-btn">🎲 Roll the Dice 🎲 Tap to Mix!</button>
+      <button class="theme-toggle-btn">🌗 Light/Dark Mode</button>
+    </div>
+
+    <div class="members-info">
       <p>👥 Members joined: Unavailable</p>
     </div>
   </div>
