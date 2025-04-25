@@ -1,32 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DiceCut</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div id="theme-toggle">
-    <label for="theme-toggle-checkbox">🌗 Light/Dark Mode</label>
-    <input type="checkbox" id="theme-toggle-checkbox">
-  </div>
+<div id="video-tracks"></div>
 
-  <h1>🎲 DiceCut</h1>
+<!-- The following section will dynamically generate video tracks and add file upload functionality -->
+<script>
+  // Dynamically create video tracks with upload functionality
+  document.addEventListener('DOMContentLoaded', function () {
+    const videoTracksContainer = document.getElementById('video-tracks');
+    
+    [...Array(10)].forEach((_, i) => {
+      const trackDiv = document.createElement('div');
+      trackDiv.classList.add('video-track');
+      trackDiv.innerHTML = `
+        <h3>Video Track ${i + 1}</h3>
+        <button class="record-btn">🎥 Record</button>
+        <button class="upload-btn">📁 Upload</button>
+        <input type="file" class="upload-input" accept="video/*" style="display:none">
+        <video class="preview" controls></video>
+        <div class="spinner"></div>
+        <button class="delete-btn">❌ Delete</button>
+      `;
+      
+      const uploadBtn = trackDiv.querySelector('.upload-btn');
+      const uploadInput = trackDiv.querySelector('.upload-input');
+      const videoPreview = trackDiv.querySelector('.preview');
 
-  <div id="music-upload">
-    <h2>Upload Your Music Track</h2>
-    <p>🎵 Drag & drop or click to upload</p>
-    <input type="file" id="music-upload-input">
-    <div id="music-upload-message"></div>
-  </div>
+      // When the Upload button is clicked, trigger the file input
+      uploadBtn.addEventListener('click', () => uploadInput.click());
 
-  <!-- This is where the 10 video tracks will be dynamically inserted -->
-  <div id="video-tracks"></div>
+      // When a file is selected, display the video preview
+      uploadInput.addEventListener('change', function() {
+        const file = uploadInput.files[0];
+        if (file) {
+          const videoURL = URL.createObjectURL(file);
+          videoPreview.src = videoURL;
+          videoPreview.style.display = 'block';
+        }
+      });
 
-  <button id="roll-dice-btn" class="dice-button">🎲 Roll the Dice</button>
-  <button id="mix-btn" class="dice-button">🎲 🎲 Tap to Mix! 🎲</button>
+      // Handle delete button (Remove the video track from DOM)
+      const deleteBtn = trackDiv.querySelector('.delete-btn');
+      deleteBtn.addEventListener('click', () => trackDiv.remove());
 
-  <script src="script.js"></script>
-</body>
-</html>
+      // Append the track to the video-tracks container
+      videoTracksContainer.appendChild(trackDiv);
+    });
+  });
+</script>
