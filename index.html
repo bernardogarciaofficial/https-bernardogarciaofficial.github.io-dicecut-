@@ -1,55 +1,32 @@
-<!-- 🎥 Video Tracks -->
-<div id="video-tracks">
-  <div class="video-track">
-    <h3>Video Track 1</h3>
-    <button class="record-btn">🎥 Record</button>
-    <button class="upload-btn">📁 Upload</button>
-    <button class="delete-btn">❌ Delete</button>
-    <video class="preview" controls></video>
-    <div class="spinner"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiceCut</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="theme-toggle">
+    <label for="theme-toggle">🌗 Light/Dark Mode</label>
+    <input type="checkbox" id="theme-toggle-checkbox">
   </div>
-  <div class="video-track">
-    <h3>Video Track 2</h3>
-    <button class="record-btn">🎥 Record</button>
-    <button class="upload-btn">📁 Upload</button>
-    <button class="delete-btn">❌ Delete</button>
-    <video class="preview" controls></video>
-    <div class="spinner"></div>
+
+  <h1>🎲 DiceCut</h1>
+
+  <div id="music-upload">
+    <h2>Upload Your Music Track</h2>
+    <p>🎵 Drag & drop or click to upload</p>
+    <input type="file" id="music-upload-input">
+    <div id="music-upload-message"></div>
   </div>
-  <div class="video-track">
-    <h3>Video Track 3</h3>
-    <button class="record-btn">🎥 Record</button>
-    <button class="upload-btn">📁 Upload</button>
-    <button class="delete-btn">❌ Delete</button>
-    <video class="preview" controls></video>
-    <div class="spinner"></div>
-  </div>
-  <div class="video-track">
-    <h3>Video Track 4</h3>
-    <button class="record-btn">🎥 Record</button>
-    <button class="upload-btn">📁 Upload</button>
-    <button class="delete-btn">❌ Delete</button>
-    <video class="preview" controls></video>
-    <div class="spinner"></div>
-  </div>
-  <div class="video-track">
-    <h3>Video Track 5</h3>
-    <button class="record-btn">🎥 Record</button>
-    <button class="upload-btn">📁 Upload</button>
-    <button class="delete-btn">❌ Delete</button>
-    <video class="preview" controls></video>
-    <div class="spinner"></div>
-  </div>
-  <div class="video-track">
-    <h3>Video Track 6</h3>
-    <button class="record-btn">🎥 Record</button>
-    <button class="upload-btn">📁 Upload</button>
-    <button class="delete-btn">❌ Delete</button>
-    <video class="preview" controls></video>
-    <div class="spinner"></div>
-  </div>
-  <div class="video-track">
-    <h3>Video Track 7</h3>
-    <button class="record-btn">🎥 Record</button>
-    <button class="upload-btn">📁 Upload</button>
-    <button class="delete-btn">
+
+  <!-- This is where the 10 video tracks will be dynamically inserted -->
+  <div id="video-tracks"></div>
+
+  <button id="roll-dice-btn" class="dice-button">🎲 Roll the Dice</button>
+  <button id="mix-btn" class="dice-button">🎲 🎲 Tap to Mix! 🎲</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
