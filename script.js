@@ -24,7 +24,7 @@ recordBtns.forEach((btn, index) => {
       try {
         // Request user media (camera) access
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        
+
         // Set the video source to the camera stream for preview
         videoTrack.srcObject = stream;
 
@@ -49,8 +49,17 @@ recordBtns.forEach((btn, index) => {
         recordingIndicator.style.display = "block"; // Show the blinking red light
         isRecording = true;
       } catch (error) {
+        // Log detailed error for debugging
+        console.error("Error accessing camera:", error);
+        
         // Handle error if access is denied or unavailable
-        alert("Camera access denied or unavailable. Please check your camera settings.");
+        if (error.name === "NotAllowedError") {
+          alert("Camera access denied. Please allow camera access in your browser.");
+        } else if (error.name === "NotFoundError") {
+          alert("No camera found. Please check your device.");
+        } else {
+          alert("Camera access denied or unavailable. Please check your camera settings.");
+        }
       }
     }
   });
