@@ -8,102 +8,17 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* Light/Dark Mode Styling */
+/* Light/Dark Mode */
 body.dark-mode {
-  background-color: #333;
-  color: #fff;
+  background-color: #f4f4f4;
+  color: #111;
 }
 
-/* Theme Toggle Styling */
+/* Theme Toggle Button */
 #theme-toggle {
   position: fixed;
   top: 20px;
   right: 20px;
   cursor: pointer;
-  padding: 10px;
-  background-color: #222;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  display: inline-block;
-}
-
-/* Music Upload Section */
-#music-upload {
-  width: 100%;
-  max-width: 600px;
-  margin: 30px auto 20px auto;
-  padding: 20px;
-  border: 2px dashed #aaa;
-  border-radius: 8px;
-  text-align: center;
-  background-color: #f0f0f0;
-}
-
-/* Video Track Section */
-#video-tracks-container {
-  width: 100%;
-  max-width: 600px;
-  margin: 20px auto;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.video-track {
-  padding: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f8f8f8;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-}
-
-.video-track h3 {
-  margin: 0;
-  font-size: 18px;
-  flex: 1;
-}
-
-/* Preview Video Styling */
-.video-track .preview {
-  max-width: 100px;
-  max-height: 100px;
-  border-radius: 8px;
-  background-color: #333;
-}
-
-.video-track button {
-  margin-left: 10px;
-  padding: 8px 12px;
-  font-size: 14px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.video-track button:hover {
-  background-color: #ddd;
-}
-
-/* Spinner (Loading) Styling */
-.video-track .spinner {
-  display: none;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  animation: spin 2s linear infinite;
-}
-
-/* Spinner Animation */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+  padding: 10px 15px;
+  background-color: #444
