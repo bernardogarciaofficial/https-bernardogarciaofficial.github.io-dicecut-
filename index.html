@@ -50,21 +50,21 @@
     document.addEventListener('DOMContentLoaded', function () {
       const videoTracksContainer = document.getElementById('video-tracks');
 
-      // Remove any existing tracks before adding new ones
-      videoTracksContainer.innerHTML = '';
-
-      for (let i = 1; i <= 10; i++) {
-        const track = document.createElement('div');
-        track.className = 'video-track';
-        track.innerHTML = `
-          <h3>Video Track ${i}</h3>
-          <button class="record-btn">🎥 Record</button>
-          <button class="upload-btn">📁 Upload</button>
-          <button class="delete-btn">❌ Delete</button>
-          <video class="preview" controls></video>
-          <div class="spinner" style="display: none;"></div>
-        `;
-        videoTracksContainer.appendChild(track);
+      // If tracks already exist, don't add them again
+      if (videoTracksContainer.children.length === 0) {
+        for (let i = 1; i <= 10; i++) {
+          const track = document.createElement('div');
+          track.className = 'video-track';
+          track.innerHTML = `
+            <h3>Video Track ${i}</h3>
+            <button class="record-btn">🎥 Record</button>
+            <button class="upload-btn">📁 Upload</button>
+            <button class="delete-btn">❌ Delete</button>
+            <video class="preview" controls></video>
+            <div class="spinner" style="display: none;"></div>
+          `;
+          videoTracksContainer.appendChild(track);
+        }
       }
     });
   </script>
