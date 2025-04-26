@@ -1,50 +1,89 @@
+/* Base styles */
 body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  padding: 20px;
+  margin: 0;
 }
 
-#video-tracks-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.video-track {
-    width: 200px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-.preview {
-    width: 100%;
-    height: 120px;
-    margin-top: 10px;
-}
-
-.recording-indicator {
-    width: 10px;
-    height: 10px;
-    background-color: red;
-    border-radius: 50%;
-    margin-top: 10px;
-    display: none;
-}
-
-.recording-indicator.recording {
-    display: block;
+h1, h2, h3 {
+  margin: 10px 0;
 }
 
 button {
-    margin-top: 10px;
-    width: 100%;
-    padding: 5px;
-    border: none;
-    background-color: #4CAF50;
-    color: white;
-    cursor: pointer;
+  margin: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #333;
+  color: white;
+  font-size: 14px;
 }
 
 button:hover {
-    background-color: #45a049;
+  background-color: #555;
+}
+
+.upload-section,
+.video-track {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+.video-track video.preview {
+  width: 150px;
+  height: auto;
+  margin-top: 10px;
+  border-radius: 6px;
+  display: block;
+}
+
+/* Recording indicator */
+.recording-indicator {
+  width: 12px;
+  height: 12px;
+  background-color: red;
+  border-radius: 50%;
+  margin-top: 5px;
+  display: none;
+}
+
+.recording-indicator.blinking {
+  display: inline-block;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0;
+  }
+}
+
+/* Light/Dark Mode Toggle (Optional) */
+body.dark-mode {
+  background-color: #1e1e1e;
+  color: #fff;
+}
+
+body.dark-mode .upload-section,
+body.dark-mode .video-track {
+  background-color: #2a2a2a;
+  border-color: #444;
+}
+
+body.dark-mode button {
+  background-color: #888;
+  color: #fff;
+}
+
+body.dark-mode button:hover {
+  background-color: #aaa;
 }
