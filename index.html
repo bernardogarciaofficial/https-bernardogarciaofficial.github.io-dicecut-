@@ -4,38 +4,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎲 DiceCut</title>
+  <title>DiceCut Studio</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>🎲 DiceCut</h1>
-    <p>Upload Your Music Track</p>
-    <div>
-      <label for="master-track-upload" class="upload-label">🎵 Drag & drop or click to upload</label>
-      <input type="file" id="master-track-upload" accept="audio/*" />
+  <div class="container">
+    <div id="master-track-container">
+      <h2>Master Music Track</h2>
+      <input type="file" id="master-track-upload" accept="audio/*">
+      <audio id="master-track" controls></audio>
     </div>
-  </header>
 
-  <!-- Master Music Track Section -->
-  <div id="master-track-container">
-    <h2>Master Music Track</h2>
-    <input type="file" id="master-track-upload" accept="audio/*">
-    <audio id="master-track" controls></audio>
-  </div>
+    <div id="video-tracks-container">
+      <!-- Video Tracks will be dynamically created here -->
+    </div>
 
-  <!-- Video Tracks Section -->
-  <div id="video-tracks-container">
-    <!-- Video Tracks will be dynamically created here -->
-  </div>
-
-  <!-- Control Buttons -->
-  <button id="roll-dice-btn">🎲 Roll the Dice</button>
-  <button id="mix-btn">🎲 Tap to Mix!</button>
-
-  <!-- Light/Dark Mode Toggle -->
-  <div>
-    <button id="theme-toggle-btn">🌗 Light/Dark Mode</button>
+    <button id="roll-dice-btn">🎲 Roll the Dice</button>
+    <button id="mix-btn">🎲 Tap to Mix!</button>
   </div>
 
   <script src="script.js"></script>
