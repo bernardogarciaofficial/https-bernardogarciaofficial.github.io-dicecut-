@@ -1,43 +1,91 @@
+const videoTracksContainer = document.getElementById('video-tracks-container');
 
- let mediaRecorder;
-let recordedChunks = [];
+for (let i = 1; i <= 10; i++) {
+  const trackDiv = document.createElement('div');
+  trackDiv.className = 'video-track';
+  trackDiv.innerHTML = `
+    <h3>Video Track ${i}</h3>
+    <button class="record-btn">🎥 Record</button>
+    <button class="upload-btn">📁 Upload</button>
+    <button class="delete-btn">❌ Delete</button>
+    <video class="preview" controls></video>
+    <div class="recording-indicator"></div>
+  `;
+  videoTracksContainer.appendChild(trackDiv);
 
-recordBtn.addEventListener('click', async () => {
-  if (mediaRecorder && mediaRecorder.state === "recording") {
-    mediaRecorder.stop();
-    recordBtn.textContent = "🎥 Record";
-    indicator.classList.remove("blinking");
-  } else {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      preview.srcObject = stream;
-      preview.muted = true;
-      preview.play();
+  const recordBtn = trackDiv.querySelector('.record-btn');
+  const uploadBtn = trackDiv.querySelector('.upload-btn');
+  const deleteBtn = trackDiv.querySelector('.delete-btn');
+  const preview = trackDiv.querySelector('.preview');
+  const indicator = trackDiv.querySelector('.recording-indicator');
 
-      recordedChunks = [];
+  let mediaRecorder = null;
+  let recordedChunks = [];
 
-      mediaRecorder = new MediaRecorder(stream);
-      mediaRecorder.ondataavailable = event => {
-        if (event.data.size > 0) {
-          recordedChunks.push(event.data);
-        }
-      };
+  recordBtn.addEventListener('click', async () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+      recordBtn.textContent = '🎥 Record';
+      indicator.classList.remove('blinking');
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        preview.srcObject = stream;
+        preview.muted = true;
+        preview.play();
 
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(recordedChunks, { type: 'video/webm' });
-        const url = URL.createObjectURL(blob);
-        preview.srcObject = null;
-        preview.src = url;
+        recordedChunks = [];
+
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = event => {
+          if (event.data.size > 0) {
+            recordedChunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+
+          // Detach the stream
+          const tracks = preview.srcObject.getTracks();
+          tracks.forEach(track => track.stop());
+
+          preview.srcObject = null;
+          const videoURL = URL.createObjectURL(blob);
+          preview.src = videoURL;
+          preview.controls = true;
+          preview.play();
+        };
+
+        mediaRecorder.start();
+        recordBtn.textContent = '⏹ Stop';
+        indicator.classList.add('blinking');
+
+      } catch (err) {
+        alert('Camera access denied or unavailable. Please check your camera settings.');
+      }
+    }
+  });
+
+  uploadBtn.addEventListener('click', () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'video/*';
+    fileInput.onchange = e => {
+      const file = e.target.files[0];
+      if (file) {
+        preview.src = URL.createObjectURL(file);
         preview.controls = true;
         preview.play();
-      };
+      }
+    };
+    fileInput.click();
+  });
 
-      mediaRecorder.start();
-      recordBtn.textContent = "⏹ Stop";
-      indicator.classList.add("blinking");
-
-    } catch (error) {
-      alert("Camera access denied or unavailable. Please check your camera settings.");
-    }
-  }
-});
+  deleteBtn.addEventListener('click', () => {
+    preview.src = '';
+    preview.removeAttribute('src');
+    preview.load();
+    preview.pause();
+  });
+}
