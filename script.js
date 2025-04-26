@@ -3,6 +3,7 @@ const masterUpload = document.getElementById('master-track-upload');
 const rollDiceBtn = document.getElementById('roll-dice-btn');
 const videoTracks = document.querySelectorAll('.video-track video');
 const masterTrack = document.getElementById('master-track');
+const membersCounter = document.getElementById('members-counter');
 
 // Create 10 video track windows dynamically
 for (let i = 1; i <= 10; i++) {
