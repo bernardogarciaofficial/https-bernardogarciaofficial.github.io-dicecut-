@@ -4,32 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DiceCut</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="theme-toggle">
     <label for="theme-toggle-checkbox">🌗 Light/Dark Mode</label>
-    <input type="checkbox" id="theme-toggle-checkbox" />
+    <input type="checkbox" id="theme-toggle-checkbox">
   </div>
 
   <h1>🎲 DiceCut</h1>
 
-  <section id="music-upload">
+  <div id="music-upload">
     <h2>Upload Your Music Track</h2>
     <p>🎵 Drag & drop or click to upload</p>
     <input type="file" id="music-upload-input" />
     <div id="music-upload-message"></div>
-  </section>
-
-  <section id="video-tracks">
-    <h2>Video Tracks</h2>
-    <!-- Dynamically inserted tracks will go here -->
-  </section>
-
-  <div class="buttons">
-    <button id="roll-dice-btn" class="dice-button">🎲 Roll the Dice</button>
-    <button id="mix-btn" class="dice-button">🎲 Tap to Mix!</button>
   </div>
+
+  <h2>Video Tracks</h2>
+  <div id="video-tracks-container"></div>
+
+  <button id="roll-dice-btn">🎲 Roll the Dice</button>
+  <button id="mix-btn">🎲 Tap to Mix!</button>
 
   <div id="member-counter">👥 Members joined: <span id="member-count">Unavailable</span></div>
 
