@@ -70,17 +70,20 @@ button:hover {
   animation: blink 1s infinite;
 }
 
-/* Layout for Video Tracks */
+/* Layout for Video Tracks (Stacked vertically) */
 #video-tracks-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  display: block; /* Stack video tracks vertically */
   margin: 20px 0;
 }
 
 @media (max-width: 768px) {
+  /* Stack videos on smaller screens as well */
+
+
+
+  
   #video-tracks-container {
-    grid-template-columns: 1fr;
+    margin: 10px 0;
   }
 }
 
