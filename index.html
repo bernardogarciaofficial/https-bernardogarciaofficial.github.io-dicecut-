@@ -3,25 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎲 DiceCut</title>
+    <title>DiceCut Video Platform</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div id="master-track-container">
-            <h2>Master Music Track</h2>
-            <input type="file" id="master-track-upload" accept="audio/*">
-            <audio id="master-track" controls></audio>
-        </div>
-
-        <div id="video-tracks-container">
-            <!-- Video Tracks will be dynamically created here -->
-        </div>
-
-        <button id="roll-dice-btn">🎲 Roll the Dice</button>
-        <button id="mix-btn">🎲 Tap to Mix!</button>
+    <!-- Music Upload Section -->
+    <div id="music-upload">
+        <h2>Upload Your Music Track</h2>
+        <input type="file" accept="audio/*">
     </div>
 
+    <!-- Video Tracks Section -->
+    <div id="video-tracks">
+        <div class="video-track">
+            <h3>Track 1</h3>
+            <button class="record-btn">Record</button>
+            <button class="upload-btn">Upload</button>
+            <video class="track-video" controls></video>
+        </div>
+        <div class="video-track">
+            <h3>Track 2</h3>
+            <button class="record-btn">Record</button>
+            <button class="upload-btn">Upload</button>
+            <video class="track-video" controls></video>
+        </div>
+        <!-- Repeat for 10 tracks as needed -->
+    </div>
+
+    <!-- Dice UI Section -->
+    <div id="dice-ui">
+        <img src="dice1.png" alt="Dice 1" class="dice">
+        <img src="dice2.png" alt="Dice 2" class="dice">
+        <span class="roll-label">Roll Dice (Click)</span>
+    </div>
+
+    <!-- Scripts -->
     <script src="script.js"></script>
 </body>
 </html>
