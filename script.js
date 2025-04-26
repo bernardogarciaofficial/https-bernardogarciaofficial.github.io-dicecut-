@@ -1,10 +1,13 @@
-const videoTracksContainer = document.getElementById('video-tracks-container');
+
+ const videoTracksContainer = document.getElementById('video-tracks-container');
+const masterTrack = document.getElementById('master-track');
+const masterTrackUpload = document.getElementById('master-track-upload');
 let mediaRecorder;
 let recordedChunks = [];
 let stream;
-let preview = document.createElement('video');
-let indicator = document.createElement('div');
-const recordBtn = document.createElement('button');
+let preview;
+let indicator;
+let currentVideoIndex = 0;
 
 for (let i = 1; i <= 10; i++) {
   const trackDiv = document.createElement('div');
@@ -31,7 +34,12 @@ for (let i = 1; i <= 10; i++) {
       indicator.classList.remove('blinking');
     } else {
       try {
-        // Get access to the camera and microphone
+        // Start recording when the master track starts
+        if (masterTrack.paused) {
+          alert('Please play the master track to start recording videos!');
+          return;
+        }
+
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         preview.srcObject = stream;
         preview.muted = true;
@@ -81,3 +89,22 @@ for (let i = 1; i <= 10; i++) {
     }
   });
 }
+
+// Handle master track file upload
+masterTrackUpload.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const url = URL.createObjectURL(file);
+    masterTrack.src = url;
+    masterTrack.play();
+  }
+});
+
+// Sync video tracks with the master track
+masterTrack.addEventListener('play', () => {
+  // Start the video tracks when the master track starts playing
+  const videoTracks = document.querySelectorAll('.video-track .record-btn');
+  videoTracks.forEach((button, index) => {
+    button.disabled = false;  // Enable the record buttons when the master track plays
+  });
+});
