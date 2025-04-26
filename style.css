@@ -1,4 +1,4 @@
-/* Film strip themed background */
+/* Apply a transparent film strip border around the page */
 body {
   background-image: url('https://www.pngkey.com/png/detail/835-8354066_film-strip-border.png');
   background-repeat: no-repeat;
@@ -11,7 +11,7 @@ body {
   box-sizing: border-box;
 }
 
-/* Main content container */
+/* Container for main content to sit nicely inside the film border */
 .container {
   background-color: rgba(0, 0, 0, 0.7); /* Slight dark overlay for contrast */
   padding: 20px;
@@ -19,42 +19,47 @@ body {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
-/* Video Track Styling */
-.video-track {
+/* Styling for video tracks */
+#video-tracks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   margin-bottom: 20px;
+}
+
+.video-track {
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 15px;
-  border: 2px dashed #ccc;
   border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.05);
+  border: 2px solid #ccc;
+  position: relative;
 }
 
 .video-track h3 {
   margin-top: 0;
 }
 
-.video-track button {
-  margin-right: 10px;
+.video-preview {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.record-btn {
+  margin-top: 10px;
   padding: 8px 12px;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
   background-color: #333;
   color: white;
-  font-size: 14px;
+  cursor: pointer;
 }
 
-.video-track button:hover {
+.record-btn:hover {
   background-color: #555;
 }
 
-.video-track video {
-  margin-top: 10px;
-  max-width: 100%;
-  border-radius: 6px;
-  display: block;
-}
-
-/* Recording Indicator */
 .recording-indicator {
   width: 12px;
   height: 12px;
@@ -78,11 +83,6 @@ body {
   }
 }
 
-/* Master Track */
-#master-track-container {
-  margin-bottom: 30px;
-}
-
 /* Buttons */
 #roll-dice-btn,
 #mix-btn {
@@ -102,16 +102,3 @@ body {
   background-color: #666;
 }
 
-/* Light/Dark mode toggle */
-#toggle-theme {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  background-color: #444;
-  color: #fff;
-  cursor: pointer;
-  z-index: 100;
-}
