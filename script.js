@@ -1,69 +1,79 @@
+// Get the container where video tracks will be appended
+const videoTracksContainer = document.getElementById('video-tracks-container');
+
+// Create 10 video tracks dynamically
+for (let i = 1; i <= 10; i++) {
+  const trackDiv = document.createElement('div');
+  trackDiv.className = 'video-track';
+  trackDiv.innerHTML = `
+    <h3>Video Track ${i}</h3>
+    <button class="record-btn">🎥 Record</button>
+    <button class="upload-btn">📁 Upload</button>
+    <button class="delete-btn">❌ Delete</button>
+    <video class="preview" controls></video>
+    <div class="recording-indicator"></div>
+  `;
+  videoTracksContainer.appendChild(trackDiv);
+}
+
+// Initialize an empty array to keep track of video streams
+const videoStreams = [];
+
+// Get all record buttons
 const recordBtns = document.querySelectorAll('.record-btn');
-const videoPreviews = document.querySelectorAll('video');
+const previewVideos = document.querySelectorAll('.preview');
 const recordingIndicators = document.querySelectorAll('.recording-indicator');
-const deleteBtns = document.querySelectorAll('.delete-btn');
-const uploadBtns = document.querySelectorAll('.upload-btn');
 
-recordBtns.forEach((btn, index) => {
-  let mediaRecorder;
-  let stream;
-  let isRecording = false;
-  let chunks = [];
+// Function to start recording video
+async function startRecording(index) {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    videoStreams[index] = stream;
+    previewVideos[index].srcObject = stream;
+    recordingIndicators[index].style.backgroundColor = 'red'; // Show the red recording indicator
 
-  btn.addEventListener('click', async () => {
-    const videoTrack = videoPreviews[index];
-    const recordingIndicator = recordingIndicators[index];
+    // Optionally, we can start recording audio and video here with MediaRecorder
+    // For simplicity, this is just setting up the video preview
 
-    if (isRecording) {
-      mediaRecorder.stop();
-      btn.textContent = '🎥 Record';
-      recordingIndicator.style.display = 'none';
-      isRecording = false;
+  } catch (err) {
+    console.error('Camera access denied or unavailable:', err);
+  }
+}
+
+// Function to stop recording
+function stopRecording(index) {
+  const stream = videoStreams[index];
+  if (stream) {
+    const tracks = stream.getTracks();
+    tracks.forEach(track => track.stop());
+    previewVideos[index].srcObject = null; // Clear the preview
+    recordingIndicators[index].style.backgroundColor = 'transparent'; // Remove the red indicator
+  }
+}
+
+// Add event listeners to record buttons
+recordBtns.forEach((button, index) => {
+  button.addEventListener('click', () => {
+    if (videoStreams[index]) {
+      stopRecording(index); // Stop recording if it's already recording
     } else {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        videoTrack.srcObject = stream;
-
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.ondataavailable = (event) => {
-          chunks.push(event.data);
-        };
-
-        mediaRecorder.onstop = () => {
-          const blob = new Blob(chunks, { type: 'video/webm' });
-          const videoURL = URL.createObjectURL(blob);
-          videoTrack.srcObject = null;
-          videoTrack.src = videoURL;
-          chunks = [];
-          videoTrack.style.display = 'block'; // Ensure the video is visible
-          deleteBtns[index].style.display = 'inline-block'; // Show delete button
-          uploadBtns[index].style.display = 'inline-block'; // Show upload button
-        };
-
-        mediaRecorder.start();
-        btn.textContent = '⏺ Stop Recording';
-        recordingIndicator.style.display = 'block';
-        isRecording = true;
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        alert('Camera access denied or unavailable. Please check your camera settings.');
-      }
+      startRecording(index); // Start recording
     }
   });
+});
 
-  deleteBtns[index].addEventListener('click', () => {
-    videoTrack.src = '';
-    videoTrack.style.display = 'none';
-    deleteBtns[index].style.display = 'none';
-    uploadBtns[index].style.display = 'none';
+// Add event listeners for upload and delete buttons
+const uploadBtns = document.querySelectorAll('.upload-btn');
+const deleteBtns = document.querySelectorAll('.delete-btn');
+
+uploadBtns.forEach((button, index) => {
+  button.addEventListener('click', () => {
+    alert(`Upload functionality for Video Track ${index + 1} will be implemented soon.`);
   });
+});
 
-  uploadBtns[index].addEventListener('click', () => {
-    const videoTrack = videoPreviews[index];
-    const videoURL = videoTrack.src;
-    const a = document.createElement('a');
-    a.href = videoURL;
-    a.download = `video_track_${index + 1}.webm`;
-    a.click();
+deleteBtns.forEach((button, index) => {
+  button.addEventListener('click', () => {
+    alert(`Delete functionality for Video Track ${index + 1} will be implemented soon.`);
   });
 });
