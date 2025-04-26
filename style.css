@@ -117,3 +117,10 @@ button:hover {
 #roll-dice-btn, #mix-btn {
   font-size: 18px;
 }
+
+/* Add borders to the video track container to make it stand out */
+#video-tracks-container {
+  border: 2px solid #fff;
+  border-radius: 10px;
+  padding: 10px;
+}
