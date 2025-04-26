@@ -1,4 +1,60 @@
-/* Styles for the recording indicator */
+/* Film strip themed background */
+body {
+  background-image: url('https://www.pngkey.com/png/detail/835-8354066_film-strip-border.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  padding: 20px;
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+/* Main content container */
+.container {
+  background-color: rgba(0, 0, 0, 0.7); /* Slight dark overlay for contrast */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Video Track Styling */
+.video-track {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.video-track h3 {
+  margin-top: 0;
+}
+
+.video-track button {
+  margin-right: 10px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #333;
+  color: white;
+  font-size: 14px;
+}
+
+.video-track button:hover {
+  background-color: #555;
+}
+
+.video-track video {
+  margin-top: 10px;
+  max-width: 100%;
+  border-radius: 6px;
+  display: block;
+}
+
+/* Recording Indicator */
 .recording-indicator {
   width: 12px;
   height: 12px;
@@ -22,11 +78,40 @@
   }
 }
 
-/* Optional styling for video tracks */
-.video-track {
-  margin-bottom: 20px;
+/* Master Track */
+#master-track-container {
+  margin-bottom: 30px;
 }
 
-button {
-  margin: 5px;
+/* Buttons */
+#roll-dice-btn,
+#mix-btn {
+  margin-top: 20px;
+  margin-right: 10px;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #444;
+  color: white;
+  cursor: pointer;
+}
+
+#roll-dice-btn:hover,
+#mix-btn:hover {
+  background-color: #666;
+}
+
+/* Light/Dark mode toggle */
+#toggle-theme {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #444;
+  color: #fff;
+  cursor: pointer;
+  z-index: 100;
 }
