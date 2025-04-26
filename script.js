@@ -38,29 +38,31 @@ for (let i = 1; i <= 10; i++) {
         recordedChunks = [];
         mediaRecorder = new MediaRecorder(stream);
 
-        mediaRecorder.ondataavailable = (event) => {
-          if (event.data && event.data.size > 0) {
+        mediaRecorder.ondataavailable = event => {
+          if (event.data.size > 0) {
             recordedChunks.push(event.data);
           }
         };
 
         mediaRecorder.onstop = () => {
-          const blob = new Blob(recordedChunks, { type: 'video/webm' });
-          const videoURL = URL.createObjectURL(blob);
-          preview.srcObject = null;
-          preview.src = videoURL;
-          preview.controls = true;
-          preview.muted = false;
-          preview.play();
+          if (recordedChunks.length) {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const videoURL = URL.createObjectURL(blob);
+            preview.srcObject = null;
+            preview.src = videoURL;
+            preview.muted = false;
+            preview.play();
+          }
 
-          // Stop camera
           stream.getTracks().forEach(track => track.stop());
+          indicator.classList.remove('blinking');
         };
 
         mediaRecorder.start();
         recordBtn.textContent = '⏹ Stop';
         indicator.classList.add('blinking');
       } catch (err) {
+        console.error(err);
         alert('Camera access denied or unavailable. Please check your camera settings.');
       }
     }
@@ -73,8 +75,8 @@ for (let i = 1; i <= 10; i++) {
     fileInput.onchange = e => {
       const file = e.target.files[0];
       if (file) {
-        preview.src = URL.createObjectURL(file);
-        preview.controls = true;
+        const videoURL = URL.createObjectURL(file);
+        preview.src = videoURL;
         preview.play();
       }
     };
@@ -89,5 +91,6 @@ for (let i = 1; i <= 10; i++) {
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
     }
+    recordedChunks = [];
   });
 }
