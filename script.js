@@ -1,3 +1,4 @@
+
 // Grab elements from the DOM
 const videoTracksContainer = document.getElementById('video-tracks-container');
 const masterUpload = document.getElementById('master-track-upload');
@@ -14,7 +15,7 @@ masterUpload.addEventListener('change', (e) => {
   }
 });
 
-// Create video track blocks dynamically
+// Create video track blocks dynamically (All video tracks will be stacked vertically)
 for (let i = 1; i <= 10; i++) {
   const trackDiv = document.createElement('div');
   trackDiv.className = 'video-track';
