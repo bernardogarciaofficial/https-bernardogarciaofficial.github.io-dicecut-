@@ -21,6 +21,7 @@ for (let i = 1; i <= 10; i++) {
 
   let mediaRecorder = null;
   let recordedChunks = [];
+  let stream = null;
 
   recordBtn.addEventListener('click', async () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
@@ -29,38 +30,36 @@ for (let i = 1; i <= 10; i++) {
       indicator.classList.remove('blinking');
     } else {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         preview.srcObject = stream;
         preview.muted = true;
         preview.play();
 
         recordedChunks = [];
-
         mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.ondataavailable = event => {
-          if (event.data.size > 0) {
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data && event.data.size > 0) {
             recordedChunks.push(event.data);
           }
         };
 
         mediaRecorder.onstop = () => {
           const blob = new Blob(recordedChunks, { type: 'video/webm' });
-
-          // Detach the stream
-          const tracks = preview.srcObject.getTracks();
-          tracks.forEach(track => track.stop());
-
-          preview.srcObject = null;
           const videoURL = URL.createObjectURL(blob);
+          preview.srcObject = null;
           preview.src = videoURL;
           preview.controls = true;
+          preview.muted = false;
           preview.play();
+
+          // Stop camera
+          stream.getTracks().forEach(track => track.stop());
         };
 
         mediaRecorder.start();
         recordBtn.textContent = '⏹ Stop';
         indicator.classList.add('blinking');
-
       } catch (err) {
         alert('Camera access denied or unavailable. Please check your camera settings.');
       }
@@ -83,9 +82,12 @@ for (let i = 1; i <= 10; i++) {
   });
 
   deleteBtn.addEventListener('click', () => {
-    preview.src = '';
+    preview.pause();
     preview.removeAttribute('src');
     preview.load();
-    preview.pause();
+    preview.srcObject = null;
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+    }
   });
 }
