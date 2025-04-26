@@ -1,29 +1,28 @@
-
 const videoTracksContainer = document.getElementById('video-tracks-container');
-const masterTrackUpload = document.getElementById('master-track-upload');
+const masterUpload = document.getElementById('master-track-upload');
 const masterTrack = document.getElementById('master-track');
 
-masterTrackUpload.addEventListener('change', () => {
-  const file = masterTrackUpload.files[0];
+masterUpload.addEventListener('change', (e) => {
+  const file = e.target.files[0];
   if (file) {
     masterTrack.src = URL.createObjectURL(file);
-    masterTrack.play();
+    masterTrack.load();
   }
 });
 
 for (let i = 1; i <= 10; i++) {
   const trackDiv = document.createElement('div');
   trackDiv.className = 'video-track';
+
   trackDiv.innerHTML = `
     <h3>Video Track ${i}</h3>
-    <div class="track-buttons">
-      <button class="record-btn">🎥 Record</button>
-      <button class="upload-btn">📁 Upload</button>
-      <button class="delete-btn">❌ Delete</button>
-      <div class="recording-indicator"></div>
-    </div>
+    <button class="record-btn">🎥 Record</button>
+    <button class="upload-btn">📁 Upload</button>
+    <button class="delete-btn">❌ Delete</button>
     <video class="preview" controls></video>
+    <div class="recording-indicator"></div>
   `;
+
   videoTracksContainer.appendChild(trackDiv);
 
   const recordBtn = trackDiv.querySelector('.record-btn');
@@ -56,15 +55,16 @@ for (let i = 1; i <= 10; i++) {
         };
 
         mediaRecorder.onstop = () => {
-          const blob = new Blob(recordedChunks, { type: 'video/webm' });
-          const videoURL = URL.createObjectURL(blob);
-          preview.srcObject = null;
-          preview.src = videoURL;
-          preview.controls = true;
-          preview.muted = false;
-          preview.play();
+          if (recordedChunks.length > 0) {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const videoURL = URL.createObjectURL(blob);
+            preview.srcObject = null;
+            preview.src = videoURL;
+            preview.controls = true;
+            preview.play();
+          }
 
-          stream.getTracks().forEach(track => track.stop());
+          if (stream) stream.getTracks().forEach(track => track.stop());
           indicator.classList.remove('blinking');
         };
 
@@ -73,6 +73,7 @@ for (let i = 1; i <= 10; i++) {
         indicator.classList.add('blinking');
       } catch (err) {
         alert('Camera access denied or unavailable.');
+        console.error(err);
       }
     }
   });
@@ -81,18 +82,23 @@ for (let i = 1; i <= 10; i++) {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'video/*';
+
     input.onchange = () => {
       const file = input.files[0];
       if (file) {
-        preview.src = URL.createObjectURL(file);
+        const videoURL = URL.createObjectURL(file);
+        preview.src = videoURL;
         preview.controls = true;
+        preview.play();
       }
     };
+
     input.click();
   });
 
   deleteBtn.addEventListener('click', () => {
     preview.src = '';
     preview.srcObject = null;
+    preview.pause();
   });
 }
