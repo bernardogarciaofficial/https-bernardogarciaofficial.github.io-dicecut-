@@ -1,21 +1,10 @@
-
-// Grab elements from the DOM
 const videoTracksContainer = document.getElementById('video-tracks-container');
 const masterUpload = document.getElementById('master-track-upload');
 const rollDiceBtn = document.getElementById('roll-dice-btn');
-const mixBtn = document.getElementById('mix-btn');
+const videoTracks = document.querySelectorAll('.video-track video');
 const masterTrack = document.getElementById('master-track');
 
-// Handle master track upload
-masterUpload.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    masterTrack.src = URL.createObjectURL(file);
-    masterTrack.load();
-  }
-});
-
-// Create video track blocks dynamically (All video tracks will be stacked vertically)
+// Create 10 video track windows dynamically
 for (let i = 1; i <= 10; i++) {
   const trackDiv = document.createElement('div');
   trackDiv.className = 'video-track';
@@ -41,7 +30,16 @@ for (let i = 1; i <= 10; i++) {
   let stream;
   let recordedChunks = [];
 
-  // Handle video recording
+  // Handle master track upload
+  masterUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      masterTrack.src = URL.createObjectURL(file);
+      masterTrack.load();
+    }
+  });
+
+  // Video recording logic
   recordBtn.addEventListener('click', async () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
       mediaRecorder.stop();
@@ -57,7 +55,7 @@ for (let i = 1; i <= 10; i++) {
         recordedChunks = [];
         mediaRecorder = new MediaRecorder(stream);
 
-        mediaRecorder.ondataavailable = (event) => {
+        mediaRecorder.ondataavailable = event => {
           if (event.data.size > 0) recordedChunks.push(event.data);
         };
 
@@ -66,7 +64,7 @@ for (let i = 1; i <= 10; i++) {
             const blob = new Blob(recordedChunks, { type: 'video/webm' });
             const videoURL = URL.createObjectURL(blob);
             preview.srcObject = null;
-            preview.src = videoURL;
+            preview.src = videoURL; // Save the video and display it
             preview.controls = true;
             preview.play();
           }
@@ -100,47 +98,19 @@ for (let i = 1; i <= 10; i++) {
         preview.play();
       }
     };
-
     input.click();
   });
 
-  // Handle video delete
+  // Delete the video preview
   deleteBtn.addEventListener('click', () => {
     preview.src = '';
     preview.srcObject = null;
     preview.pause();
   });
-}
-
-// Mix videos function (Roll the Dice logic)
-rollDiceBtn.addEventListener('click', () => {
-  console.log('Rolling the dice...');
-  const videoTracks = document.querySelectorAll('.video-track video');
-  const selectedVideos = [];
-
-  videoTracks.forEach((video) => {
-    if (video.src && Math.random() > 0.5) {
-      selectedVideos.push(video);
-    }
-  });
-
-  if (selectedVideos.length === 0) {
-    alert('No video tracks available for mixing.');
-    return;
-  }
-
-  const mixedVideo = document.createElement('video');
-  mixedVideo.controls = true;
-  mixedVideo.width = 640;
-
-  // Combine video elements (simple simulation of mixing)
-  mixedVideo.src = selectedVideos.map(v => v.src).join('&');
-  document.body.appendChild(mixedVideo);
-  mixedVideo.play();
 });
 
-// Mix button for triggering mix functionality
-mixBtn.addEventListener('click', () => {
-  console.log('Mixing videos...');
-  // Future enhancement: Improve logic for actual mixing of videos with audio sync
+// Roll Dice - Button Click Handler
+rollDiceBtn.addEventListener('click', () => {
+  console.log("Rolling the dice...");
+  // Placeholder for video mixing logic
 });
