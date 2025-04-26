@@ -1,6 +1,8 @@
 const recordBtns = document.querySelectorAll('.record-btn');
 const videoPreviews = document.querySelectorAll('video');
 const recordingIndicators = document.querySelectorAll('.recording-indicator');
+const deleteBtns = document.querySelectorAll('.delete-btn');
+const uploadBtns = document.querySelectorAll('.upload-btn');
 
 recordBtns.forEach((btn, index) => {
   let mediaRecorder;
@@ -33,6 +35,9 @@ recordBtns.forEach((btn, index) => {
           videoTrack.srcObject = null;
           videoTrack.src = videoURL;
           chunks = [];
+          videoTrack.style.display = 'block'; // Ensure the video is visible
+          deleteBtns[index].style.display = 'inline-block'; // Show delete button
+          uploadBtns[index].style.display = 'inline-block'; // Show upload button
         };
 
         mediaRecorder.start();
@@ -45,9 +50,20 @@ recordBtns.forEach((btn, index) => {
       }
     }
   });
-});
 
-const themeToggleBtn = document.querySelector('.theme-toggle-btn');
-themeToggleBtn.addEventListener('click', () => {
-  document.body.classList.toggle('dark-mode');
+  deleteBtns[index].addEventListener('click', () => {
+    videoTrack.src = '';
+    videoTrack.style.display = 'none';
+    deleteBtns[index].style.display = 'none';
+    uploadBtns[index].style.display = 'none';
+  });
+
+  uploadBtns[index].addEventListener('click', () => {
+    const videoTrack = videoPreviews[index];
+    const videoURL = videoTrack.src;
+    const a = document.createElement('a');
+    a.href = videoURL;
+    a.download = `video_track_${index + 1}.webm`;
+    a.click();
+  });
 });
