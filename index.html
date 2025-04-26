@@ -7,30 +7,21 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="main-content">
-        <h1>🎲 DiceCut</h1>
-        <div id="upload-section">
-            <h2>Upload Your Music Track</h2>
-            <div id="upload-area">
-                <input type="file" id="upload-file" accept="audio/*">
-                <p>🎵 Drag & drop or click to upload</p>
-            </div>
-        </div>
-        
-        <div id="video-tracks-container"></div>
 
-        <button id="roll-dice-btn">🎲 Roll the Dice</button>
-        <button id="mix-btn">🎲 Tap to Mix!</button>
+<div id="video-tracks-container"></div>
 
-        <div id="members-info">
-            <p>👥 Members joined: Unavailable</p>
-        </div>
+<button id="roll-dice-btn">🎲 Roll the Dice</button>
+<button id="mix-btn">🎲 Tap to Mix!</button>
 
-        <div id="light-dark-mode">
-            <button>🌗 Light/Dark Mode</button>
-        </div>
-    </div>
+<div id="members-info">
+    <p>👥 Members joined: <span id="members-count">Unavailable</span></p>
+</div>
 
-    <script src="script.js"></script>
+<div>
+    <label for="dark-light-toggle">🌗 Light/Dark Mode</label>
+    <input type="checkbox" id="dark-light-toggle">
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
