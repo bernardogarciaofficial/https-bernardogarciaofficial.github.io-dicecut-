@@ -1,26 +1,32 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DiceCut Studio</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎲 DiceCut</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
+    <h1>🎲 DiceCut</h1>
+
     <div id="master-track-container">
       <h2>Master Music Track</h2>
-      <input type="file" id="master-track-upload" accept="audio/*">
+      <input type="file" id="master-track-upload" accept="audio/*" />
       <audio id="master-track" controls></audio>
     </div>
 
-    <div id="video-tracks-container">
-      <!-- Video Tracks will be dynamically created here -->
+    <div id="video-tracks-container"></div>
+
+    <div class="buttons">
+      <button id="roll-dice-btn">🎲 Roll the Dice</button>
+      <button id="mix-btn">🎲 Tap to Mix!</button>
     </div>
 
-    <button id="roll-dice-btn">🎲 Roll the Dice</button>
-    <button id="mix-btn">🎲 Tap to Mix!</button>
+    <div class="footer">
+      <p>👥 Members joined: Unavailable</p>
+      <button id="toggle-theme">🌗 Light/Dark Mode</button>
+    </div>
   </div>
 
   <script src="script.js"></script>
