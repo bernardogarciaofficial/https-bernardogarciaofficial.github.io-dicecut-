@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DiceCut</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎲 DiceCut</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="main-content">
+        <h1>🎲 DiceCut</h1>
+        <div id="upload-section">
+            <h2>Upload Your Music Track</h2>
+            <div id="upload-area">
+                <input type="file" id="upload-file" accept="audio/*">
+                <p>🎵 Drag & drop or click to upload</p>
+            </div>
+        </div>
+        
+        <div id="video-tracks-container"></div>
 
-  <div id="theme-toggle">
-    🌗 Light/Dark Mode
-    <input type="checkbox" id="theme-toggle-checkbox" />
-  </div>
+        <button id="roll-dice-btn">🎲 Roll the Dice</button>
+        <button id="mix-btn">🎲 Tap to Mix!</button>
 
-  <h1>🎲 DiceCut</h1>
+        <div id="members-info">
+            <p>👥 Members joined: Unavailable</p>
+        </div>
 
-  <section id="music-upload">
-    <h2>Upload Your Music Track</h2>
-    <p>🎵 Drag & drop or click to upload</p>
-    <input type="file" id="music-upload-input" />
-    <div id="music-upload-message"></div>
-  </section>
+        <div id="light-dark-mode">
+            <button>🌗 Light/Dark Mode</button>
+        </div>
+    </div>
 
-  <h2>Video Tracks</h2>
-  <div id="video-tracks-container"></div>
-
-  <button id="roll-dice-btn">🎲 Roll the Dice</button>
-  <button id="mix-btn">🎲 Tap to Mix!</button>
-
-  <div id="member-count">👥 Members joined: <span id="member-number">Unavailable</span></div>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
