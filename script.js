@@ -1,4 +1,3 @@
-
 const videoTracksContainer = document.getElementById('video-tracks-container');
 const masterUpload = document.getElementById('master-track-upload');
 const rollDiceBtn = document.getElementById('roll-dice-btn');
