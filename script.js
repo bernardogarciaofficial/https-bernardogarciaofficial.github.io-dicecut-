@@ -1,5 +1,4 @@
-
- const videoTracksContainer = document.getElementById('video-tracks-container');
+const videoTracksContainer = document.getElementById('video-tracks-container');
 const masterTrack = document.getElementById('master-track');
 const masterTrackUpload = document.getElementById('master-track-upload');
 let mediaRecorder;
