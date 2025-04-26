@@ -1,34 +1,37 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🎬 DiceCut | Hollywood Music & Video Mixer</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎲 DiceCut</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="container">
-        <h1>🎬 DiceCut | Music & Video Mixer</h1>
-        <div id="master-track-container">
-            <h2>🎶 Master Music Track</h2>
-            <input type="file" id="master-track-upload" accept="audio/*" />
-            <audio id="master-track" controls></audio>
-        </div>
-
-        <div id="video-tracks-container">
-            <!-- Video Tracks will be dynamically created here -->
-        </div>
-
-        <div class="members-counter">
-            <p>👥 Members joined: Unavailable</p>
-        </div>
-
-        <button id="roll-dice-btn">🎲 Roll the Dice</button>
-        <button id="mix-btn">🎬 Tap to Mix!</button>
-
-        <p id="toggle-theme">🌗 Light/Dark Mode</p>
+  <div class="container">
+    <h1>🎲 DiceCut</h1>
+    
+    <!-- Master Music Track Section -->
+    <div id="master-track-container">
+      <h2>Master Music Track</h2>
+      <input type="file" id="master-track-upload" accept="audio/*" />
+      <audio id="master-track" controls></audio>
     </div>
+    
+    <!-- Video Tracks Container -->
+    <div id="video-tracks-container"></div>
+    
+    <!-- Control Buttons -->
+    <button id="roll-dice-btn">🎲 Roll the Dice</button>
+    <button id="mix-btn">🎲 Tap to Mix!</button>
+    
+    <!-- Members Counter (Placeholder) -->
+    <p>👥 Members joined: <span id="members-counter">0</span></p>
+    
+    <!-- Theme Toggle -->
+    <button id="toggle-theme">🌗 Light/Dark Mode</button>
+  </div>
 
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
