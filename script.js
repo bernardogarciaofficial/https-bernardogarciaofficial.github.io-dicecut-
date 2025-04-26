@@ -1,79 +1,74 @@
-// Get the container where video tracks will be appended
 const videoTracksContainer = document.getElementById('video-tracks-container');
 
 // Create 10 video tracks dynamically
 for (let i = 1; i <= 10; i++) {
-  const trackDiv = document.createElement('div');
-  trackDiv.className = 'video-track';
-  trackDiv.innerHTML = `
-    <h3>Video Track ${i}</h3>
-    <button class="record-btn">🎥 Record</button>
-    <button class="upload-btn">📁 Upload</button>
-    <button class="delete-btn">❌ Delete</button>
-    <video class="preview" controls></video>
-    <div class="recording-indicator"></div>
-  `;
-  videoTracksContainer.appendChild(trackDiv);
+    const trackDiv = document.createElement('div');
+    trackDiv.className = 'video-track';
+    trackDiv.innerHTML = `
+        <h3>Video Track ${i}</h3>
+        <button class="record-btn">🎥 Record</button>
+        <button class="upload-btn">📁 Upload</button>
+        <button class="delete-btn">❌ Delete</button>
+        <video class="preview" controls></video>
+        <div class="recording-indicator"></div>
+    `;
+    videoTracksContainer.appendChild(trackDiv);
+
+    const recordBtn = trackDiv.querySelector('.record-btn');
+    const uploadBtn = trackDiv.querySelector('.upload-btn');
+    const deleteBtn = trackDiv.querySelector('.delete-btn');
+    const videoElement = trackDiv.querySelector('.preview');
+    const recordingIndicator = trackDiv.querySelector('.recording-indicator');
+    let mediaRecorder;
+    let recordedChunks = [];
+    let stream;
+
+    // Handle recording
+    recordBtn.addEventListener('click', async () => {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            // Stop recording
+            mediaRecorder.stop();
+            stream.getTracks().forEach(track => track.stop());
+            recordingIndicator.classList.remove('recording');
+        } else {
+            // Start recording
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            videoElement.srcObject = stream;
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.ondataavailable = (event) => {
+                recordedChunks.push(event.data);
+            };
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const videoURL = URL.createObjectURL(blob);
+                videoElement.src = videoURL;  // Set the video element to the recorded video
+            };
+            mediaRecorder.start();
+            recordingIndicator.classList.add('recording');
+        }
+    });
+
+    // Handle upload
+    uploadBtn.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'video/*';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            const videoURL = URL.createObjectURL(file);
+            videoElement.src = videoURL;  // Show the uploaded video in the preview
+        };
+        input.click();  // Trigger the file input click event
+    });
+
+    // Handle delete
+    deleteBtn.addEventListener('click', () => {
+        videoElement.src = '';  // Remove the video preview
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.stop();
+            stream.getTracks().forEach(track => track.stop());
+        }
+        recordedChunks = [];  // Clear recorded chunks
+        recordingIndicator.classList.remove('recording');
+    });
 }
-
-// Initialize an empty array to keep track of video streams
-const videoStreams = [];
-
-// Get all record buttons
-const recordBtns = document.querySelectorAll('.record-btn');
-const previewVideos = document.querySelectorAll('.preview');
-const recordingIndicators = document.querySelectorAll('.recording-indicator');
-
-// Function to start recording video
-async function startRecording(index) {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoStreams[index] = stream;
-    previewVideos[index].srcObject = stream;
-    recordingIndicators[index].style.backgroundColor = 'red'; // Show the red recording indicator
-
-    // Optionally, we can start recording audio and video here with MediaRecorder
-    // For simplicity, this is just setting up the video preview
-
-  } catch (err) {
-    console.error('Camera access denied or unavailable:', err);
-  }
-}
-
-// Function to stop recording
-function stopRecording(index) {
-  const stream = videoStreams[index];
-  if (stream) {
-    const tracks = stream.getTracks();
-    tracks.forEach(track => track.stop());
-    previewVideos[index].srcObject = null; // Clear the preview
-    recordingIndicators[index].style.backgroundColor = 'transparent'; // Remove the red indicator
-  }
-}
-
-// Add event listeners to record buttons
-recordBtns.forEach((button, index) => {
-  button.addEventListener('click', () => {
-    if (videoStreams[index]) {
-      stopRecording(index); // Stop recording if it's already recording
-    } else {
-      startRecording(index); // Start recording
-    }
-  });
-});
-
-// Add event listeners for upload and delete buttons
-const uploadBtns = document.querySelectorAll('.upload-btn');
-const deleteBtns = document.querySelectorAll('.delete-btn');
-
-uploadBtns.forEach((button, index) => {
-  button.addEventListener('click', () => {
-    alert(`Upload functionality for Video Track ${index + 1} will be implemented soon.`);
-  });
-});
-
-deleteBtns.forEach((button, index) => {
-  button.addEventListener('click', () => {
-    alert(`Delete functionality for Video Track ${index + 1} will be implemented soon.`);
-  });
-});
