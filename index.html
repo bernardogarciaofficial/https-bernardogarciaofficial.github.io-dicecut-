@@ -1,52 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🎲 DiceCut</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <!-- Main Title -->
     <h1>🎲 DiceCut</h1>
 
-    <!-- Master Music Track -->
+    <!-- Master Music Track Section -->
     <div id="master-track-container">
       <h2>Master Music Track</h2>
       <input type="file" id="master-track-upload" accept="audio/*" />
       <audio id="master-track" controls></audio>
     </div>
 
-    <!-- 🎥 Video Tracks Container -->
+    <!-- Video Tracks Container -->
     <div id="video-tracks-container">
-      <!-- Video tracks will be added here dynamically -->
+      <!-- Video Tracks will be dynamically generated here -->
     </div>
 
     <!-- Control Buttons -->
     <div class="control-buttons">
-
       <!-- Dice Buttons -->
       <div class="controls">
         <button id="roll-dice-btn">🎲 Roll the Dice</button>
         <button id="mix-btn">🎲 Tap to Mix!</button>
-      </div>
-
-      <!-- Recording Button -->
-      <div style="margin-top: 20px;">
+        <!-- Recording Button -->
         <button id="record-btn">🎥 Record</button>
         <span id="indicator" class="recording-indicator"></span>
       </div>
 
-      <!-- Live Preview -->
-      <video id="preview" autoplay muted style="width: 300px; margin-top: 20px; display: none; border-radius: 10px;"></video>
-
       <!-- Members Counter -->
-      <p>👥 Members joined: <span id="members-count">0</span></p>
+      <p>👥 Members joined: <span id="members-counter">0</span></p>
 
       <!-- Theme Toggle -->
       <button id="toggle-theme">🌗 Light/Dark Mode</button>
     </div>
+
+    <!-- Live Preview -->
+    <video id="preview" autoplay muted style="width: 300px; margin-top: 20px; display: none; border-radius: 10px;"></video>
   </div>
 
   <script src="script.js"></script>
