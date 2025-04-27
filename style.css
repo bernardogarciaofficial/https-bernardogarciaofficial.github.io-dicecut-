@@ -1,92 +1,89 @@
-/* General Reset */
-* {
+/* Global Styles */
+body {
+  background-color: #101010; /* Dark background */
+  color: #fff;
+  font-family: 'Arial', sans-serif;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-/* Body and Background */
-body {
-  background: linear-gradient(135deg, #101010, #2c3e50);
-  background-image: url('https://www.pngkey.com/png/detail/835-8354066_film-strip-border.png');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-  color: white;
-  font-family: 'Roboto', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
   text-align: center;
+  background-image: url('https://www.pngkey.com/png/detail/835-8354066_film-strip-border.png');
+  background-repeat: repeat;
+  background-position: center;
+  background-size: 100%;
 }
 
-/* Container Styling */
+/* Container with film border and sleek style */
 .container {
-  background: rgba(0, 0, 0, 0.7);
-  border-radius: 12px;
-  padding: 40px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
-  width: 80%;
-  max-width: 1200px;
-  margin: auto;
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  border: 5px solid #fff;
+  margin: 20px auto;
+  max-width: 1000px;
 }
 
-/* Header and Title */
+/* Title and subtitle with Hollywood feel */
 h1 {
-  font-size: 3rem;
-  font-family: 'Lobster', cursive;
-  color: #f1c40f;
-  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-  margin-bottom: 20px;
+  font-size: 40px;
+  color: #ffcc00; /* Gold color */
+  text-shadow: 0px 0px 10px rgba(255, 204, 0, 1);
 }
 
 h2 {
-  font-size: 2rem;
-  color: #ecf0f1;
-  margin-top: 20px;
+  color: #ffcc00;
+  font-size: 28px;
+  margin-bottom: 20px;
 }
 
-/* Video Track Styling */
+/* Film strip border effect for video tracks */
 .video-track {
-  background-color: rgba(255, 255, 255, 0.05);
   margin-bottom: 20px;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 2px solid #fff;
+  border-radius: 12px;
+  background-image: url('https://www.pngkey.com/png/detail/835-8354066_film-strip-border.png');
+  background-repeat: no-repeat;
+  background-position: left top;
+  background-size: contain;
 }
 
 .video-track h3 {
-  color: #ecf0f1;
-  margin-bottom: 15px;
+  font-size: 24px;
+  color: #ffcc00;
 }
 
-.video-track button {
-  background-color: #2c3e50;
-  color: white;
+button {
+  padding: 12px 20px;
+  background-color: #ffcc00;
+  color: #101010;
   border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  margin: 5px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
+  font-size: 16px;
+  text-transform: uppercase;
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+  transition: 0.3s;
 }
 
-.video-track button:hover {
-  background-color: #34495e;
-  transform: scale(1.05);
+button:hover {
+  background-color: #f39c12;
+  box-shadow: 0 0 20px rgba(255, 204, 0, 0.9);
 }
 
-/* Recording Indicator Styling */
+button:active {
+  background-color: #e67e22;
+}
+
+/* Red blinking recording indicator */
 .recording-indicator {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   background-color: red;
   border-radius: 50%;
-  margin-top: 10px;
+  margin-top: 5px;
   display: none;
 }
 
@@ -104,40 +101,55 @@ h2 {
   }
 }
 
-/* Dice Buttons */
-.controls button {
+/* Dice Button styles */
+#roll-dice-btn, #mix-btn {
+  margin-top: 20px;
+  padding: 20px 30px;
+  background-color: #ffcc00;
+  color: #101010;
+  border-radius: 10px;
+  font-size: 18px;
+  box-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+#roll-dice-btn:hover, #mix-btn:hover {
   background-color: #f39c12;
-  border: none;
-  border-radius: 8px;
-  padding: 15px 30px;
-  font-size: 1.2rem;
-  margin-top: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
+  box-shadow: 0 0 20px rgba(255, 204, 0, 1);
 }
 
-.controls button:hover {
+#roll-dice-btn:active, #mix-btn:active {
   background-color: #e67e22;
-  transform: scale(1.05);
 }
 
-/* Members Counter */
-p {
-  margin-top: 20px;
-  font-size: 1.1rem;
-}
-
-/* Theme Toggle Button */
 #toggle-theme {
-  background-color: #16a085;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
   margin-top: 20px;
+  padding: 15px 30px;
+  background-color: #2c3e50;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
 #toggle-theme:hover {
-  background-color: #1abc9c;
+  background-color: #34495e;
+}
+
+/* Members count styles */
+#members-count {
+  font-size: 24px;
+  color: #ffcc00;
+  text-shadow: 0 0 5px rgba(255, 204, 0, 1);
+}
+
+/* Footer or extra styling */
+footer {
+  padding: 20px;
+  background-color: #101010;
+  color: #fff;
+  text-align: center;
+  margin-top: 20px;
+  border-top: 3px solid #ffcc00;
 }
