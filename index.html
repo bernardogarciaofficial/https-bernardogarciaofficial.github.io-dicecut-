@@ -8,31 +8,28 @@
 </head>
 <body>
   <div class="container">
-    <!-- Main Title -->
     <h1>🎲 DiceCut</h1>
 
-    <!-- Master Music Track Section -->
+    <!-- Master Music Track -->
     <div id="master-track-container">
       <h2>Master Music Track</h2>
       <input type="file" id="master-track-upload" accept="audio/*" />
       <audio id="master-track" controls></audio>
     </div>
-    
-    <!-- Video Tracks Container -->
+
+    <!-- 🎥 Video Tracks Container -->
     <div id="video-tracks-container">
-      <!-- Video Tracks will be dynamically generated here -->
+      <!-- Video tracks will be added here dynamically -->
     </div>
-    
-    <!-- Control Buttons -->
-    <div class="control-buttons">
+
+    <!-- Dice Buttons -->
+    <div class="controls">
       <button id="roll-dice-btn">🎲 Roll the Dice</button>
       <button id="mix-btn">🎲 Tap to Mix!</button>
     </div>
 
-    <!-- Members Counter -->
-    <p>👥 Members joined: <span id="members-counter">0</span></p>
-    
-    <!-- Theme Toggle -->
+    <!-- Members + Theme Toggle -->
+    <p>👥 Members joined: <span id="members-count">0</span></p>
     <button id="toggle-theme">🌗 Light/Dark Mode</button>
   </div>
 
