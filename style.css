@@ -5,10 +5,17 @@ body {
   font-family: 'Arial', sans-serif;
   background-color: #101010;
   color: white;
-  background-color: #111;
-  color: #f1c40f;
   text-align: center;
   box-sizing: border-box;
+}
+
+/* Master Audio Track Section */
+#master-track-container {
+  padding: 20px;
+  background-color: #333;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  margin-bottom: 20px;
 }
 
 /* Video Tracks Styling */
