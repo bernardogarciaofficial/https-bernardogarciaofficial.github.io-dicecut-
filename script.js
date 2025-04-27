@@ -51,6 +51,7 @@ recordBtn.addEventListener('click', async () => {
         if (event.data.size > 0) recordedChunks.push(event.data);
       };
 
+      // ✅ New onstop logic with auto-download
       mediaRecorder.onstop = () => {
         const blob = new Blob(recordedChunks, { type: 'video/webm' });
         const url = URL.createObjectURL(blob);
@@ -65,15 +66,21 @@ recordBtn.addEventListener('click', async () => {
         const track = document.getElementById(`track-${selectedTrackIndex}`);
         track.appendChild(video);
 
+        // Optional: Automatically download the video
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `recording-${new Date().toISOString()}.webm`;
+        a.click();
+
+        // Clean up
         preview.srcObject = null;
         preview.style.display = 'none';
-
         if (stream) stream.getTracks().forEach(track => track.stop());
         indicator.classList.remove('blinking');
       };
 
       mediaRecorder.start();
-      indicator.classList.add('blinking'); // ⬅️ Start blinking indicator
+      indicator.classList.add('blinking');
       masterAudio.currentTime = 0;
       masterAudio.play();
       recordBtn.textContent = '⏹ Stop';
