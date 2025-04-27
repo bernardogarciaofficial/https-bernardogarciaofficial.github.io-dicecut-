@@ -29,12 +29,14 @@ for (let i = 1; i <= 10; i++) {
   // Start/Stop recording
   recordBtn.addEventListener('click', async () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
+      console.log('Stopping recording...');
       mediaRecorder.stop();
       recordBtn.textContent = '🎥 Record';
       indicator.classList.remove('blinking');
     } else {
       try {
         // Request video and audio stream from webcam and microphone
+        console.log('Starting recording...');
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         preview.srcObject = stream;
         preview.muted = true;
@@ -58,9 +60,13 @@ for (let i = 1; i <= 10; i++) {
             preview.src = videoURL; // Set the recorded video
             preview.controls = true;
             preview.play();
+            console.log('Recording saved successfully!');
           }
 
-          if (stream) stream.getTracks().forEach(track => track.stop());
+          if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+          }
+
           indicator.classList.remove('blinking');
         };
 
@@ -68,9 +74,10 @@ for (let i = 1; i <= 10; i++) {
         mediaRecorder.start();
         recordBtn.textContent = '⏹ Stop';
         indicator.classList.add('blinking');
+        console.log('Recording started...');
       } catch (err) {
         alert('Camera access denied or unavailable.');
-        console.error(err);
+        console.error('Error accessing camera and microphone: ', err);
       }
     }
   });
