@@ -1,106 +1,91 @@
-const videoTracksContainer = document.getElementById('video-tracks-container');
+const recordBtn = document.getElementById('record-btn');
+const indicator = document.getElementById('indicator');
+const preview = document.getElementById('preview');
+const masterAudio = document.getElementById('master-track');
 
-// Create video tracks dynamically
-for (let i = 1; i <= 10; i++) {
+const videoTracksContainer = document.getElementById('video-tracks-container');
+let mediaRecorder;
+let recordedChunks = [];
+let stream;
+let selectedTrackIndex = null;
+const MAX_TRACKS = 10;
+
+// Create 10 video track slots
+for (let i = 0; i < MAX_TRACKS; i++) {
   const trackDiv = document.createElement('div');
   trackDiv.className = 'video-track';
+  trackDiv.id = `track-${i}`;
 
-  trackDiv.innerHTML = `
-    <h3>Video Track ${i}</h3>
-    <button class="record-btn">🎥 Record</button>
-    <button class="upload-btn">📁 Upload</button>
-    <button class="delete-btn">❌ Delete</button>
-    <video class="preview" controls></video>
-    <div class="recording-indicator"></div>
-  `;
+  const label = document.createElement('h3');
+  label.textContent = `Video Track ${i + 1}`;
 
+  const selectBtn = document.createElement('button');
+  selectBtn.className = 'select-btn';
+  selectBtn.textContent = '🎬 Select to Record';
+
+  selectBtn.addEventListener('click', () => {
+    document.querySelectorAll('.video-track').forEach((el, idx) => {
+      el.classList.remove('selected');
+      el.querySelector('button').classList.remove('selected');
+    });
+    trackDiv.classList.add('selected');
+    selectBtn.classList.add('selected');
+    selectedTrackIndex = i;
+  });
+
+  trackDiv.appendChild(label);
+  trackDiv.appendChild(selectBtn);
   videoTracksContainer.appendChild(trackDiv);
-
-  const recordBtn = trackDiv.querySelector('.record-btn');
-  const uploadBtn = trackDiv.querySelector('.upload-btn');
-  const deleteBtn = trackDiv.querySelector('.delete-btn');
-  const preview = trackDiv.querySelector('.preview');
-  const indicator = trackDiv.querySelector('.recording-indicator');
-
-  let mediaRecorder;
-  let stream;
-  let recordedChunks = [];
-
-  // Start/Stop recording
-  recordBtn.addEventListener('click', async () => {
-    if (mediaRecorder && mediaRecorder.state === 'recording') {
-      mediaRecorder.stop();
-      recordBtn.textContent = '🎥 Record';
-      indicator.classList.remove('blinking');
-    } else {
-      try {
-        // Request video and audio stream from webcam and microphone
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        preview.srcObject = stream;
-        preview.muted = true;
-        preview.play();
-
-        // Prepare MediaRecorder
-        recordedChunks = [];
-        mediaRecorder = new MediaRecorder(stream);
-
-        // Collect recorded data
-        mediaRecorder.ondataavailable = event => {
-          if (event.data.size > 0) recordedChunks.push(event.data);
-        };
-
-        // When recording stops, save the video and display it
-        mediaRecorder.onstop = () => {
-          if (recordedChunks.length > 0) {
-            const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            const videoURL = URL.createObjectURL(blob);
-            preview.srcObject = null; // Remove the stream
-            preview.src = videoURL; // Set the recorded video
-            preview.controls = true;
-            preview.play();
-          }
-
-          // Stop the stream tracks
-          if (stream) stream.getTracks().forEach(track => track.stop());
-
-          // Hide the blinking red light once the recording is stopped
-          indicator.classList.remove('blinking');
-        };
-
-        // Start recording
-        mediaRecorder.start();
-        recordBtn.textContent = '⏹ Stop';
-        indicator.classList.add('blinking'); // Start blinking red light
-      } catch (err) {
-        alert('Camera access denied or unavailable.');
-        console.error(err);
-      }
-    }
-  });
-
-  // Delete button - Clear video and reset
-  deleteBtn.addEventListener('click', () => {
-    preview.src = '';
-    preview.srcObject = null;
-    preview.pause();
-  });
-
-  // Upload button - File input for uploading a video
-  uploadBtn.addEventListener('click', () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'video/*';
-
-    input.onchange = () => {
-      const file = input.files[0];
-      if (file) {
-        const videoURL = URL.createObjectURL(file);
-        preview.src = videoURL;
-        preview.controls = true;
-        preview.play();
-      }
-    };
-
-    input.click();
-  });
 }
+
+recordBtn.addEventListener('click', async () => {
+  if (selectedTrackIndex === null) {
+    alert('Please select a video track to record into.');
+    return;
+  }
+
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+    recordBtn.textContent = '🎥 Record';
+    indicator.classList.remove('blinking');
+    masterAudio.pause();
+  } else {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      preview.srcObject = stream;
+      preview.muted = true;
+
+      recordedChunks = [];
+      mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.ondataavailable = event => {
+        if (event.data.size > 0) recordedChunks.push(event.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+
+        const video = document.createElement('video');
+        video.src = url;
+        video.controls = true;
+        video.style.marginTop = '10px';
+
+        const track = document.getElementById(`track-${selectedTrackIndex}`);
+        track.appendChild(video);
+
+        if (stream) stream.getTracks().forEach(track => track.stop());
+        indicator.classList.remove('blinking');
+      };
+
+      mediaRecorder.start();
+      masterAudio.currentTime = 0;
+      masterAudio.play();
+      recordBtn.textContent = '⏹ Stop';
+      indicator.classList.add('blinking');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to access camera/mic.');
+    }
+  }
+});
