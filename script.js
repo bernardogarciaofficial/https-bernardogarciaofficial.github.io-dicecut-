@@ -1,11 +1,3 @@
-const videoTracksContainer = document.getElementById('video-tracks-container');
-const masterUpload = document.getElementById('master-track-upload');
-const rollDiceBtn = document.getElementById('roll-dice-btn');
-const videoTracks = document.querySelectorAll('.video-track video');
-const masterTrack = document.getElementById('master-track');
-const membersCounter = document.getElementById('members-counter');
-
-// Create 10 video track windows dynamically
 for (let i = 1; i <= 10; i++) {
   const trackDiv = document.createElement('div');
   trackDiv.className = 'video-track';
@@ -31,16 +23,7 @@ for (let i = 1; i <= 10; i++) {
   let stream;
   let recordedChunks = [];
 
-  // Handle master track upload
-  masterUpload.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      masterTrack.src = URL.createObjectURL(file);
-      masterTrack.load();
-    }
-  });
-
-  // Video recording logic
+  // ✅ Recording logic — this is the fix
   recordBtn.addEventListener('click', async () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
       mediaRecorder.stop();
@@ -54,29 +37,34 @@ for (let i = 1; i <= 10; i++) {
         preview.play();
 
         recordedChunks = [];
+
         mediaRecorder = new MediaRecorder(stream);
 
-        mediaRecorder.ondataavailable = event => {
-          if (event.data.size > 0) recordedChunks.push(event.data);
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            recordedChunks.push(event.data);
+          }
         };
 
         mediaRecorder.onstop = () => {
-          if (recordedChunks.length > 0) {
-            const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            const videoURL = URL.createObjectURL(blob);
-            preview.srcObject = null;
-            preview.src = videoURL; // Save the video and display it
-            preview.controls = true;
-            preview.play();
+          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          const videoURL = URL.createObjectURL(blob);
+          preview.srcObject = null;
+          preview.src = videoURL;
+          preview.controls = true;
+          preview.play();
+
+          if (stream) {
+            stream.getTracks().forEach(track => track.stop());
           }
 
-          if (stream) stream.getTracks().forEach(track => track.stop());
           indicator.classList.remove('blinking');
         };
 
         mediaRecorder.start();
         recordBtn.textContent = '⏹ Stop';
         indicator.classList.add('blinking');
+
       } catch (err) {
         alert('Camera access denied or unavailable.');
         console.error(err);
@@ -84,7 +72,6 @@ for (let i = 1; i <= 10; i++) {
     }
   });
 
-  // Handle video upload
   uploadBtn.addEventListener('click', () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -99,19 +86,15 @@ for (let i = 1; i <= 10; i++) {
         preview.play();
       }
     };
+
     input.click();
   });
 
-  // Delete the video preview
   deleteBtn.addEventListener('click', () => {
     preview.src = '';
     preview.srcObject = null;
     preview.pause();
   });
-});
+}
 
-// Roll Dice - Button Click Handler
-rollDiceBtn.addEventListener('click', () => {
-  console.log("Rolling the dice...");
-  // Placeholder for video mixing logic
-});
+ 
