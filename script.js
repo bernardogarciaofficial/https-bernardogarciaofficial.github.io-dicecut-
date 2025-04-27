@@ -1,43 +1,44 @@
+let selectedTrackIndex = null;
+let mediaRecorder;
+let recordedChunks = [];
+let stream = null;
+
+const masterAudio = document.getElementById('master-track');
 const recordBtn = document.getElementById('record-btn');
 const indicator = document.getElementById('indicator');
 const preview = document.getElementById('preview');
-const masterAudio = document.getElementById('master-track');
-
 const videoTracksContainer = document.getElementById('video-tracks-container');
-let mediaRecorder;
-let recordedChunks = [];
-let stream;
-let selectedTrackIndex = null;
-const MAX_TRACKS = 10;
 
-// Create 10 video track slots
-for (let i = 0; i < MAX_TRACKS; i++) {
-  const trackDiv = document.createElement('div');
-  trackDiv.className = 'video-track';
-  trackDiv.id = `track-${i}`;
+// Generate 10 video tracks
+for (let i = 0; i < 10; i++) {
+  const track = document.createElement('div');
+  track.classList.add('video-track');
+  track.id = `track-${i}`;
 
-  const label = document.createElement('h3');
-  label.textContent = `Video Track ${i + 1}`;
+  const title = document.createElement('h3');
+  title.textContent = `Video Track ${i + 1}`;
 
   const selectBtn = document.createElement('button');
-  selectBtn.className = 'select-btn';
-  selectBtn.textContent = '🎬 Select to Record';
+  selectBtn.textContent = '🎯 Select to Record';
+  selectBtn.classList.add('select-btn');
 
   selectBtn.addEventListener('click', () => {
-    document.querySelectorAll('.video-track').forEach((el, idx) => {
-      el.classList.remove('selected');
-      el.querySelector('button').classList.remove('selected');
-    });
-    trackDiv.classList.add('selected');
+    // Deselect all
+    document.querySelectorAll('.video-track').forEach(t => t.classList.remove('selected'));
+    document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('selected'));
+
+    // Select this one
+    track.classList.add('selected');
     selectBtn.classList.add('selected');
     selectedTrackIndex = i;
   });
 
-  trackDiv.appendChild(label);
-  trackDiv.appendChild(selectBtn);
-  videoTracksContainer.appendChild(trackDiv);
+  track.appendChild(title);
+  track.appendChild(selectBtn);
+  videoTracksContainer.appendChild(track);
 }
 
+// 🎥 Record Button Handler
 recordBtn.addEventListener('click', async () => {
   if (selectedTrackIndex === null) {
     alert('Please select a video track to record into.');
@@ -48,12 +49,13 @@ recordBtn.addEventListener('click', async () => {
     mediaRecorder.stop();
     recordBtn.textContent = '🎥 Record';
     indicator.classList.remove('blinking');
+    preview.style.display = 'none';
     masterAudio.pause();
   } else {
     try {
       stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       preview.srcObject = stream;
-      preview.muted = true;
+      preview.style.display = 'block';
 
       recordedChunks = [];
       mediaRecorder = new MediaRecorder(stream);
@@ -70,9 +72,14 @@ recordBtn.addEventListener('click', async () => {
         video.src = url;
         video.controls = true;
         video.style.marginTop = '10px';
+        video.style.width = '100%';
+        video.style.borderRadius = '10px';
 
         const track = document.getElementById(`track-${selectedTrackIndex}`);
         track.appendChild(video);
+
+        preview.srcObject = null;
+        preview.style.display = 'none';
 
         if (stream) stream.getTracks().forEach(track => track.stop());
         indicator.classList.remove('blinking');
