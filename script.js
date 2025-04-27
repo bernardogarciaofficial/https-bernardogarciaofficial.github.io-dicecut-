@@ -29,14 +29,12 @@ for (let i = 1; i <= 10; i++) {
   // Start/Stop recording
   recordBtn.addEventListener('click', async () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
-      console.log('Stopping recording...');
       mediaRecorder.stop();
       recordBtn.textContent = '🎥 Record';
       indicator.classList.remove('blinking');
     } else {
       try {
         // Request video and audio stream from webcam and microphone
-        console.log('Starting recording...');
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         preview.srcObject = stream;
         preview.muted = true;
@@ -48,7 +46,6 @@ for (let i = 1; i <= 10; i++) {
 
         // Collect recorded data
         mediaRecorder.ondataavailable = event => {
-          console.log('Data available', event.data);
           if (event.data.size > 0) recordedChunks.push(event.data);
         };
 
@@ -61,26 +58,22 @@ for (let i = 1; i <= 10; i++) {
             preview.src = videoURL; // Set the recorded video
             preview.controls = true;
             preview.play();
-            console.log('Recording saved successfully!');
-          } else {
-            console.log('No recorded chunks available.');
           }
 
-          if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-          }
+          // Stop the stream tracks
+          if (stream) stream.getTracks().forEach(track => track.stop());
 
+          // Hide the blinking red light once the recording is stopped
           indicator.classList.remove('blinking');
         };
 
         // Start recording
         mediaRecorder.start();
         recordBtn.textContent = '⏹ Stop';
-        indicator.classList.add('blinking');
-        console.log('Recording started...');
+        indicator.classList.add('blinking'); // Start blinking red light
       } catch (err) {
         alert('Camera access denied or unavailable.');
-        console.error('Error accessing camera and microphone: ', err);
+        console.error(err);
       }
     }
   });
