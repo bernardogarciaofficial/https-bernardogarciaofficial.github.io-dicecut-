@@ -1,3 +1,19 @@
+const videoTracksContainer = document.getElementById('video-tracks-container');
+const masterUpload = document.getElementById('master-track-upload');
+const masterTrack = document.getElementById('master-track');
+const rollDiceBtn = document.getElementById('roll-dice-btn');
+const mixBtn = document.getElementById('mix-btn');
+
+// Load master audio track
+masterUpload.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    masterTrack.src = URL.createObjectURL(file);
+    masterTrack.load();
+  }
+});
+
+// Create 10 stacked video tracks
 for (let i = 1; i <= 10; i++) {
   const trackDiv = document.createElement('div');
   trackDiv.className = 'video-track';
@@ -23,7 +39,7 @@ for (let i = 1; i <= 10; i++) {
   let stream;
   let recordedChunks = [];
 
-  // ✅ Recording logic — this is the fix
+  // 🎥 Record / Stop logic
   recordBtn.addEventListener('click', async () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
       mediaRecorder.stop();
@@ -37,7 +53,6 @@ for (let i = 1; i <= 10; i++) {
         preview.play();
 
         recordedChunks = [];
-
         mediaRecorder = new MediaRecorder(stream);
 
         mediaRecorder.ondataavailable = (event) => {
@@ -54,17 +69,12 @@ for (let i = 1; i <= 10; i++) {
           preview.controls = true;
           preview.play();
 
-          if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-          }
-
-          indicator.classList.remove('blinking');
+          if (stream) stream.getTracks().forEach(track => track.stop());
         };
 
         mediaRecorder.start();
         recordBtn.textContent = '⏹ Stop';
         indicator.classList.add('blinking');
-
       } catch (err) {
         alert('Camera access denied or unavailable.');
         console.error(err);
@@ -72,6 +82,7 @@ for (let i = 1; i <= 10; i++) {
     }
   });
 
+  // 📁 Upload video from file
   uploadBtn.addEventListener('click', () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -90,6 +101,7 @@ for (let i = 1; i <= 10; i++) {
     input.click();
   });
 
+  // ❌ Delete video from preview
   deleteBtn.addEventListener('click', () => {
     preview.src = '';
     preview.srcObject = null;
@@ -97,4 +109,13 @@ for (let i = 1; i <= 10; i++) {
   });
 }
 
- 
+// 🎲 Dice Logic (placeholder for now)
+rollDiceBtn.addEventListener('click', () => {
+  console.log("Rolling the dice...");
+  // You could highlight or shuffle videos here
+});
+
+// 🌀 Mix button (placeholder)
+mixBtn.addEventListener('click', () => {
+  alert('Mixing feature coming soon...');
+});
