@@ -93,7 +93,15 @@ h1 {
   background-color: red;
   border-radius: 50%;
   display: none;
+}/* Recording Indicator (Red Blinking Light) */
+.recording-indicator {
+  width: 18px;
+  height: 18px;
+  background-color: red;
+  border-radius: 50%;
+  display: none;
 }
+
 
 /* Button Styling */
 button {
