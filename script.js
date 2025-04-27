@@ -35,7 +35,7 @@ for (let i = 1; i <= 10; i++) {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
       mediaRecorder.stop();
       recordBtn.textContent = '🎥 Record';
-      indicator.classList.remove('blinking');
+      indicator.classList.remove('blinking'); // Stop blinking indicator when recording stops
     } else {
       try {
         // Request video and audio stream from webcam and microphone
@@ -59,19 +59,19 @@ for (let i = 1; i <= 10; i++) {
             const blob = new Blob(recordedChunks, { type: 'video/webm' });
             const videoURL = URL.createObjectURL(blob);
             preview.srcObject = null; // Remove the stream
-            preview.src = videoURL; // Set the recorded video
+            preview.src = videoURL; // Set the recorded video URL
             preview.controls = true;
             preview.play();
           }
 
           if (stream) stream.getTracks().forEach(track => track.stop());
-          indicator.classList.remove('blinking');
+          indicator.classList.remove('blinking'); // Stop blinking indicator after video is saved
         };
 
         // Start recording
         mediaRecorder.start();
-        recordBtn.textContent = '⏹ Stop';
-        indicator.classList.add('blinking');
+        recordBtn.textContent = '⏹ Stop'; // Change button text when recording starts
+        indicator.classList.add('blinking'); // Add blinking indicator when recording starts
       } catch (err) {
         alert('Camera access denied or unavailable.');
         console.error(err);
@@ -84,6 +84,7 @@ for (let i = 1; i <= 10; i++) {
     preview.src = '';
     preview.srcObject = null;
     preview.pause();
+    indicator.classList.remove('blinking'); // Stop blinking light when video is deleted
   });
 
   // Upload button - File input for uploading a video
@@ -105,4 +106,4 @@ for (let i = 1; i <= 10; i++) {
     input.click();
   });
 }
-
+  
