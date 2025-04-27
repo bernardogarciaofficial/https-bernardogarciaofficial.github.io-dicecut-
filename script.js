@@ -48,6 +48,7 @@ for (let i = 1; i <= 10; i++) {
 
         // Collect recorded data
         mediaRecorder.ondataavailable = event => {
+          console.log('Data available', event.data);
           if (event.data.size > 0) recordedChunks.push(event.data);
         };
 
@@ -61,6 +62,8 @@ for (let i = 1; i <= 10; i++) {
             preview.controls = true;
             preview.play();
             console.log('Recording saved successfully!');
+          } else {
+            console.log('No recorded chunks available.');
           }
 
           if (stream) {
