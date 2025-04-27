@@ -1,10 +1,14 @@
-// Grab elements
 const videoTracksContainer = document.getElementById('video-tracks-container');
+const masterUpload = document.getElementById('master-track-upload');
+const rollDiceBtn = document.getElementById('roll-dice-btn');
+const mixBtn = document.getElementById('mix-btn');
+const masterTrack = document.getElementById('master-track');
 
-// Loop to create 10 video tracks
+// Create video tracks dynamically
 for (let i = 1; i <= 10; i++) {
   const trackDiv = document.createElement('div');
   trackDiv.className = 'video-track';
+
   trackDiv.innerHTML = `
     <h3>Video Track ${i}</h3>
     <button class="record-btn">🎥 Record</button>
@@ -13,62 +17,92 @@ for (let i = 1; i <= 10; i++) {
     <video class="preview" controls></video>
     <div class="recording-indicator"></div>
   `;
+
   videoTracksContainer.appendChild(trackDiv);
 
-  // Grab the buttons and video element for each track
   const recordBtn = trackDiv.querySelector('.record-btn');
+  const uploadBtn = trackDiv.querySelector('.upload-btn');
+  const deleteBtn = trackDiv.querySelector('.delete-btn');
   const preview = trackDiv.querySelector('.preview');
   const indicator = trackDiv.querySelector('.recording-indicator');
+
   let mediaRecorder;
   let stream;
   let recordedChunks = [];
 
-  // Start and stop recording logic
+  // Start/Stop recording
   recordBtn.addEventListener('click', async () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
-      // Stop recording
       mediaRecorder.stop();
-      recordBtn.textContent = '🎥 Record'; // Change button text to "Record"
-      indicator.classList.remove('blinking'); // Stop blinking indicator
+      recordBtn.textContent = '🎥 Record';
+      indicator.classList.remove('blinking');
     } else {
       try {
-        // Get user media (video and audio)
+        // Request video and audio stream from webcam and microphone
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         preview.srcObject = stream;
-        preview.muted = true; // Mute the preview video
+        preview.muted = true;
         preview.play();
 
-        // Prepare the media recorder
+        // Prepare MediaRecorder
         recordedChunks = [];
         mediaRecorder = new MediaRecorder(stream);
 
-        // When data is available, push it to the recordedChunks array
+        // Collect recorded data
         mediaRecorder.ondataavailable = event => {
           if (event.data.size > 0) recordedChunks.push(event.data);
         };
 
-        // When recording stops, process and display the video
+        // When recording stops, save the video and display it
         mediaRecorder.onstop = () => {
-          const blob = new Blob(recordedChunks, { type: 'video/webm' });
-          const videoURL = URL.createObjectURL(blob);
-          preview.srcObject = null; // Disconnect stream
-          preview.src = videoURL; // Set video URL to the preview
-          preview.controls = true; // Enable controls for playback
-          preview.play(); // Play the recorded video
+          if (recordedChunks.length > 0) {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const videoURL = URL.createObjectURL(blob);
+            preview.srcObject = null; // Remove the stream
+            preview.src = videoURL; // Set the recorded video
+            preview.controls = true;
+            preview.play();
+          }
 
-          // Stop all tracks of the stream
           if (stream) stream.getTracks().forEach(track => track.stop());
-          indicator.classList.remove('blinking'); // Stop blinking indicator
+          indicator.classList.remove('blinking');
         };
 
         // Start recording
         mediaRecorder.start();
-        recordBtn.textContent = '⏹ Stop'; // Change button text to "Stop"
-        indicator.classList.add('blinking'); // Start blinking indicator
+        recordBtn.textContent = '⏹ Stop';
+        indicator.classList.add('blinking');
       } catch (err) {
         alert('Camera access denied or unavailable.');
         console.error(err);
       }
     }
   });
+
+  // Delete button - Clear video and reset
+  deleteBtn.addEventListener('click', () => {
+    preview.src = '';
+    preview.srcObject = null;
+    preview.pause();
+  });
+
+  // Upload button - File input for uploading a video
+  uploadBtn.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/*';
+
+    input.onchange = () => {
+      const file = input.files[0];
+      if (file) {
+        const videoURL = URL.createObjectURL(file);
+        preview.src = videoURL;
+        preview.controls = true;
+        preview.play();
+      }
+    };
+
+    input.click();
+  });
 }
+
