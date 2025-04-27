@@ -1,137 +1,103 @@
-/* General page styling */
-body {
-  margin: 0;
-  padding: 0;
-  background-image: url('https://www.pngkey.com/png/detail/835-8354066_film-strip-border.png');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-  font-family: 'Arial', sans-serif;
-  color: white;
-  box-sizing: border-box;
-  background-color: #101010;
-  color: white;
-  text-align: center;
-}
+const videoTracksContainer = document.getElementById('video-tracks-container');
 
-.container {
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-  max-width: 800px;
-  margin: auto;
-}
+// Create video tracks dynamically
+for (let i = 1; i <= 10; i++) {
+  const trackDiv = document.createElement('div');
+  trackDiv.className = 'video-track';
 
-h1 {
-  font-size: 3rem;
-  margin-bottom: 20px;
-}
+  trackDiv.innerHTML = `
+    <h3>Video Track ${i}</h3>
+    <button class="record-btn">🎥 Record</button>
+    <button class="upload-btn">📁 Upload</button>
+    <button class="delete-btn">❌ Delete</button>
+    <video class="preview" controls></video>
+    <div class="recording-indicator"></div>
+  `;
 
-h2 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-}
+  videoTracksContainer.appendChild(trackDiv);
 
-/* Video track container styling */
-#video-tracks-container {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 15px;
-}
+  const recordBtn = trackDiv.querySelector('.record-btn');
+  const uploadBtn = trackDiv.querySelector('.upload-btn');
+  const deleteBtn = trackDiv.querySelector('.delete-btn');
+  const preview = trackDiv.querySelector('.preview');
+  const indicator = trackDiv.querySelector('.recording-indicator');
 
-.video-track {
-  margin-bottom: 20px;
-  padding: 10px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid #444;
-  border-radius: 8px;
-}
+  let mediaRecorder;
+  let stream;
+  let recordedChunks = [];
 
-.video-track h3 {
-  font-size: 1.2rem;
-  margin-bottom: 10px;
-}
+  // Start/Stop recording
+  recordBtn.addEventListener('click', async () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+      recordBtn.textContent = '🎥 Record';
+      indicator.classList.remove('blinking');
+    } else {
+      try {
+        // Request video and audio stream from webcam and microphone
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        preview.srcObject = stream;
+        preview.muted = true;
+        preview.play();
 
-/* Buttons for each track */
-button {
-  padding: 6px 12px;
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin: 10px;
-}
+        // Prepare MediaRecorder
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
 
-button:hover {
-  background-color: #555;
-}
+        // Collect recorded data
+        mediaRecorder.ondataavailable = event => {
+          if (event.data.size > 0) recordedChunks.push(event.data);
+        };
 
-/* Controls */
-.controls {
-  margin-top: 20px;
-}
+        // When recording stops, save the video and display it
+        mediaRecorder.onstop = () => {
+          if (recordedChunks.length > 0) {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const videoURL = URL.createObjectURL(blob);
+            preview.srcObject = null; // Remove the stream
+            preview.src = videoURL; // Set the recorded video
+            preview.controls = true;
+            preview.play();
+          }
 
-button#roll-dice-btn,
-button#mix-btn {
-  font-size: 16px;
-  padding: 10px 20px;
-}
+          if (stream) stream.getTracks().forEach(track => track.stop());
+          indicator.classList.remove('blinking');
+        };
 
-#members-count {
-  font-size: 1.2rem;
-}
+        // Start recording
+        mediaRecorder.start();
+        recordBtn.textContent = '⏹ Stop';
+        indicator.classList.add('blinking');
+      } catch (err) {
+        alert('Camera access denied or unavailable.');
+        console.error(err);
+      }
+    }
+  });
 
-#toggle-theme {
-  margin-top: 10px;
-}
+  // Delete button - Clear video and reset
+  deleteBtn.addEventListener('click', () => {
+    preview.src = '';
+    preview.srcObject = null;
+    preview.pause();
+  });
 
-/* Styling for the video preview */
-video {
-  width: 100%;
-  border: 2px solid #fff;
-  border-radius: 5px;
-  margin-top: 10px;
-}
+  // Upload button - File input for uploading a video
+  uploadBtn.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/*';
 
-/* Red blinking light indicator */
-.recording-indicator {
-  width: 12px;
-  height: 12px;
-  background-color: red;
-  border-radius: 50%;
-  margin-top: 5px;
-  display: none; /* Hidden by default */
-}
+    input.onchange = () => {
+      const file = input.files[0];
+      if (file) {
+        const videoURL = URL.createObjectURL(file);
+        preview.src = videoURL;
+        preview.controls = true;
+        preview.play();
+      }
+    };
 
-.recording-indicator.blinking {
-  display: inline-block; /* Visible when recording */
-  animation: blink 1s infinite; /* Blinking effect */
-}
-
-@keyframes blink {
-  0%, 50%, 100% {
-    opacity: 1;
-  }
-  25%, 75% {
-    opacity: 0;
-  }
-}
-
-/* Light/Dark mode styling */
-body.light-mode {
-  background-color: #fff;
-  color: black;
-}
-
-body.light-mode .container {
-  background-color: rgba(255, 255, 255, 0.7);
-  color: black;
-}
-
-body.light-mode .video-track {
-  background-color: rgba(0, 0, 0, 0.05);
-  border: 1px solid #444;
+    input.click();
+  });
 }
