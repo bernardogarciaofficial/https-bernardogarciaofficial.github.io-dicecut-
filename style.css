@@ -1,72 +1,112 @@
-/* General Body Styling */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Arial', sans-serif;
-  background-color: #101010;
-  color: white;
-  text-align: center;
-  box-sizing: border-box;
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const recordBtn = document.getElementById('record-btn');
+  const indicator = document.getElementById('indicator');
+  const preview = document.getElementById('preview');
+  const masterAudio = document.getElementById('master-track');
+  const videoTracksContainer = document.getElementById('video-tracks-container');
+  const trackCount = 10;
+  let selectedTrackIndex = null;
+  let mediaRecorder;
+  let stream;
+  let recordedChunks = [];
 
-/* Master Audio Track Section */
-#master-track-container {
-  padding: 20px;
-  background-color: #333;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-  margin-bottom: 20px;
-}
+  // Create 10 video tracks
+  for (let i = 1; i <= trackCount; i++) {
+    const trackContainer = document.createElement('div');
+    trackContainer.classList.add('video-track');
+    trackContainer.id = `track-${i}`;
+    
+    const selectBtn = document.createElement('button');
+    selectBtn.textContent = `Select Track ${i}`;
+    selectBtn.classList.add('select-btn');
+    
+    // Select button functionality
+    selectBtn.addEventListener('click', () => {
+      document.querySelectorAll('.video-track').forEach(track => track.classList.remove('selected'));
+      trackContainer.classList.add('selected');
+      selectedTrackIndex = i; // Set the selected track index here
+      console.log(`Track ${i} selected`);
+    });
 
-/* Video Tracks Styling */
-.video-track {
-  margin: 15px 0;
-  padding: 10px;
-  background: #333;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
-}
+    trackContainer.appendChild(selectBtn);
+    videoTracksContainer.appendChild(trackContainer);
+  }
 
-.video-track.selected {
-  border: 3px solid #f1c40f;
-  box-shadow: 0 0 15px #f1c40f;
-}
+  // Handle recording functionality
+  recordBtn.addEventListener('click', async () => {
+    if (selectedTrackIndex === null) {
+      alert('Please select a video track to record into.');
+      return;
+    }
 
-.select-btn {
-  background-color: #2980b9;
-  padding: 8px 16px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+      recordBtn.textContent = '🎥 Record';
+      indicator.classList.remove('blinking');
+      preview.style.display = 'none';
+      masterAudio.pause();
+    } else {
+      try {
+        // Request video and audio stream from webcam and microphone
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        preview.srcObject = stream;
+        preview.style.display = 'block';
 
-.select-btn:hover {
-  background-color: #3498db;
-}
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
 
-.select-btn.selected {
-  background-color: #27ae60;
-}
+        mediaRecorder.ondataavailable = event => {
+          if (event.data.size > 0) recordedChunks.push(event.data);
+        };
 
-/* Recording Indicator (Red Blinking Light) */
-.recording-indicator {
-  width: 18px;
-  height: 18px;
-  background-color: red;
-  border-radius: 50%;
-  display: none;
-}
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          const url = URL.createObjectURL(blob);
 
-.blinking {
-  display: inline-block;
-  animation: blink 1s infinite;
-}
+          const video = document.createElement('video');
+          video.src = url;
+          video.controls = true;
+          video.style.marginTop = '10px';
+          video.style.width = '100%';
+          video.style.borderRadius = '10px';
 
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
-}
+          // Debugging line: Confirm selected track ID
+          console.log(`Appending video to track-${selectedTrackIndex}`);
+
+          // Append the recorded video to the selected track
+          const track = document.getElementById(`track-${selectedTrackIndex}`);
+          
+          // Check if the track exists before appending the video
+          if (track) {
+            track.appendChild(video);
+          } else {
+            console.error(`Track ${selectedTrackIndex} not found!`);
+          }
+
+          // Automatically download the recorded video
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `recording-${new Date().toISOString()}.webm`;
+          a.click();
+
+          // Cleanup and stop the stream
+          preview.srcObject = null;
+          preview.style.display = 'none';
+
+          if (stream) stream.getTracks().forEach(track => track.stop());
+          indicator.classList.remove('blinking');
+        };
+
+        // Start recording
+        mediaRecorder.start();
+        masterAudio.currentTime = 0;
+        masterAudio.play();
+        recordBtn.textContent = '⏹ Stop';
+        indicator.classList.add('blinking');
+      } catch (err) {
+        console.error(err);
+        alert('Failed to access camera/mic.');
+      }
+    }
+  });
+});
