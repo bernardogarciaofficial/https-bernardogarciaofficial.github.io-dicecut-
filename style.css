@@ -4,53 +4,20 @@ body {
   padding: 0;
   font-family: 'Arial', sans-serif;
   background-color: #101010;
+  color: white;
+  background-color: #111;
   color: #f1c40f;
   text-align: center;
   box-sizing: border-box;
 }
 
-.container {
-  padding: 40px;
-  background: linear-gradient(145deg, #1a1a1a, #333333);
-  border: 5px solid #e74c3c;
-  border-radius: 20px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-  width: 80%;
-  margin: auto;
-  background-image: url('https://www.transparenttextures.com/patterns/film-reel.png');
-  background-size: cover;
-  background-position: center;
-}
-
-h1 {
-  font-size: 4rem;
-  color: #e74c3c;
-  text-shadow: 0 0 15px rgba(231, 76, 60, 1), 0 0 30px rgba(231, 76, 60, 0.7);
-  margin-bottom: 30px;
-}
-
-#master-track-container {
-  margin-bottom: 50px;
-  padding: 25px;
-  background: #2c3e50;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-}
-
-#master-track-container h2 {
-  color: #f39c12;
-  font-size: 1.8rem;
-  text-shadow: 0 0 5px rgba(243, 156, 18, 1);
-}
-
-/* Video Track Styling */
+/* Video Tracks Styling */
 .video-track {
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid #f39c12;
+  margin: 15px 0;
+  padding: 10px;
+  background: #333;
   border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
 }
 
 .video-track.selected {
@@ -59,7 +26,6 @@ h1 {
 }
 
 .select-btn {
-  margin-top: 10px;
   background-color: #2980b9;
   padding: 8px 16px;
   font-size: 1rem;
@@ -67,12 +33,18 @@ h1 {
   border-radius: 6px;
   color: white;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.select-btn:hover {
+  background-color: #3498db;
 }
 
 .select-btn.selected {
   background-color: #27ae60;
 }
 
+/* Recording Indicator (Red Blinking Light) */
 .recording-indicator {
   width: 18px;
   height: 18px;
@@ -90,24 +62,4 @@ h1 {
   0% { opacity: 1; }
   50% { opacity: 0; }
   100% { opacity: 1; }
-}
-
-button {
-  padding: 10px 20px;
-  background: linear-gradient(145deg, #f39c12, #e67e22);
-  border: none;
-  color: white;
-  font-size: 1.1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-button:hover {
-  background: linear-gradient(145deg, #e67e22, #f39c12);
-  transform: translateY(-2px);
-}
-
-button:active {
-  transform: translateY(1px);
 }
