@@ -1,30 +1,3 @@
-/* Center the master track section */
-#master-track-container {
-  margin: 0 auto;
-  width: 600px;
-  padding: 20px;
-  background: #2c3e50;
-  border-radius: 10px;
-  text-align: center;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
-}
-
-/* Center the audio player and record button */
-#master-track {
-  display: block;
-  margin: 15px auto;
-}
-
-#record-btn {
-  margin-top: 10px;
-}
-
-/* Optional: Center the indicator */
-.recording-indicator {
-  display: inline-block;
-  margin-top: 10px;
-}
-
 /* Container for video tracks */
 #video-tracks-container {
   display: flex;
@@ -36,8 +9,8 @@
 
 /* Individual video track styling */
 .video-track {
-  width: 800px; /* Set video width */
-  height: 450px; /* Set video height */
+  width: 800px; /* Increased width */
+  height: 450px; /* Increased height */
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid #f39c12;
   border-radius: 10px;
@@ -76,7 +49,28 @@
   background-color: #2980b9;
 }
 
-/* Light/Dark Mode Toggle Button */
-#toggle-theme {
-  margin-top: 20px;
+/* Styling for the master track section */
+#master-track-container {
+  margin: 0 auto;
+  width: 600px;
+  padding: 20px;
+  background: #2c3e50;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+}
+
+/* Center the audio player */
+#master-track {
+  display: block;
+  margin: 15px auto;
+}
+
+#record-btn {
+  margin-top: 10px;
+}
+
+.recording-indicator {
+  display: inline-block;
+  margin-top: 10px;
 }
