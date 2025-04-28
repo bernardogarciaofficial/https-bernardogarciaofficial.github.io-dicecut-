@@ -1,12 +1,13 @@
-// Get elements
-const masterTrackUpload = document.getElementById('master-track-upload');
-const masterTrack = document.getElementById('master-track');
-const preview = document.getElementById('preview');
-const videoTracks = document.querySelectorAll('.video-track video');
+// Get DOM elements
+const masterTrackUpload = document.getElementById("master-track-upload");
+const masterTrack = document.getElementById("master-track");
+const recordBtn = document.getElementById("record-btn");
+const indicator = document.getElementById("indicator");
+const videoTracksContainer = document.getElementById("video-tracks-container");
 
-// Handle audio file upload and play
-masterTrackUpload.addEventListener('change', function (e) {
-  const file = e.target.files[0];
+// Handle audio file upload
+masterTrackUpload.addEventListener("change", function () {
+  const file = this.files[0];
   if (file) {
     const audioURL = URL.createObjectURL(file);
     masterTrack.src = audioURL;
@@ -14,29 +15,62 @@ masterTrackUpload.addEventListener('change', function (e) {
   }
 });
 
-// Select video track function
-function selectTrack(trackNumber) {
-  const selectedTrack = document.getElementById(`video-${trackNumber}`);
-  selectedTrack.classList.toggle('selected');
-  alert(`Video Track ${trackNumber} Selected`);
+// Handle record button click (this will just simulate recording for now)
+recordBtn.addEventListener("click", function () {
+  // Simulate starting recording with visual feedback
+  indicator.style.display = "block";
+  indicator.textContent = "Recording...";
+
+  setTimeout(function () {
+    indicator.textContent = "Recording Stopped";
+    setTimeout(() => {
+      indicator.style.display = "none";
+    }, 1000);
+  }, 5000); // Simulate a 5 second recording
+});
+
+// Dynamically generate video tracks
+for (let i = 1; i <= 10; i++) {
+  const videoTrack = document.createElement("div");
+  videoTrack.classList.add("video-track");
+
+  const videoElement = document.createElement("video");
+  videoElement.setAttribute("autoplay", "true");
+  videoElement.setAttribute("muted", "true");
+  videoTrack.appendChild(videoElement);
+
+  const selectButton = document.createElement("button");
+  selectButton.classList.add("select-btn");
+  selectButton.textContent = "🎯 Select to Record";
+  videoTrack.appendChild(selectButton);
+
+  videoTracksContainer.appendChild(videoTrack);
+
+  // Handle selecting video to record
+  selectButton.addEventListener("click", function () {
+    videoTrack.classList.toggle("selected");
+  });
 }
 
-// Record button functionality (Placeholder for actual functionality)
-document.getElementById('record-btn').addEventListener('click', () => {
-  alert('Recording functionality is not yet implemented');
+// Light/Dark Mode functionality
+const toggleThemeBtn = document.getElementById("toggle-theme");
+
+toggleThemeBtn.addEventListener("click", function () {
+  document.body.classList.toggle("dark-theme");
+  toggleThemeBtn.textContent =
+    document.body.classList.contains("dark-theme") ? "🌕 Light Mode" : "🌗 Dark Mode";
 });
 
-// Theme toggle functionality (Light/Dark Mode)
-document.getElementById('toggle-theme').addEventListener('click', () => {
-  document.body.classList.toggle('dark-mode');
+// Handle "Roll the Dice" button functionality
+const rollDiceBtn = document.getElementById("roll-dice-btn");
+
+rollDiceBtn.addEventListener("click", function () {
+  alert("🎲 Dice Rolled!");
 });
 
-// Roll the dice functionality (Placeholder for actual functionality)
-document.getElementById('roll-dice-btn').addEventListener('click', () => {
-  alert('Rolling the dice...');
-});
+// Handle "Tap to Mix" button functionality
+const mixBtn = document.getElementById("mix-btn");
 
-// Mix button functionality (Placeholder for actual functionality)
-document.getElementById('mix-btn').addEventListener('click', () => {
-  alert('Mixing...');
+mixBtn.addEventListener("click", function () {
+  alert("🎶 Mixing Music!");
 });
