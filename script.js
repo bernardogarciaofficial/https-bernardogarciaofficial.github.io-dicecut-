@@ -1,42 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
-  let selectedTrackIndex = null;
-  let mediaRecorder;
-  let recordedChunks = [];
-  let stream = null;
-
-  const masterAudio = document.getElementById('master-track');
   const recordBtn = document.getElementById('record-btn');
   const indicator = document.getElementById('indicator');
   const preview = document.getElementById('preview');
+  const masterAudio = document.getElementById('master-track');
   const videoTracksContainer = document.getElementById('video-tracks-container');
+  const trackCount = 10;
+  let selectedTrackIndex = null;
+  let mediaRecorder;
+  let stream;
+  let recordedChunks = [];
 
-  // Generate 10 video tracks
-  for (let i = 0; i < 10; i++) {
-    const track = document.createElement('div');
-    track.classList.add('video-track');
-    track.id = `track-${i}`;
-
-    const title = document.createElement('h3');
-    title.textContent = `Video Track ${i + 1}`;
-
+  // Create 10 video tracks
+  for (let i = 1; i <= trackCount; i++) {
+    const trackContainer = document.createElement('div');
+    trackContainer.classList.add('video-track');
+    trackContainer.id = `track-${i}`;
+    
     const selectBtn = document.createElement('button');
-    selectBtn.textContent = '🎯 Select to Record';
+    selectBtn.textContent = `Select Track ${i}`;
     selectBtn.classList.add('select-btn');
-
+    
+    // Select button functionality
     selectBtn.addEventListener('click', () => {
-      document.querySelectorAll('.video-track').forEach(t => t.classList.remove('selected'));
-      document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('selected'));
-      track.classList.add('selected');
-      selectBtn.classList.add('selected');
+      document.querySelectorAll('.video-track').forEach(track => track.classList.remove('selected'));
+      trackContainer.classList.add('selected');
       selectedTrackIndex = i;
+      console.log(`Track ${i} selected`);
     });
 
-    track.appendChild(title);
-    track.appendChild(selectBtn);
-    videoTracksContainer.appendChild(track);
+    trackContainer.appendChild(selectBtn);
+    videoTracksContainer.appendChild(trackContainer);
   }
 
-  // 🎥 Record Button
+  // Handle recording functionality
   recordBtn.addEventListener('click', async () => {
     if (selectedTrackIndex === null) {
       alert('Please select a video track to record into.');
@@ -51,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
       masterAudio.pause();
     } else {
       try {
+        // Request video and audio stream from webcam and microphone
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         preview.srcObject = stream;
         preview.style.display = 'block';
@@ -58,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         recordedChunks = [];
         mediaRecorder = new MediaRecorder(stream);
 
-        mediaRecorder.ondataavailable = (event) => {
+        mediaRecorder.ondataavailable = event => {
           if (event.data.size > 0) recordedChunks.push(event.data);
         };
 
@@ -70,9 +67,11 @@ document.addEventListener('DOMContentLoaded', () => {
           video.src = url;
           video.controls = true;
           video.style.marginTop = '10px';
-          video.style.width = '100%';
+          video.style.width = '640px';  // YouTube-like size
+          video.style.height = '360px'; // YouTube-like size
           video.style.borderRadius = '10px';
 
+          // Append recorded video to the selected track
           const track = document.getElementById(`track-${selectedTrackIndex}`);
           if (track) {
             track.appendChild(video);
@@ -80,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(`Track ${selectedTrackIndex} not found!`);
           }
 
+          // Automatically download the recorded video
           const a = document.createElement('a');
           a.href = url;
           a.download = `recording-${new Date().toISOString()}.webm`;
@@ -87,16 +87,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
           preview.srcObject = null;
           preview.style.display = 'none';
+
           if (stream) stream.getTracks().forEach(track => track.stop());
           indicator.classList.remove('blinking');
         };
 
+        // Start recording
         mediaRecorder.start();
-        indicator.classList.add('blinking');
         masterAudio.currentTime = 0;
         masterAudio.play();
         recordBtn.textContent = '⏹ Stop';
-
+        indicator.classList.add('blinking');
       } catch (err) {
         console.error(err);
         alert('Failed to access camera/mic.');
