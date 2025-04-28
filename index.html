@@ -1,50 +1,40 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎲 DiceCut</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="container">
-    <!-- Main Title -->
-    <h1>🎲 DiceCut</h1>
-
-    <!-- Master Music Track -->
-    <div id="master-track-container">
-      <h2>Master Music Track</h2>
-      <input type="file" id="master-track-upload" accept="audio/*" />
-      <audio id="master-track" controls></audio>
-      <br />
-      <button id="record-btn">🎥 Record</button>
-      <div class="recording-indicator" id="indicator"></div>
-    </div>
-
-    <!-- 🎥 Video Tracks Container -->
-    <div id="video-tracks-container">
-      <!-- Video tracks will be added here dynamically -->
-    </div>
-
-    <!-- Control Buttons -->
-    <div class="control-buttons">
-      <!-- Dice Buttons -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎲 DiceCut</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  
+  <!-- Hidden Preview Video -->
+  <video id="preview" autoplay muted style="width: 640px; height: 360px; margin-top: 20px; display: block; border-radius: 10px;"></video>
+  
+  <body>
+    <div class="container">
+      <!-- Main Title -->
+      <h1>🎲 DiceCut</h1>
+  
+      <!-- Master Music Track -->
+      <div id="master-track-container">
+        <h2>Master Music Track</h2>
+        <input type="file" id="master-track-upload" accept="audio/*" />
+        <audio id="master-track" controls></audio>
+        <br />
+        <button id="record-btn">🎥 Record</button>
+        <div class="recording-indicator" id="indicator"></div>
+      </div>
+  
+      <!-- Video Tracks Container -->
+      <div id="video-tracks-container"></div>
+  
       <div class="controls">
         <button id="roll-dice-btn">🎲 Roll the Dice</button>
         <button id="mix-btn">🎲 Tap to Mix!</button>
+        <p>👥 Members joined: <span id="members-count">0</span></p>
+        <button id="toggle-theme">🌗 Light/Dark Mode</button>
       </div>
-
-      <!-- Live Preview -->
-      <video id="preview" autoplay muted style="width: 300px; margin-top: 20px; display: none; border-radius: 10px;"></video>
-
-      <!-- Members Counter -->
-      <p>👥 Members joined: <span id="members-count">0</span></p>
-
-      <!-- Theme Toggle -->
-      <button id="toggle-theme">🌗 Light/Dark Mode</button>
     </div>
-  </div>
-
-  <script src="script.js"></script>
-</body>
+  
+    <script src="script.js"></script>
+  </body>
 </html>
