@@ -1,56 +1,106 @@
-/* Style for video tracks */
-.video-track {
-  margin-bottom: 20px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-}
+document.addEventListener('DOMContentLoaded', () => {
+  let selectedTrackIndex = null;
+  let mediaRecorder;
+  let recordedChunks = [];
+  let stream = null;
 
-.video-track.selected {
-  border: 2px solid #008CBA; /* Visual feedback for selected track */
-  background-color: #f0f8ff;
-}
+  const masterAudio = document.getElementById('master-track');
+  const recordBtn = document.getElementById('record-btn');
+  const indicator = document.getElementById('indicator');
+  const preview = document.getElementById('preview');
+  const videoTracksContainer = document.getElementById('video-tracks-container');
 
-.video-track video {
-  width: 100%;
-  border-radius: 10px;
-  display: block;
-  margin-top: 10px;
-}
+  // Generate 10 video tracks
+  for (let i = 0; i < 10; i++) {
+    const track = document.createElement('div');
+    track.classList.add('video-track');
+    track.id = `track-${i}`;
 
-/* Styling for controls */
-.control-buttons {
-  margin-top: 20px;
-}
+    const title = document.createElement('h3');
+    title.textContent = `Video Track ${i + 1}`;
 
-.controls button {
-  margin: 5px;
-}
+    const selectBtn = document.createElement('button');
+    selectBtn.textContent = '🎯 Select to Record';
+    selectBtn.classList.add('select-btn');
 
-/* Recording indicator animation */
-.recording-indicator {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: red;
-  margin-left: 10px;
-  opacity: 0;
-  animation: blink 1s infinite;
-}
+    selectBtn.addEventListener('click', () => {
+      document.querySelectorAll('.video-track').forEach(t => t.classList.remove('selected'));
+      document.querySelectorAll('.select-btn').forEach(b => b.classList.remove('selected'));
+      track.classList.add('selected');
+      selectBtn.classList.add('selected');
+      selectedTrackIndex = i;
+    });
 
-.recording-indicator.blinking {
-  opacity: 1;
-}
-
-@keyframes blink {
-  0% {
-    opacity: 0;
+    track.appendChild(title);
+    track.appendChild(selectBtn);
+    videoTracksContainer.appendChild(track);
   }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
+
+  // 🎥 Record Button
+  recordBtn.addEventListener('click', async () => {
+    if (selectedTrackIndex === null) {
+      alert('Please select a video track to record into.');
+      return;
+    }
+
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+      recordBtn.textContent = '🎥 Record';
+      indicator.classList.remove('blinking');
+      preview.style.display = 'none';
+      masterAudio.pause();
+    } else {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        preview.srcObject = stream;
+        preview.style.display = 'block';
+
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) recordedChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          const url = URL.createObjectURL(blob);
+
+          const video = document.createElement('video');
+          video.src = url;
+          video.controls = true;
+          video.style.marginTop = '10px';
+          video.style.width = '100%';
+          video.style.borderRadius = '10px';
+
+          const track = document.getElementById(`track-${selectedTrackIndex}`);
+          if (track) {
+            track.appendChild(video);
+          } else {
+            console.error(`Track ${selectedTrackIndex} not found!`);
+          }
+
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `recording-${new Date().toISOString()}.webm`;
+          a.click();
+
+          preview.srcObject = null;
+          preview.style.display = 'none';
+          if (stream) stream.getTracks().forEach(track => track.stop());
+          indicator.classList.remove('blinking');
+        };
+
+        mediaRecorder.start();
+        indicator.classList.add('blinking');
+        masterAudio.currentTime = 0;
+        masterAudio.play();
+        recordBtn.textContent = '⏹ Stop';
+
+      } catch (err) {
+        console.error(err);
+        alert('Failed to access camera/mic.');
+      }
+    }
+  });
+});
