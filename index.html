@@ -2,59 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🎲 DiceCut</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    /* Container for video tracks */
-    #video-tracks-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    /* Individual video track styling */
-    .video-track {
-      width: 640px;
-      height: 360px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid #f39c12;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-    }
-
-    /* Video element inside each track */
-    .video-track video {
-      width: 100%;
-      height: 100%;
-      border-radius: 10px;
-    }
-
-    /* Styling for the selected video track */
-    .video-track.selected {
-      border: 3px solid #f1c40f;
-      box-shadow: 0 0 15px #f1c40f;
-    }
-
-    /* Styling for the select button */
-    .select-btn {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #3498db;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .select-btn:hover {
-      background-color: #2980b9;
-    }
-  </style>
 </head>
 <body>
   <div class="container">
@@ -64,20 +14,26 @@
     <!-- Master Music Track -->
     <div id="master-track-container">
       <h2>Master Music Track</h2>
-      <input type="file" id="master-track-upload" accept="audio/*" />
-      <audio id="master-track" controls></audio>
+      
+      <!-- Hardcoded audio file for playback -->
+      <audio id="master-track" controls>
+        <source src="assets/audio/sample-track.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+
       <br />
+      <input type="file" id="master-track-upload" accept="audio/*" />
       <button id="record-btn">🎥 Record</button>
       <div class="recording-indicator" id="indicator"></div>
     </div>
 
-    <!-- Hidden Preview Video -->
+    <!-- Hidden live preview video feed -->
     <video id="preview" autoplay muted style="width: 640px; margin-top: 20px; display: block; border-radius: 10px;"></video>
 
     <!-- Video Tracks Section -->
     <div id="video-tracks-container"></div>
 
-    <!-- Control Buttons -->
+    <!-- Dice Controls -->
     <div class="controls">
       <button id="roll-dice-btn">🎲 Roll the Dice</button>
       <button id="mix-btn">🎲 Tap to Mix!</button>
@@ -90,33 +46,6 @@
     <button id="toggle-theme">🌗 Light/Dark Mode</button>
   </div>
 
-  <script>
-    // Select the video tracks container
-    const videoTracksContainer = document.getElementById('video-tracks-container');
-
-    // Create 10 video tracks
-    for (let i = 0; i < 10; i++) {
-      const track = document.createElement('div');
-      track.classList.add('video-track');
-      track.id = `track-${i}`;
-
-      const title = document.createElement('h3');
-      title.textContent = `Video Track ${i + 1}`;
-
-      const selectBtn = document.createElement('button');
-      selectBtn.textContent = '🎯 Select to Record';
-      selectBtn.classList.add('select-btn');
-
-      // Add event listener to handle track selection
-      selectBtn.addEventListener('click', () => {
-        document.querySelectorAll('.video-track').forEach(t => t.classList.remove('selected'));
-        track.classList.add('selected');
-      });
-
-      track.appendChild(title);
-      track.appendChild(selectBtn);
-      videoTracksContainer.appendChild(track);
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
