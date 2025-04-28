@@ -5,8 +5,6 @@ body {
   font-family: 'Arial', sans-serif;
   background-color: #101010;
   color: white;
-  background-color: #111;
-  color: #f1c40f;
   text-align: center;
 }
 
@@ -14,17 +12,38 @@ body {
 .container {
   padding: 40px;
   background: linear-gradient(145deg, #000000, #444444);
-  border: 2px solid #f1c40f; /* Gold-like border */
-  padding: 50px;
-  background: linear-gradient(145deg, #1a1a1a, #333333);
-  border: 5px solid #e74c3c; /* Bold red border */
+  border: 2px solid #f1c40f;
   border-radius: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
   width: 80%;
   margin: auto;
-  background-image: url('https://www.transparenttextures.com/patterns/film-reel.png'); /* Film reel texture */
+  background-image: url('https://www.transparenttextures.com/patterns/film-reel.png');
   background-size: cover;
   background-position: center;
+}
+
+/* Title Styling */
+h1 {
+  font-size: 3rem;
+  color: #f1c40f;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  margin-bottom: 20px;
+}
+
+/* Master Track Section */
+#master-track-container {
+  margin-bottom: 40px;
+  padding: 20px;
+  background: #333;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+  background: #2c3e50;
+}
+
+#master-track-container h2 {
+  color: #f39c12;
+  font-size: 1.8rem;
+  text-shadow: 0 0 5px rgba(243, 156, 18, 1);
 }
 
 /* Video Track Styling */
@@ -35,12 +54,12 @@ body {
   border: 2px solid #f39c12;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
-  text-align: center;
 }
 
 .video-track h3 {
   color: #f39c12;
   font-size: 1.5rem;
+  text-shadow: 0 0 10px rgba(243, 156, 18, 1);
 }
 
 .video-track.selected {
@@ -48,43 +67,63 @@ body {
   box-shadow: 0 0 15px #f1c40f;
 }
 
-/* Preview Video Styling */
-#preview {
-  width: 640px; 
-  height: 360px;
-  margin-top: 20px;
-  display: block;
-  border-radius: 10px;
-  background-color: black;
-}
-
-/* Control Buttons */
-button {
-  padding: 12px 25px;
-  background: linear-gradient(145deg, #e74c3c, #c0392b);
-  border: none;
-  color: white;
-  font-size: 1.2rem;
-  border-radius: 7px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 15px;
-}
-
-button:hover {
-  background: linear-gradient(145deg, #c0392b, #e74c3c);
-}
-
-#video-tracks-container {
-  display: flex;
-  flex-direction: column; /* Stack video tracks from top to bottom */
-  gap: 15px;
-  margin-top: 30px;
-}
-
-#video-tracks-container .video-track video {
-  width: 640px; /* YouTube-like video size */
-  height: 360px; /* Maintain YouTube-like aspect ratio */
+/* Select Button Styling */
+.select-btn {
   margin-top: 10px;
-  border-radius: 10px;
+  background-color: #e74c3c; /* Red color */
+  padding: 8px 16px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.select-btn:hover {
+  background-color: #c0392b; /* Darker red on hover */
+}
+
+.select-btn.selected {
+  background-color: #27ae60;
+}
+
+/* Recording Indicator (Red Blinking Light) */
+.recording-indicator {
+  width: 18px;
+  height: 18px;
+  background-color: red;
+  border-radius: 50%;
+  display: none;
+}
+
+.blinking {
+  display: inline-block;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Video Track Layout */
+#video-tracks-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+@media (min-width: 600px) {
+  #video-tracks-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  #video-tracks-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
