@@ -1,77 +1,42 @@
-let selectedTrackIndex = null;
-let mediaRecorder;
-let recordedChunks = [];
-let stream = null;
+// Get elements
+const masterTrackUpload = document.getElementById('master-track-upload');
+const masterTrack = document.getElementById('master-track');
+const preview = document.getElementById('preview');
+const videoTracks = document.querySelectorAll('.video-track video');
 
-const recordBtn = document.getElementById('record-btn');
-const videoTracksContainer = document.getElementById('video-tracks-container');
+// Handle audio file upload and play
+masterTrackUpload.addEventListener('change', function (e) {
+  const file = e.target.files[0];
+  if (file) {
+    const audioURL = URL.createObjectURL(file);
+    masterTrack.src = audioURL;
+    masterTrack.play();
+  }
+});
 
-// Generate 10 video tracks dynamically
-for (let i = 0; i < 10; i++) {
-  const track = document.createElement('div');
-  track.classList.add('video-track');
-  track.id = `track-${i}`;
-
-  const title = document.createElement('h3');
-  title.textContent = `Video Track ${i + 1}`;
-
-  const selectBtn = document.createElement('button');
-  selectBtn.textContent = '🎯 Select to Record';
-  selectBtn.classList.add('select-btn');
-
-  selectBtn.addEventListener('click', () => {
-    document.querySelectorAll('.video-track').forEach(t => t.classList.remove('selected'));
-    selectBtn.classList.add('selected');
-    selectedTrackIndex = i;
-  });
-
-  track.appendChild(title);
-  track.appendChild(selectBtn);
-  videoTracksContainer.appendChild(track);
+// Select video track function
+function selectTrack(trackNumber) {
+  const selectedTrack = document.getElementById(`video-${trackNumber}`);
+  selectedTrack.classList.toggle('selected');
+  alert(`Video Track ${trackNumber} Selected`);
 }
 
-// Handle recording functionality
-recordBtn.addEventListener('click', async () => {
-  if (selectedTrackIndex === null) {
-    alert('Please select a video track to record into.');
-    return;
-  }
+// Record button functionality (Placeholder for actual functionality)
+document.getElementById('record-btn').addEventListener('click', () => {
+  alert('Recording functionality is not yet implemented');
+});
 
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    const preview = document.getElementById('preview');
-    preview.srcObject = stream;
-    preview.style.display = 'block';
+// Theme toggle functionality (Light/Dark Mode)
+document.getElementById('toggle-theme').addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+});
 
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.ondataavailable = (e) => {
-      recordedChunks.push(e.data);
-    };
+// Roll the dice functionality (Placeholder for actual functionality)
+document.getElementById('roll-dice-btn').addEventListener('click', () => {
+  alert('Rolling the dice...');
+});
 
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(recordedChunks, { type: 'video/webm' });
-      const url = URL.createObjectURL(blob);
-
-      const video = document.createElement('video');
-      video.src = url;
-      video.controls = true;
-      video.style.marginTop = '10px';
-
-      const track = document.getElementById(`track-${selectedTrackIndex}`);
-      track.appendChild(video); // Append the recorded video to the selected track
-
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `recording-${new Date().toISOString()}.webm`;
-      a.click();
-
-      stream.getTracks().forEach(track => track.stop()); // Stop the stream
-    };
-
-    mediaRecorder.start();
-    recordBtn.textContent = '⏹ Stop';
-  } catch (err) {
-    console.error(err);
-    alert('Failed to access camera/mic.');
-  }
+// Mix button functionality (Placeholder for actual functionality)
+document.getElementById('mix-btn').addEventListener('click', () => {
+  alert('Mixing...');
 });
