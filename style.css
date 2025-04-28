@@ -1,65 +1,53 @@
-/* General Body Styling */
+/* Body Styling */
 body {
   margin: 0;
   padding: 0;
   font-family: 'Arial', sans-serif;
-  background-color: #101010;
-  color: white;
+  background-color: #111;
+  color: #f1c40f;
   text-align: center;
 }
 
 /* Container Styling */
 .container {
-  padding: 40px;
-  background: linear-gradient(145deg, #000000, #444444);
-  border: 2px solid #f1c40f;
+  padding: 50px;
+  background: linear-gradient(145deg, #1a1a1a, #333333);
+  border: 5px solid #e74c3c; /* Bold red border */
   border-radius: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
   width: 80%;
   margin: auto;
-  background-image: url('https://www.transparenttextures.com/patterns/film-reel.png');
-  background-size: cover;
-  background-position: center;
 }
 
 /* Title Styling */
 h1 {
-  font-size: 3rem;
-  color: #f1c40f;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  font-size: 4rem;
+  color: #e74c3c;
+  text-shadow: 0 0 15px rgba(231, 76, 60, 1), 0 0 30px rgba(231, 76, 60, 0.7);
   margin-bottom: 20px;
-}
-
-/* Master Track Section */
-#master-track-container {
-  margin-bottom: 40px;
-  padding: 20px;
-  background: #333;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
-  background: #2c3e50;
-}
-
-#master-track-container h2 {
-  color: #f39c12;
-  font-size: 1.8rem;
-  text-shadow: 0 0 5px rgba(243, 156, 18, 1);
 }
 
 /* Video Track Styling */
+#video-tracks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
 .video-track {
-  margin-bottom: 20px;
-  padding: 10px;
+  width: 640px;  /* Size of a YouTube video */
+  height: 360px; /* Size of a YouTube video */
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid #f39c12;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
 }
 
-.video-track h3 {
-  color: #f39c12;
-  font-size: 1.5rem;
-  text-shadow: 0 0 10px rgba(243, 156, 18, 1);
+.video-track video {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
 }
 
 .video-track.selected {
@@ -67,57 +55,25 @@ h1 {
   box-shadow: 0 0 15px #f1c40f;
 }
 
-/* Select Button Styling */
-.select-btn {
-  margin-top: 10px;
-  background-color: #3498db; /* New color: Blue */
-  padding: 8px 16px;
-  font-size: 1rem;
+/* Button Styling */
+button {
+  padding: 12px 25px;
+  background: linear-gradient(145deg, #e74c3c, #c0392b);
   border: none;
-  border-radius: 6px;
   color: white;
+  font-size: 1.2rem;
+  border-radius: 7px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  margin-top: 10px;
 }
 
-.select-btn:hover {
-  background-color: #2980b9; /* Darker blue on hover */
+button:hover {
+  background: linear-gradient(145deg, #c0392b, #e74c3c);
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
-.select-btn.selected {
-  background-color: #2ecc71; /* Green on selection */
-}
-
-/* Recording Indicator (Red Blinking Light) */
-.recording-indicator {
-  width: 18px;
-  height: 18px;
-  background-color: red;
-  border-radius: 50%;
-  display: none;
-}
-
-.blinking {
-  display: inline-block;
-  animation: blink 1s infinite;
-}
-
-@keyframes blink {
-  0% { opacity: 1; }
-  50% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-/* Video Track Layout */
-#video-tracks-container {
-  display: flex;
-  flex-direction: column; /* Stack the video tracks vertically */
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.video-track video {
-  width: 640px; /* Set video size to YouTube-like dimensions */
-  height: 360px;
-  border-radius: 10px;
+button:active {
+  transform: translateY(2px);
 }
