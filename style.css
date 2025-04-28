@@ -70,7 +70,7 @@ h1 {
 /* Select Button Styling */
 .select-btn {
   margin-top: 10px;
-  background-color: #e74c3c; /* Red color */
+  background-color: #3498db; /* New color: Blue */
   padding: 8px 16px;
   font-size: 1rem;
   border: none;
@@ -81,11 +81,11 @@ h1 {
 }
 
 .select-btn:hover {
-  background-color: #c0392b; /* Darker red on hover */
+  background-color: #2980b9; /* Darker blue on hover */
 }
 
 .select-btn.selected {
-  background-color: #27ae60;
+  background-color: #2ecc71; /* Green on selection */
 }
 
 /* Recording Indicator (Red Blinking Light) */
@@ -110,20 +110,14 @@ h1 {
 
 /* Video Track Layout */
 #video-tracks-container {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column; /* Stack the video tracks vertically */
   gap: 10px;
   margin-top: 20px;
 }
 
-@media (min-width: 600px) {
-  #video-tracks-container {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 900px) {
-  #video-tracks-container {
-    grid-template-columns: repeat(3, 1fr);
-  }
+.video-track video {
+  width: 640px; /* Set video size to YouTube-like dimensions */
+  height: 360px;
+  border-radius: 10px;
 }
