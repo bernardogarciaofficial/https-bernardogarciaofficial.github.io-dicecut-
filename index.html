@@ -1,51 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎲 DiceCut</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="container">
-    <!-- Main Title -->
-    <h1>🎲 DiceCut</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🎲 DiceCut</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-    <!-- Master Music Track -->
-    <div id="master-track-container">
-      <h2>Master Music Track</h2>
-      
-      <!-- Hardcoded audio file for playback -->
-      <audio id="master-track" controls>
-        <source src="assets/audio/sample-track.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
+  <body>
+    <div class="container">
+      <!-- Main Title -->
+      <h1>🎲 DiceCut</h1>
 
-      <br />
-      <input type="file" id="master-track-upload" accept="audio/*" />
-      <button id="record-btn">🎥 Record</button>
-      <div class="recording-indicator" id="indicator"></div>
+      <!-- Master Music Track Section -->
+      <div id="master-track-container">
+        <h2>Master Music Track</h2>
+        <!-- Audio File Upload -->
+        <input type="file" id="master-track-upload" accept="audio/*" />
+        <audio id="master-track" controls>
+          <source src="" type="audio/mpeg">
+          Your browser does not support the audio element.
+        </audio>
+        <button id="record-btn">🎥 Record</button>
+        <div class="recording-indicator" id="indicator"></div>
+      </div>
+
+      <!-- Hidden Preview Video -->
+      <video id="preview" autoplay muted style="width: 640px; margin-top: 20px; display: block; border-radius: 10px;"></video>
+
+      <!-- Video Tracks Section -->
+      <div id="video-tracks-container">
+        <!-- Video Track Template -->
+        <div class="video-track">
+          <video src="" id="video-1" class="video"></video>
+          <button class="select-btn" onclick="selectTrack(1)">🎯 Select to Record</button>
+        </div>
+        <div class="video-track">
+          <video src="" id="video-2" class="video"></video>
+          <button class="select-btn" onclick="selectTrack(2)">🎯 Select to Record</button>
+        </div>
+        <div class="video-track">
+          <video src="" id="video-3" class="video"></video>
+          <button class="select-btn" onclick="selectTrack(3)">🎯 Select to Record</button>
+        </div>
+        <div class="video-track">
+          <video src="" id="video-4" class="video"></video>
+          <button class="select-btn" onclick="selectTrack(4)">🎯 Select to Record</button>
+        </div>
+        <div class="video-track">
+          <video src="" id="video-5" class="video"></video>
+          <button class="select-btn" onclick="selectTrack(5)">🎯 Select to Record</button>
+        </div>
+        <div class="video-track">
+          <video src="" id="video-6" class="video"></video>
+          <button class="select-btn" onclick="selectTrack(6)">🎯 Select to Record</button>
+        </div>
+        <div class="video-track">
+          <video src="" id="video-7" class="video"></video>
+          <button class="select-btn" onclick="selectTrack(7)">🎯 Select to Record</button>
+        </div>
+        <div class="video-track">
+          <video src="" id="video-8" class="video"></video>
+          <button class="select-btn" onclick="selectTrack(8)">🎯 Select to Record</button>
+        </div>
+        <div class="video-track">
+          <video src="" id="video-9" class="video"></video>
+          <button class="select-btn" onclick="selectTrack(9)">🎯 Select to Record</button>
+        </div>
+        <div class="video-track">
+          <video src="" id="video-10" class="video"></video>
+          <button class="select-btn" onclick="selectTrack(10)">🎯 Select to Record</button>
+        </div>
+      </div>
+
+      <!-- Control Buttons -->
+      <div class="controls">
+        <button id="roll-dice-btn">🎲 Roll the Dice</button>
+        <button id="mix-btn">🎲 Tap to Mix!</button>
+      </div>
+
+      <!-- Members Counter -->
+      <p>👥 Members joined: <span id="members-count">0</span></p>
+
+      <!-- Theme Toggle -->
+      <button id="toggle-theme">🌗 Light/Dark Mode</button>
     </div>
 
-    <!-- Hidden live preview video feed -->
-    <video id="preview" autoplay muted style="width: 640px; margin-top: 20px; display: block; border-radius: 10px;"></video>
-
-    <!-- Video Tracks Section -->
-    <div id="video-tracks-container"></div>
-
-    <!-- Dice Controls -->
-    <div class="controls">
-      <button id="roll-dice-btn">🎲 Roll the Dice</button>
-      <button id="mix-btn">🎲 Tap to Mix!</button>
-    </div>
-
-    <!-- Members Counter -->
-    <p>👥 Members joined: <span id="members-count">0</span></p>
-
-    <!-- Theme Toggle -->
-    <button id="toggle-theme">🌗 Light/Dark Mode</button>
-  </div>
-
-  <script src="script.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>
