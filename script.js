@@ -11,13 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
   let recordedChunks = [];
 
   // Create 10 video tracks
-  for (let i = 1; i <= trackCount; i++) {
+  for (let i = 0; i < trackCount; i++) {
     const trackContainer = document.createElement('div');
     trackContainer.classList.add('video-track');
     trackContainer.id = `track-${i}`;
     
+    const title = document.createElement('h3');
+    title.textContent = `Video Track ${i + 1}`;
+    
     const selectBtn = document.createElement('button');
-    selectBtn.textContent = `Select Track ${i}`;
+    selectBtn.textContent = 'Select to Record';
     selectBtn.classList.add('select-btn');
     
     // Select button functionality
@@ -28,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log(`Track ${i} selected`);
     });
 
+    trackContainer.appendChild(title);
     trackContainer.appendChild(selectBtn);
     videoTracksContainer.appendChild(trackContainer);
   }
@@ -67,17 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
           video.src = url;
           video.controls = true;
           video.style.marginTop = '10px';
-          video.style.width = '640px';  // YouTube-like size
-          video.style.height = '360px'; // YouTube-like size
+          video.style.width = '640px';  // Set video size to YouTube-like dimensions
+          video.style.height = '360px';
           video.style.borderRadius = '10px';
 
           // Append recorded video to the selected track
           const track = document.getElementById(`track-${selectedTrackIndex}`);
-          if (track) {
-            track.appendChild(video);
-          } else {
-            console.error(`Track ${selectedTrackIndex} not found!`);
-          }
+          track.appendChild(video);
 
           // Automatically download the recorded video
           const a = document.createElement('a');
@@ -102,6 +102,16 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error(err);
         alert('Failed to access camera/mic.');
       }
+    }
+  });
+
+  // Handle audio file upload
+  document.getElementById('master-track-upload').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      masterAudio.src = url;
+      masterAudio.play();
     }
   });
 });
