@@ -3,40 +3,101 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎲 DiceCut</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Webcam Recorder</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      text-align: center;
+      padding: 30px;
+    }
+
+    video {
+      width: 640px;
+      height: 480px;
+      background: black;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    button:hover {
+      background-color: #c0392b;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎲 DiceCut</h1>
+  <h1>🎥 Webcam Recorder</h1>
 
-    <!-- Master Music Track Section -->
-    <div id="master-track-container">
-      <h2>Master Music Track</h2>
-      <input type="file" id="master-track-upload" accept="audio/*" />
-      <audio id="master-track" controls>
-        <source id="audio-source" />
-        Your browser does not support the audio element.
-      </audio>
-      <button id="record-btn">🎥 Record</button>
-      <div class="recording-indicator" id="indicator"></div>
-    </div>
+  <video id="preview" autoplay muted></video><br />
+  <button id="record-btn">Start Recording</button>
+  <a id="download-link" style="display:none;" download="recorded-video.webm">Download Video</a>
 
-    <!-- Video Tracks Section -->
-    <div id="video-tracks-container">
-      <!-- Dynamic video tracks will be added here -->
-    </div>
+  <script>
+    const preview = document.getElementById('preview');
+    const recordBtn = document.getElementById('record-btn');
+    const downloadLink = document.getElementById('download-link');
 
-    <p>👥 Members joined: <span id="members-count">0</span></p>
-    <button id="toggle-theme">🌗 Light/Dark Mode</button>
+    let mediaRecorder;
+    let recordedChunks = [];
+    let stream;
 
-    <!-- Control Buttons -->
-    <div class="controls">
-      <button id="roll-dice-btn">🎲 Roll the Dice</button>
-      <button id="mix-btn">🎲 Tap to Mix!</button>
-    </div>
-  </div>
+    async function initCamera() {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      preview.srcObject = stream;
+    }
 
-  <script src="script.js"></script>
+    function startRecording() {
+      recordedChunks = [];
+      mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          recordedChunks.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        downloadLink.href = url;
+        downloadLink.style.display = 'inline-block';
+        downloadLink.textContent = 'Download Video';
+      };
+
+      mediaRecorder.start();
+    }
+
+    function stopRecording() {
+      mediaRecorder.stop();
+    }
+
+    let recording = false;
+
+    recordBtn.addEventListener('click', () => {
+      if (!recording) {
+        startRecording();
+        recordBtn.textContent = 'Stop Recording';
+        downloadLink.style.display = 'none';
+      } else {
+        stopRecording();
+        recordBtn.textContent = 'Start Recording';
+      }
+      recording = !recording;
+    });
+
+    initCamera();
+  </script>
 </body>
 </html>
