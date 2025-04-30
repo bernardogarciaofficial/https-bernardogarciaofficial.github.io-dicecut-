@@ -25,7 +25,6 @@ chunk = 1024
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 video_out = cv2.VideoWriter(VIDEO_FILENAME, fourcc, FPS, (FRAME_WIDTH, FRAME_HEIGHT))
 
-
 def record_audio():
     pa = pyaudio.PyAudio()
     stream = pa.open(format=audio_format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
@@ -48,7 +47,6 @@ def record_audio():
     wf.writeframes(b''.join(frames))
     wf.close()
 
-
 def record_video():
     cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
@@ -70,18 +68,16 @@ def record_video():
     video_out.release()
     cv2.destroyAllWindows()
 
-
 def combine_audio_video():
     print("🎞️ Combining audio and video with ffmpeg...")
     (
         ffmpeg
         .input(VIDEO_FILENAME)
-        .output(AUDIO_FILENAME)
+        .input(AUDIO_FILENAME)
         .output(FINAL_OUTPUT, vcodec='copy', acodec='aac', strict='experimental')
         .run(overwrite_output=True)
     )
     print(f"✅ Final output saved as {FINAL_OUTPUT}")
-
 
 def main():
     audio_thread = threading.Thread(target=record_audio)
@@ -97,7 +93,6 @@ def main():
 
     # Combine with FFmpeg
     combine_audio_video()
-
 
 if __name__ == "__main__":
     main()
