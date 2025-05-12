@@ -7,33 +7,34 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>🎥 DiceCut Platform</h1>
-  <p>Record videos while a master track plays in the background!</p>
+  <div class="container">
+    <h1>🎥 DiceCut Platform</h1>
+    <p>Record videos while a master track plays in the background!</p>
 
-  <!-- Master Track -->
-  <div id="master-track-container">
-    <audio id="master-track" controls>
-      <source id="audio-source" src="" type="audio/mpeg" />
-      Your browser does not support the audio element.
-    </audio>
-    <input id="master-track-upload" type="file" accept="audio/*" />
-    <button id="rec-btn">🎤 Rec</button>
-  </div>
+    <!-- Master Track -->
+    <div id="master-track-container">
+      <audio id="master-track" controls>
+        <source id="audio-source" src="" type="audio/mpeg" />
+        Your browser does not support the audio element.
+      </audio>
+      <input id="master-track-upload" type="file" accept="audio/*" />
+      <button id="rec-btn">🎤 Rec</button>
+    </div>
 
-  <!-- Video Tracks -->
-  <div id="video-tracks-container">
-    <!-- Video tracks will be dynamically generated -->
-  </div>
+    <!-- Video Tracks -->
+    <div id="video-tracks-container">
+      <!-- Video tracks will be dynamically generated -->
+    </div>
 
-  <!-- Dice Randomization -->
-  <div class="controls">
-    <button id="dice-btn">🎲 Roll the Dice</button>
-    <div id="dice-options">
-      <button id="option-1">Option 1: 8 Bars</button>
-      <button id="option-2">Option 2: Full Video</button>
+    <!-- Dice Randomization -->
+    <div class="controls">
+      <button id="dice-btn" class="dice-button">🎲 Roll the Dice</button>
+      <div id="dice-options">
+        <button id="option-1">Option 1: 8 Bars</button>
+        <button id="option-2">Option 2: Full Video</button>
+      </div>
     </div>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>
