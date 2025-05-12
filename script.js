@@ -1,3 +1,4 @@
+
 // Handle audio upload and playback
 document.getElementById('master-track-upload').addEventListener('change', function(event) {
   const audioPlayer = document.getElementById('master-track');
@@ -12,7 +13,7 @@ document.getElementById('master-track-upload').addEventListener('change', functi
   }
 });
 
-// Generate 10 slave video tracks dynamically
+// Generate video tracks dynamically
 const videoTracksContainer = document.getElementById('video-tracks-container');
 
 for (let i = 1; i <= 10; i++) {
@@ -23,11 +24,10 @@ for (let i = 1; i <= 10; i++) {
   const videoElement = document.createElement('video');
   videoElement.setAttribute('autoplay', 'true');
   videoElement.setAttribute('muted', 'true');
-  videoElement.setAttribute('controls', '');
-
+  
   const selectButton = document.createElement('button');
   selectButton.classList.add('select-btn');
-  selectButton.textContent = `Select Track ${i}`;
+  selectButton.textContent = `🎯 Select Track ${i}`;
   selectButton.addEventListener('click', function() {
     videoTrackDiv.classList.toggle('selected');
   });
@@ -38,20 +38,8 @@ for (let i = 1; i <= 10; i++) {
   videoTracksContainer.appendChild(videoTrackDiv);
 }
 
-// Handle recording functionality
-const recordBtn = document.getElementById('record-btn');
-let isRecording = false;
-
-recordBtn.addEventListener('click', function() {
-  if (!isRecording) {
-    // Start recording logic
-    recordBtn.textContent = '🛑 Stop Recording';
-    isRecording = true;
-    alert('Recording started!');
-  } else {
-    // Stop recording logic
-    recordBtn.textContent = '🎙️ Start Recording';
-    isRecording = false;
-    alert('Recording stopped!');
-  }
+// Handle recording (only triggered by the Rec button in the master track)
+const recButton = document.getElementById('rec-btn');
+recButton.addEventListener('click', () => {
+  alert('Recording started! This feature will sync with the master track and selected video tracks.');
 });
