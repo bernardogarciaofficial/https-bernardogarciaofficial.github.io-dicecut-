@@ -7,24 +7,22 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>🎥 DiceCut Platform</h1>
-    <p>Record videos synchronized with a master audio track!</p>
+  <h1>🎥 DiceCut Platform</h1>
+  <p>Record videos while a master track plays in the background!</p>
 
-    <!-- Master Track -->
-    <div id="master-track-container">
-      <audio id="master-track" controls>
-        <source id="audio-source" src="" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <input type="file" id="master-track-upload" accept="audio/*">
-      <button id="record-btn">🎙️ Start Recording</button>
-    </div>
+  <!-- Master Track -->
+  <div id="master-track-container">
+    <audio id="master-track" controls>
+      <source id="audio-source" src="" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+    <input id="master-track-upload" type="file" accept="audio/*" />
+    <button id="rec-btn">🎤 Rec</button>
+  </div>
 
-    <!-- Slave Video Tracks -->
-    <div id="video-tracks-container">
-      <!-- 10 Video Tracks Generated Dynamically in JavaScript -->
-    </div>
+  <!-- Video Tracks -->
+  <div id="video-tracks-container">
+    <!-- Video tracks will be dynamically generated -->
   </div>
 
   <script src="script.js"></script>
