@@ -12,7 +12,7 @@ document.getElementById('master-track-upload').addEventListener('change', functi
   }
 });
 
-// Generate video tracks dynamically
+// Generate 10 slave video tracks dynamically
 const videoTracksContainer = document.getElementById('video-tracks-container');
 
 for (let i = 1; i <= 10; i++) {
@@ -23,10 +23,11 @@ for (let i = 1; i <= 10; i++) {
   const videoElement = document.createElement('video');
   videoElement.setAttribute('autoplay', 'true');
   videoElement.setAttribute('muted', 'true');
-  
+  videoElement.setAttribute('controls', '');
+
   const selectButton = document.createElement('button');
   selectButton.classList.add('select-btn');
-  selectButton.textContent = `🎯 Select to Record ${i}`;
+  selectButton.textContent = `Select Track ${i}`;
   selectButton.addEventListener('click', function() {
     videoTrackDiv.classList.toggle('selected');
   });
@@ -37,33 +38,20 @@ for (let i = 1; i <= 10; i++) {
   videoTracksContainer.appendChild(videoTrackDiv);
 }
 
-// Dice roll functionality to randomize selected tracks
-const rollDiceButton = document.getElementById('roll-dice-btn');
-rollDiceButton.addEventListener('click', function() {
-  const videoTracks = document.querySelectorAll('.video-track');
-  videoTracks.forEach(track => track.classList.remove('selected')); // Deselect all tracks
-  
-  // Randomly select 3 tracks
-  const randomIndexes = new Set();
-  while (randomIndexes.size < 3) {
-    const randomIndex = Math.floor(Math.random() * videoTracks.length);
-    randomIndexes.add(randomIndex);
-  }
+// Handle recording functionality
+const recordBtn = document.getElementById('record-btn');
+let isRecording = false;
 
-  randomIndexes.forEach(index => {
-    videoTracks[index].classList.add('selected');
-  });
-
-  alert('🎲 Dice rolled! Random tracks selected.');
-});
-
-// Light/Dark mode toggle
-const toggleThemeButton = document.getElementById('toggle-theme');
-toggleThemeButton.addEventListener('click', function() {
-  document.body.classList.toggle('light-mode'); // Toggles the light-mode class on the body
-  if (document.body.classList.contains('light-mode')) {
-    toggleThemeButton.textContent = '🌙 Switch to Dark Mode';
+recordBtn.addEventListener('click', function() {
+  if (!isRecording) {
+    // Start recording logic
+    recordBtn.textContent = '🛑 Stop Recording';
+    isRecording = true;
+    alert('Recording started!');
   } else {
-    toggleThemeButton.textContent = '☀️ Switch to Light Mode';
+    // Stop recording logic
+    recordBtn.textContent = '🎙️ Start Recording';
+    isRecording = false;
+    alert('Recording stopped!');
   }
 });
