@@ -34,8 +34,8 @@ for (let i = 1; i <= 10; i++) {
   videoTrackDiv.appendChild(videoElement);
   videoTrackDiv.appendChild(selectButton);
 
-  // Add upload button for the first 3 tracks
-  if (i <= 3) {
+  // Add upload button for tracks 8, 9, and 10
+  if (i >= 8) {
     const uploadButton = document.createElement('button');
     uploadButton.classList.add('upload-btn');
     uploadButton.textContent = '📂 Upload Video';
