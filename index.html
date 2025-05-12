@@ -3,202 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DiceCut Platform - Webcam Recorder</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: white;
-      text-align: center;
-      padding: 30px;
-    }
-
-    video {
-      width: 640px;
-      height: 480px;
-      background: black;
-      border-radius: 8px;
-      margin-top: 20px;
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 18px;
-      cursor: pointer;
-      border: none;
-      border-radius: 6px;
-      background-color: #e74c3c;
-      color: white;
-    }
-
-    button:hover {
-      background-color: #c0392b;
-    }
-
-    .track-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 30px;
-      gap: 10px;
-    }
-
-    .track {
-      width: 200px;
-      height: 150px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid #f39c12;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    .track.selected {
-      border-color: #f1c40f;
-      box-shadow: 0 0 10px #f1c40f;
-    }
-
-    .track button {
-      position: absolute;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #3498db;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-    }
-
-    .track button:hover {
-      background: #2980b9;
-    }
-
-    #dice-btn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 18px;
-      cursor: pointer;
-      border: none;
-      border-radius: 6px;
-      background-color: #f39c12;
-      color: white;
-    }
-
-    #dice-btn:hover {
-      background-color: #e67e22;
-    }
-  </style>
+  <title>DiceCut Platform</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>🎥 DiceCut Platform</h1>
-  <p>Record videos while a master track plays in the background!</p>
+  <div class="container">
+    <h1>🎥 DiceCut Platform</h1>
+    <p>Record videos synchronized with a master audio track!</p>
 
-  <!-- Master Track -->
-  <audio id="master-audio" controls>
-    <source src="your-audio-file.mp3" type="audio/mpeg" />
-    Your browser does not support the audio element.
-  </audio>
-
-  <!-- Webcam Recorder -->
-  <video id="preview" autoplay muted></video><br />
-  <button id="record-btn">Start Recording</button>
-  <a id="download-link" style="display:none;" download="recorded-video.webm">Download Video</a>
-
-  <!-- Track Slots -->
-  <div class="track-container">
-    <!-- Generate 10 Track Slots Dynamically -->
-    <div class="track" id="track-1">
-      <video autoplay muted></video>
-      <button>Select Track 1</button>
+    <!-- Master Track -->
+    <div id="master-track-container">
+      <audio id="master-track" controls>
+        <source id="audio-source" src="" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+      <input type="file" id="master-track-upload" accept="audio/*">
+      <button id="record-btn">🎙️ Start Recording</button>
     </div>
-    <div class="track" id="track-2">
-      <video autoplay muted></video>
-      <button>Select Track 2</button>
+
+    <!-- Slave Video Tracks -->
+    <div id="video-tracks-container">
+      <!-- 10 Video Tracks Generated Dynamically in JavaScript -->
     </div>
-    <!-- Add more tracks as needed -->
   </div>
 
-  <!-- Dice Button -->
-  <button id="dice-btn">🎲 Roll the Dice</button>
-
-  <script>
-    // Webcam Recorder Variables
-    const preview = document.getElementById('preview');
-    const recordBtn = document.getElementById('record-btn');
-    const downloadLink = document.getElementById('download-link');
-    let mediaRecorder;
-    let recordedChunks = [];
-    let stream;
-
-    // Initialize Webcam
-    async function initCamera() {
-      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      preview.srcObject = stream;
-    }
-
-    // Start/Stop Recording Functions
-    function startRecording() {
-      recordedChunks = [];
-      mediaRecorder = new MediaRecorder(stream);
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          recordedChunks.push(e.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(recordedChunks, { type: 'video/webm' });
-        const url = URL.createObjectURL(blob);
-        downloadLink.href = url;
-        downloadLink.style.display = 'inline-block';
-        downloadLink.textContent = 'Download Video';
-      };
-
-      mediaRecorder.start();
-    }
-
-    function stopRecording() {
-      mediaRecorder.stop();
-    }
-
-    let recording = false;
-
-    recordBtn.addEventListener('click', () => {
-      if (!recording) {
-        startRecording();
-        recordBtn.textContent = 'Stop Recording';
-        downloadLink.style.display = 'none';
-      } else {
-        stopRecording();
-        recordBtn.textContent = 'Start Recording';
-      }
-      recording = !recording;
-    });
-
-    // Initialize Camera
-    initCamera();
-
-    // Multi-Track Video Slots
-    const tracks = document.querySelectorAll('.track');
-    tracks.forEach((track, index) => {
-      const button = track.querySelector('button');
-      button.addEventListener('click', () => {
-        track.classList.toggle('selected');
-      });
-    });
-
-    // Dice Button Functionality
-    const diceBtn = document.getElementById('dice-btn');
-    diceBtn.addEventListener('click', () => {
-      alert('🎲 Dice rolled! Randomizing clips...');
-      // Add logic for shuffling or randomizing clips
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
