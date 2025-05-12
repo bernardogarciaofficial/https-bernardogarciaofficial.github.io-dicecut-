@@ -1,4 +1,3 @@
-
 // Handle audio upload and playback
 document.getElementById('master-track-upload').addEventListener('change', function(event) {
   const audioPlayer = document.getElementById('master-track');
@@ -24,7 +23,7 @@ for (let i = 1; i <= 10; i++) {
   const videoElement = document.createElement('video');
   videoElement.setAttribute('autoplay', 'true');
   videoElement.setAttribute('muted', 'true');
-  
+
   const selectButton = document.createElement('button');
   selectButton.classList.add('select-btn');
   selectButton.textContent = `🎯 Select Track ${i}`;
@@ -34,7 +33,18 @@ for (let i = 1; i <= 10; i++) {
 
   videoTrackDiv.appendChild(videoElement);
   videoTrackDiv.appendChild(selectButton);
-  
+
+  // Add upload button for the first 3 tracks
+  if (i <= 3) {
+    const uploadButton = document.createElement('button');
+    uploadButton.classList.add('upload-btn');
+    uploadButton.textContent = '📂 Upload Video';
+    uploadButton.addEventListener('click', () => {
+      alert(`Upload video for Track ${i}`);
+    });
+    videoTrackDiv.appendChild(uploadButton);
+  }
+
   videoTracksContainer.appendChild(videoTrackDiv);
 }
 
@@ -42,4 +52,21 @@ for (let i = 1; i <= 10; i++) {
 const recButton = document.getElementById('rec-btn');
 recButton.addEventListener('click', () => {
   alert('Recording started! This feature will sync with the master track and selected video tracks.');
+});
+
+// Dice randomization logic
+const diceButton = document.getElementById('dice-btn');
+const option1Button = document.getElementById('option-1');
+const option2Button = document.getElementById('option-2');
+
+diceButton.addEventListener('click', () => {
+  alert('Rolling the dice! Choose an option below:');
+});
+
+option1Button.addEventListener('click', () => {
+  alert('Editing 8 bars at a time with automatic effects and transitions!');
+});
+
+option2Button.addEventListener('click', () => {
+  alert('Editing the full video with automatic effects and transitions!');
 });
