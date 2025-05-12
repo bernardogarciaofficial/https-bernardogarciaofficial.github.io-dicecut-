@@ -6,6 +6,8 @@
   justify-content: center;
   height: 100vh;
   text-align: center;
+  background-color: #111; /* Added background for the entire container */
+  color: white;
 }
 
 /* Master track styling */
@@ -41,6 +43,7 @@
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
   position: relative;
+  overflow: hidden; /* Added to ensure content doesn't overflow */
 }
 
 .video-track video {
@@ -65,6 +68,7 @@
   padding: 5px 10px;
   border-radius: 5px;
   cursor: pointer;
+  z-index: 10; /* Ensure the button stays on top of the video */
 }
 
 .select-btn:hover {
@@ -87,6 +91,7 @@
   background-color: #f39c12;
   color: white;
   border: none;
+  transition: background-color 0.3s ease; /* Smooth hover effect */
 }
 
 #roll-dice-btn:hover, #mix-btn:hover {
@@ -101,8 +106,39 @@
   background-color: #34495e;
   color: white;
   border: none;
+  transition: background-color 0.3s ease; /* Smooth hover effect */
 }
 
 #toggle-theme:hover {
   background-color: #2c3e50;
+}
+
+/* General Button Styling */
+button {
+  font-family: inherit;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease; /* Smooth transitions for all buttons */
+}
+
+button:active {
+  transform: scale(0.95); /* Button shrink on click */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #master-track-container, .video-track {
+    width: 90%;
+  }
+
+  #roll-dice-btn, #mix-btn {
+    font-size: 1.2rem;
+    padding: 8px 15px;
+  }
+
+  .select-btn {
+    font-size: 0.9rem;
+    padding: 5px 8px;
+  }
 }
