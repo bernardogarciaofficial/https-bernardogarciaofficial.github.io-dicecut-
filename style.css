@@ -12,7 +12,6 @@ body {
   background-attachment: fixed;
 }
 
-/* Hollywood Film Set Styling */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -20,21 +19,22 @@ body {
   backdrop-filter: blur(5px);
   background: rgba(0, 0, 0, 0.8);
   border-radius: 15px;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 0 50px rgba(255, 215, 0, 0.9);
 }
 
 /* Header Styling */
 header h1 {
-  font-size: 2.5rem;
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+  font-size: 3rem;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 1);
+  color: #FFD700;
 }
 
 header p {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   color: #f0f0f0;
 }
 
-/* Master track styling */
+/* Master Track Styling */
 #master-track-container {
   margin: 20px auto;
   padding: 20px;
@@ -67,7 +67,7 @@ header p {
   transform: scale(1.1);
 }
 
-/* Video track styling */
+/* Video Track Styling */
 #video-tracks-container {
   display: flex;
   flex-direction: column;
@@ -77,13 +77,13 @@ header p {
 }
 
 .video-track {
-  width: 100%;
+  width: calc(100% - 40px);
   max-width: 800px;
-  aspect-ratio: 16/9;
+  aspect-ratio: 16 / 9;
   background: rgba(0, 0, 0, 0.8);
-  border: 2px solid #f39c12;
+  border: 3px solid #FFD700;
   border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 1);
   position: relative;
   overflow: hidden;
   transition: transform 0.3s, box-shadow 0.3s;
@@ -91,7 +91,7 @@ header p {
 
 .video-track:hover {
   transform: scale(1.03);
-  box-shadow: 0 0 25px rgba(255, 165, 0, 0.9);
+  box-shadow: 0 0 30px rgba(255, 215, 0, 1);
 }
 
 .video-track video {
@@ -120,7 +120,7 @@ header p {
   transform: scale(1.1);
 }
 
-/* Dice styling */
+/* Dice Styling */
 .controls {
   display: flex;
   flex-direction: column;
@@ -146,4 +146,23 @@ header p {
 .dice-button:hover {
   transform: scale(1.1);
   box-shadow: 0 0 30px rgba(255, 69, 0, 1);
+}
+
+/* Option Buttons */
+#dice-options button {
+  font-size: 1rem;
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #8e44ad;
+  color: white;
+  border: none;
+  font-weight: bold;
+  transition: transform 0.3s, background-color 0.3s;
+}
+
+#dice-options button:hover {
+  background-color: #6c3483;
+  transform: scale(1.1);
 }
