@@ -159,10 +159,6 @@ header p {
   color: white;
   border: none;
   font-weight: bold;
-  transition: transform 0.3s, background-color 0.3s;
-}
-
-#dice-options button:hover {
-  background-color: #6c3483;
-  transform: scale(1.1);
-}
+  transition: transform 0.3s, background-color 0.3
+::contentReference[oaicite:4]{index=4}
+ 
