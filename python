@@ -6,7 +6,7 @@ import time
 import ffmpeg
 import os
 
-# CONFIG
+# CONFIGURATION
 AUDIO_FILENAME = "output_audio.wav"
 VIDEO_FILENAME = "output_video.avi"
 FINAL_OUTPUT = "final_output.mp4"
@@ -26,73 +26,54 @@ fourcc = cv2.VideoWriter_fourcc(*'XVID')
 video_out = cv2.VideoWriter(VIDEO_FILENAME, fourcc, FPS, (FRAME_WIDTH, FRAME_HEIGHT))
 
 def record_audio():
-    pa = pyaudio.PyAudio()
-    stream = pa.open(format=audio_format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
-    print("🎙️ Recording audio...")
-    frames = []
+    try:
+        pa = pyaudio.PyAudio()
+        stream = pa.open(format=audio_format, channels=channels, rate=rate, input=True, frames_per_buffer=chunk)
+        print("🎙️ Recording audio...")
+        frames = []
 
-    for _ in range(0, int(rate / chunk * RECORD_SECONDS)):
-        data = stream.read(chunk)
-        frames.append(data)
+        for _ in range(0, int(rate / chunk * RECORD_SECONDS)):
+            data = stream.read(chunk)
+            frames.append(data)
 
-    print("✅ Audio recording finished.")
-    stream.stop_stream()
-    stream.close()
-    pa.terminate()
+        print("✅ Audio recording finished.")
+        stream.stop_stream()
+        stream.close()
+        pa.terminate()
 
-    wf = wave.open(AUDIO_FILENAME, 'wb')
-    wf.setnchannels(channels)
-    wf.setsampwidth(pa.get_sample_size(audio_format))
-    wf.setframerate(rate)
-    wf.writeframes(b''.join(frames))
-    wf.close()
+        wf = wave.open(AUDIO_FILENAME, 'wb')
+        wf.setnchannels(channels)
+        wf.setsampwidth(pa.get_sample_size(audio_format))
+        wf.setframerate(rate)
+        wf.writeframes(b''.join(frames))
+        wf.close()
+    except Exception as e:
+        print(f"❌ Error during audio recording: {e}")
 
 def record_video():
-    cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
-    print("📹 Recording video...")
+    try:
+        cap = cv2.VideoCapture(0)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
+        print("📹 Recording video...")
 
-    start_time = time.time()
-    while int(time.time() - start_time) < RECORD_SECONDS:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        video_out.write(frame)
-        cv2.imshow("Recording...", frame)
-        if cv2.waitKey(1) == ord('q'):
-            break
+        start_time = time.time()
+        while int(time.time() - start_time) < RECORD_SECONDS:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            video_out.write(frame)
+            cv2.imshow("Recording...", frame)
+            if cv2.waitKey(1) == ord('q'):
+                break
 
-    print("✅ Video recording finished.")
-    cap.release()
-    video_out.release()
-    cv2.destroyAllWindows()
+        print("✅ Video recording finished.")
+        cap.release()
+        video_out.release()
+        cv2.destroyAllWindows()
+    except Exception as e:
+        print(f"❌ Error during video recording: {e}")
 
 def combine_audio_video():
-    print("🎞️ Combining audio and video with ffmpeg...")
-    (
-        ffmpeg
-        .input(VIDEO_FILENAME)
-        .input(AUDIO_FILENAME)
-        .output(FINAL_OUTPUT, vcodec='copy', acodec='aac', strict='experimental')
-        .run(overwrite_output=True)
-    )
-    print(f"✅ Final output saved as {FINAL_OUTPUT}")
-
-def main():
-    audio_thread = threading.Thread(target=record_audio)
-    video_thread = threading.Thread(target=record_video)
-
-    # Start both threads
-    audio_thread.start()
-    video_thread.start()
-
-    # Wait for both to finish
-    audio_thread.join()
-    video_thread.join()
-
-    # Combine with FFmpeg
-    combine_audio_video()
-
-if __name__ == "__main__":
-    main()
+    try:
+        print("🎞️ Combining audio and video
