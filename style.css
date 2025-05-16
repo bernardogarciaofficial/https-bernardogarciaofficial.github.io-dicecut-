@@ -1,164 +1,30 @@
-/* General Styling */
-body {
-  font-family: 'Cinzel', serif;
-  background: linear-gradient(180deg, #1a1a1a, #000000);
-  color: white;
-  text-align: center;
-  margin: 0;
-  padding: 0;
-  background-image: url('https://source.unsplash.com/1920x1080/?film,studio');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  backdrop-filter: blur(5px);
-  background: rgba(0, 0, 0, 0.8);
-  border-radius: 15px;
-  box-shadow: 0 0 50px rgba(255, 215, 0, 0.9);
-}
-
-/* Header Styling */
-header h1 {
-  font-size: 3rem;
-  text-shadow: 0 0 20px rgba(255, 215, 0, 1);
-  color: #FFD700;
-}
-
-header p {
-  font-size: 1.5rem;
-  color: #f0f0f0;
-}
-
-/* Master Track Styling */
-#master-track-container {
-  margin: 20px auto;
-  padding: 20px;
-  background: #2c3e50;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
-  width: 80%;
-  max-width: 800px;
-}
-
-#master-track {
-  width: 100%;
-  margin: 15px 0;
-}
-
-#rec-btn {
-  font-size: 1.2rem;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  font-weight: bold;
-  transition: transform 0.2s, background-color 0.2s;
-}
-
-#rec-btn:hover {
-  background-color: #c0392b;
-  transform: scale(1.1);
-}
-
-/* Video Track Styling */
-#video-tracks-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-  margin-top: 20px;
-}
-
+/* ...existing styles... */
 .video-track {
-  width: calc(100% - 40px);
-  max-width: 800px;
+  width: calc(33% - 40px); /* 3 per row for desktop */
+  max-width: 350px;
   aspect-ratio: 16 / 9;
-  background: rgba(0, 0, 0, 0.8);
-  border: 3px solid #FFD700;
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 1);
+  background: #181818;
+  border: 4px solid #FFD700;
+  border-radius: 12px;
+  box-shadow: 0 4px 32px 0 rgba(255, 215, 0, 0.35), 0 1.5px 6px #000;
   position: relative;
   overflow: hidden;
+  margin: 10px;
   transition: transform 0.3s, box-shadow 0.3s;
+  display: flex; /* Makes content center vertically */
+  align-items: center;
+  justify-content: center;
 }
-
-.video-track:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 30px rgba(255, 215, 0, 1);
+@media (max-width: 900px) {
+  .video-track {
+    width: 90%;
+    max-width: 100vw;
+  }
 }
-
 .video-track video {
   width: 100%;
   height: 100%;
-  border-radius: 10px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #111;
 }
-
-.select-btn, .upload-btn {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: transform 0.2s, background-color 0.2s;
-}
-
-.select-btn:hover, .upload-btn:hover {
-  background-color: #2980b9;
-  transform: scale(1.1);
-}
-
-/* Dice Styling */
-.controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.dice-button {
-  font-size: 1.5rem;
-  padding: 15px 30px;
-  border-radius: 50px;
-  cursor: pointer;
-  background: radial-gradient(circle, #FFD700, #FF4500);
-  color: white;
-  border: none;
-  font-weight: bold;
-  text-shadow: 1px 1px 2px black;
-  box-shadow: 0 0 20px rgba(255, 69, 0, 0.8);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.dice-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 30px rgba(255, 69, 0, 1);
-}
-
-/* Option Buttons */
-#dice-options button {
-  font-size: 1rem;
-  padding: 10px 20px;
-  margin: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: #8e44ad;
-  color: white;
-  border: none;
-  font-weight: bold;
-  transition: transform 0.3s, background-color 0.3
-::contentReference[oaicite:4]{index=4}
- 
