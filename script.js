@@ -1,4 +1,4 @@
-// ==== Handle audio upload and playback ====
+// ==== Audio upload ====
 document.getElementById('master-track-upload').addEventListener('change', function(event) {
   const audioPlayer = document.getElementById('master-track');
   const audioSource = document.getElementById('audio-source');
@@ -13,19 +13,17 @@ document.getElementById('master-track-upload').addEventListener('change', functi
 // ==== Video tracks setup ====
 const videoTracksContainer = document.getElementById('video-tracks-container');
 let selectedTrackIndex = null;
-const videoStreams = Array(10).fill(null);
-const recordedVideos = Array(10).fill(null); // Store blobs for each track
+const videoStreams = new Array(10).fill(null);
+const recordedVideos = new Array(10).fill(null); // Store blobs for each track
 
-// Create video tracks and UI
-for (let i = 1; i <= 10; i++) {
+for (let i = 0; i < 10; i++) {
   const videoTrackDiv = document.createElement('div');
   videoTrackDiv.classList.add('video-track');
-  videoTrackDiv.id = 'video-track-' + i;
+  videoTrackDiv.id = 'video-track-' + (i + 1);
 
   const filmFrameDiv = document.createElement('div');
   filmFrameDiv.classList.add('film-frame');
 
-  // --- This video element will show the recorded video for this track ---
   const videoElement = document.createElement('video');
   videoElement.setAttribute('autoplay', 'true');
   videoElement.setAttribute('muted', 'true');
@@ -35,25 +33,22 @@ for (let i = 1; i <= 10; i++) {
   videoElement.style.background = "#000";
   filmFrameDiv.appendChild(videoElement);
 
-  // Attach as a property for easier access later
-  videoTrackDiv._filmFrameDiv = filmFrameDiv;
-  videoTrackDiv._videoElement = videoElement;
+  videoTrackDiv.appendChild(filmFrameDiv);
 
   const controlsDiv = document.createElement('div');
   controlsDiv.classList.add('track-controls');
 
   const selectButton = document.createElement('button');
   selectButton.classList.add('select-btn');
-  selectButton.textContent = `🎯 Select Track ${i}`;
+  selectButton.textContent = `🎯 Select Track ${i + 1}`;
   selectButton.addEventListener('click', async function() {
-    // Remove selected class and blinking rec from all
     document.querySelectorAll('.video-track').forEach(div => {
       div.classList.remove('selected');
-      const blink = div._filmFrameDiv?.querySelector('.blinking-rec');
+      const blink = div.querySelector('.blinking-rec');
       if (blink) blink.remove();
     });
     videoTrackDiv.classList.add('selected');
-    selectedTrackIndex = i - 1;
+    selectedTrackIndex = i;
 
     // Stop all other video streams
     videoStreams.forEach((stream, idx) => {
@@ -65,7 +60,7 @@ for (let i = 1; i <= 10; i++) {
       }
     });
 
-    // Show recorded video for this track if it exists
+    // Show recorded video if it exists, else show camera preview
     if (recordedVideos[selectedTrackIndex]) {
       videoElement.srcObject = null;
       videoElement.src = URL.createObjectURL(recordedVideos[selectedTrackIndex]);
@@ -73,38 +68,18 @@ for (let i = 1; i <= 10; i++) {
       videoElement.loop = true;
       videoElement.play();
     } else {
-      // Show live camera preview for this track
       try {
-        if (!videoStreams[selectedTrackIndex]) {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-          videoElement.srcObject = stream;
-          videoElement.controls = false;
-          videoStreams[selectedTrackIndex] = stream;
-        } else {
-          videoElement.srcObject = videoStreams[selectedTrackIndex];
-          videoElement.controls = false;
-        }
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        videoElement.srcObject = stream;
+        videoElement.controls = false;
+        videoStreams[selectedTrackIndex] = stream;
       } catch (e) {
         alert("Camera access denied or not available.");
       }
     }
   });
-
   controlsDiv.appendChild(selectButton);
-
-  if (i >= 8) {
-    const uploadButton = document.createElement('button');
-    uploadButton.classList.add('upload-btn');
-    uploadButton.textContent = '📂 Upload Video';
-    uploadButton.addEventListener('click', () => {
-      alert(`Upload video for Track ${i}`);
-    });
-    controlsDiv.appendChild(uploadButton);
-  }
-
-  videoTrackDiv.appendChild(filmFrameDiv);
   videoTrackDiv.appendChild(controlsDiv);
-
   videoTracksContainer.appendChild(videoTrackDiv);
 }
 
@@ -115,7 +90,6 @@ const stopRecButton = document.getElementById('stop-rec-btn');
 let mediaRecorder = null;
 let recordedChunks = [];
 let recBlinkElem = null;
-let audioPlayer = document.getElementById('master-track');
 let recordingActive = false;
 
 recButton.addEventListener('click', async () => {
@@ -123,14 +97,18 @@ recButton.addEventListener('click', async () => {
     alert("Please select a track and allow camera access first.");
     return;
   }
-  audioPlayer = document.getElementById('master-track');
+  const audioPlayer = document.getElementById('master-track');
   const stream = videoStreams[selectedTrackIndex];
+  const videoTrackDiv = document.getElementById(`video-track-${selectedTrackIndex + 1}`);
+  const filmFrameDiv = videoTrackDiv.querySelector('.film-frame');
+  const videoElement = filmFrameDiv.querySelector('video');
+
   if (!stream) {
     alert("Please select a track and allow camera access first.");
     return;
   }
 
-  // Show countdown
+  // Countdown
   await startCountdown();
 
   audioPlayer.currentTime = 0;
@@ -141,11 +119,8 @@ recButton.addEventListener('click', async () => {
     });
   }
 
-  // Add blinking REC effect inside the selected film frame
-  const videoTrackDiv = document.getElementById(`video-track-${selectedTrackIndex + 1}`);
-  const filmFrameDiv = videoTrackDiv._filmFrameDiv;
+  // Blinking REC indicator
   if (filmFrameDiv) {
-    // Remove any existing rec indicator
     const oldRec = filmFrameDiv.querySelector('.blinking-rec');
     if (oldRec) oldRec.remove();
     recBlinkElem = document.createElement('div');
@@ -157,7 +132,7 @@ recButton.addEventListener('click', async () => {
   recButton.classList.add('hidden');
   stopRecButton.classList.remove('hidden');
 
-  // --- Most compatible MediaRecorder initialization ---
+  // MediaRecorder
   let options = {};
   if (window.MediaRecorder && MediaRecorder.isTypeSupported) {
     if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
@@ -172,7 +147,7 @@ recButton.addEventListener('click', async () => {
     mediaRecorder = new MediaRecorder(stream, options);
   } catch (e) {
     try {
-      mediaRecorder = new MediaRecorder(stream); // fallback to default
+      mediaRecorder = new MediaRecorder(stream); // fallback
     } catch (err) {
       alert('MediaRecorder is not supported in this browser or with this configuration.');
       if (recBlinkElem) recBlinkElem.remove();
@@ -195,13 +170,10 @@ recButton.addEventListener('click', async () => {
       alert('No video was recorded!');
       return;
     }
-    // Save blob to the selected track and display it
     const blob = new Blob(recordedChunks, { type: "video/webm" });
     recordedVideos[selectedTrackIndex] = blob;
 
-    // Always update the selected track's video element
-    const videoTrackDiv = document.getElementById(`video-track-${selectedTrackIndex + 1}`);
-    const videoElement = videoTrackDiv._videoElement;
+    // Always update video element
     videoElement.srcObject = null;
     videoElement.src = URL.createObjectURL(blob);
     videoElement.controls = true;
@@ -213,7 +185,7 @@ recButton.addEventListener('click', async () => {
   mediaRecorder.start();
   recordingActive = true;
 
-  // Automatically stop recording when audio ends
+  // Stop recording when audio ends
   audioPlayer.onended = () => {
     if (recordingActive) stopRecording();
   };
@@ -227,11 +199,11 @@ function stopRecording() {
   if (mediaRecorder && mediaRecorder.state !== "inactive") {
     mediaRecorder.stop();
   }
+  const audioPlayer = document.getElementById('master-track');
   if (audioPlayer && !audioPlayer.paused) {
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
   }
-  // Remove any blinking REC indicators
   document.querySelectorAll('.blinking-rec').forEach(rec => rec.remove());
   recButton.classList.remove('hidden');
   stopRecButton.classList.add('hidden');
@@ -257,21 +229,3 @@ function startCountdown() {
     }, 900);
   });
 }
-
-// ==== Demo buttons (still for UI demo only) ====
-const diceButton = document.getElementById('dice-btn');
-const option1Button = document.getElementById('option-1');
-const option2Button = document.getElementById('option-2');
-diceButton.addEventListener('click', () => {
-  alert('Rolling the dice! Choose an option below:');
-});
-option1Button.addEventListener('click', () => {
-  alert('Editing 8 bars at a time with automatic effects and transitions!');
-});
-option2Button.addEventListener('click', () => {
-  alert('Editing the full video with automatic effects and transitions!');
-});
-const exportButton = document.getElementById('export-btn');
-exportButton.addEventListener('click', () => {
-  alert('Exporting video! (This is a demo action for now.)');
-});
