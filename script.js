@@ -16,11 +16,6 @@ let selectedTrackIndex = null;
 const videoStreams = Array(10).fill(null);
 const recordedVideos = Array(10).fill(null); // Store blobs for each track
 
-const previewOverlay = document.getElementById('video-preview-overlay');
-const previewVideo = document.getElementById('recorded-preview');
-const downloadLink = document.getElementById('download-link');
-const closePreview = document.getElementById('close-preview');
-
 // Create video tracks and UI
 for (let i = 1; i <= 10; i++) {
   const videoTrackDiv = document.createElement('div');
@@ -140,12 +135,17 @@ recButton.addEventListener('click', async () => {
     });
   }
 
-  // Add blinking REC
+  // Add blinking REC effect inside the selected film frame
   const filmFrameDiv = document.querySelector(`#video-track-${selectedTrackIndex + 1} .film-frame`);
-  recBlinkElem = document.createElement('div');
-  recBlinkElem.className = 'blinking-rec';
-  recBlinkElem.innerHTML = '<span class="blinking-circle"></span>REC';
-  filmFrameDiv.appendChild(recBlinkElem);
+  if (filmFrameDiv) {
+    // Remove any existing rec indicator
+    const oldRec = filmFrameDiv.querySelector('.blinking-rec');
+    if (oldRec) oldRec.remove();
+    recBlinkElem = document.createElement('div');
+    recBlinkElem.className = 'blinking-rec';
+    recBlinkElem.innerHTML = '<span class="blinking-circle"></span>REC';
+    filmFrameDiv.appendChild(recBlinkElem);
+  }
 
   recButton.classList.add('hidden');
   stopRecButton.classList.remove('hidden');
@@ -222,7 +222,8 @@ function stopRecording() {
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
   }
-  if (recBlinkElem) recBlinkElem.remove();
+  // Remove any blinking REC indicators
+  document.querySelectorAll('.blinking-rec').forEach(rec => rec.remove());
   recButton.classList.remove('hidden');
   stopRecButton.classList.add('hidden');
   recordingActive = false;
