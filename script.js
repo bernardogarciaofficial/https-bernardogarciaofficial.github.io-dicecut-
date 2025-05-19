@@ -99,10 +99,13 @@ const stopRecBtn = document.getElementById('stop-rec-btn');
 
 recBtn.onclick = async () => {
   if (isRecording) return;
-  if (!masterTrack.src || !masterTrack.src.length || masterTrack.duration === 0) {
-    alert("Upload a master audio track first.");
+
+  // Only check masterTrack.src and readyState, not duration
+  if (!masterTrack.src || masterTrack.src === window.location.href || masterTrack.readyState < 2) {
+    alert("Upload a master audio track first and wait for it to load.");
     return;
   }
+
   if (!videoStreams[selectedTrack]) {
     try {
       videoStreams[selectedTrack] = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
