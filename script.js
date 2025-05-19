@@ -22,6 +22,13 @@ for (let i = 1; i <= 10; i++) {
   const videoElement = document.createElement('video');
   videoElement.setAttribute('autoplay', 'true');
   videoElement.setAttribute('muted', 'true');
+  videoElement.setAttribute('width', '320');
+  videoElement.setAttribute('height', '180');
+  videoElement.style.background = "#000";
+
+  // Controls container
+  const controlsDiv = document.createElement('div');
+  controlsDiv.classList.add('track-controls');
 
   const selectButton = document.createElement('button');
   selectButton.classList.add('select-btn');
@@ -30,8 +37,7 @@ for (let i = 1; i <= 10; i++) {
     videoTrackDiv.classList.toggle('selected');
   });
 
-  videoTrackDiv.appendChild(videoElement);
-  videoTrackDiv.appendChild(selectButton);
+  controlsDiv.appendChild(selectButton);
 
   // Add upload button for tracks 8, 9, and 10
   if (i >= 8) {
@@ -41,8 +47,11 @@ for (let i = 1; i <= 10; i++) {
     uploadButton.addEventListener('click', () => {
       alert(`Upload video for Track ${i}`);
     });
-    videoTrackDiv.appendChild(uploadButton);
+    controlsDiv.appendChild(uploadButton);
   }
+
+  videoTrackDiv.appendChild(videoElement);
+  videoTrackDiv.appendChild(controlsDiv);
 
   videoTracksContainer.appendChild(videoTrackDiv);
 }
