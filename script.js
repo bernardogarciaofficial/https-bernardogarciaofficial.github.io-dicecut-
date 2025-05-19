@@ -2,7 +2,6 @@
 document.getElementById('master-track-upload').addEventListener('change', function(event) {
   const audioPlayer = document.getElementById('master-track');
   const audioSource = document.getElementById('audio-source');
-  
   const file = event.target.files[0];
   if (file) {
     const objectURL = URL.createObjectURL(file);
