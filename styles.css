@@ -273,4 +273,71 @@ h1 {
   display: none;
 }
 
+/* Video preview overlay */
+#video-preview-overlay {
+  position: fixed;
+  z-index: 9999;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(16, 16, 22, 0.97);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#video-preview-overlay.hidden {
+  display: none;
+}
+.video-preview-content {
+  max-width: 680px;
+  width: 96vw;
+  background: #222230;
+  border-radius: 18px;
+  padding: 28px 18px 24px 18px;
+  box-shadow: 0 8px 48px #000a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+#recorded-preview {
+  margin: 0 0 18px 0;
+}
+
+#download-link, #close-preview {
+  font-size: 1.1em;
+}
+
+.blinking-rec {
+  position: absolute;
+  top: 18px; left: 18px;
+  display: flex;
+  align-items: center;
+  z-index: 50;
+  font-size: 1.2em;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: bold;
+  letter-spacing: 2px;
+  background: rgba(0,0,0,0.5);
+  padding: 5px 14px 5px 8px;
+  border-radius: 18px;
+  border: 2px solid #ff3b3b44;
+  box-shadow: 0 0 12px #ff3b3b55;
+  color: #ff3b3b;
+  animation: blink 1s linear infinite;
+}
+.blinking-circle {
+  display: inline-block;
+  width: 12px; height: 12px;
+  background: #ff3b3b;
+  border-radius: 50%;
+  margin-right: 10px;
+  box-shadow: 0 0 12px #ff3b3b88;
+}
+
+@keyframes blink {
+  0% { opacity: 1;}
+  50% { opacity: 0.3;}
+  100% { opacity: 1;}
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
