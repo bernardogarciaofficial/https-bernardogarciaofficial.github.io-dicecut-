@@ -32,6 +32,7 @@
         Your browser does not support the audio element.
       </audio>
       <button class="primary-btn" id="rec-btn">🎤 Rec</button>
+      <button class="primary-btn hidden" id="stop-rec-btn" style="margin-left:16px;background:red;color:white;">⏹ Stop</button>
     </div>
 
     <div id="video-tracks-container">
@@ -51,6 +52,15 @@
     </div>
     <!-- Countdown overlay -->
     <div id="countdown-overlay" class="hidden"></div>
+    <!-- Video preview overlay -->
+    <div id="video-preview-overlay" class="hidden">
+      <div class="video-preview-content">
+        <h2>🎬 Recording Preview</h2>
+        <video id="recorded-preview" controls style="width:100%;border-radius:12px;background:#000;"></video>
+        <a id="download-link" href="#" download="recording.webm" class="primary-btn" style="margin-top:16px;display:inline-block;">⬇️ Download Video</a>
+        <button class="primary-btn" id="close-preview" style="margin-top:16px;">Close</button>
+      </div>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>
