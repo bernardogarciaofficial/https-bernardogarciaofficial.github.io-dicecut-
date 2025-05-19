@@ -118,6 +118,7 @@ h1 {
   box-shadow: 0 2px 20px #ffd70022;
   border: 2px solid #ffd700aa;
   transition: background 0.2s, box-shadow 0.2s, color 0.2s, transform 0.2s;
+  display: block;
 }
 .primary-btn:hover, .dice-button:hover, .select-btn:hover, .upload-btn:hover {
   background: linear-gradient(90deg, #ffea00 60%, #ffd700 100%);
@@ -141,8 +142,9 @@ h1 {
   width: 100%;
   max-width: 900px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 0;
   box-shadow: 0 2px 24px #000b, 0 0 0 4px #ffd70022 inset;
   border: 3px solid #ffd70033;
   position: relative;
@@ -182,10 +184,11 @@ h1 {
 
 .track-controls {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 10px;
-  flex: 1;
-  margin-left: 18px;
+  width: 100%;
+  justify-content: center;
+  margin: 18px 0 0 0;
 }
 
 @media (max-width: 900px) {
@@ -196,15 +199,14 @@ h1 {
     max-height: 55vw;
   }
   .video-track {
-    flex-direction: column;
-    align-items: center;
     padding: 14px 2vw;
     min-width: 0;
   }
   .track-controls {
-    margin-left: 0;
     width: 100%;
     align-items: center;
+    flex-direction: column;
+    gap: 8px;
   }
 }
 
@@ -252,5 +254,23 @@ h1 {
   user-select: none;
 }
 
-/* Google Fonts for style */
+/* Countdown overlay styles */
+#countdown-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.77);
+  color: #ffd700;
+  font-family: 'Montserrat Black', Arial, sans-serif;
+  font-size: 9vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+  pointer-events: auto;
+  transition: opacity 0.2s;
+}
+#countdown-overlay.hidden {
+  display: none;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
