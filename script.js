@@ -1,4 +1,4 @@
- // Handle audio upload and playback
+// Handle audio upload and playback
 document.getElementById('master-track-upload').addEventListener('change', function(event) {
   const audioPlayer = document.getElementById('master-track');
   const audioSource = document.getElementById('audio-source');
@@ -7,7 +7,6 @@ document.getElementById('master-track-upload').addEventListener('change', functi
     const objectURL = URL.createObjectURL(file);
     audioSource.src = objectURL;
     audioPlayer.load();
-    audioPlayer.play();
   }
 });
 
@@ -46,7 +45,12 @@ for (let i = 1; i <= 10; i++) {
   selectButton.textContent = `🎯 Select Track ${i}`;
   selectButton.addEventListener('click', async function() {
     // Deselect all, select this, show camera
-    document.querySelectorAll('.video-track').forEach(div => div.classList.remove('selected'));
+    document.querySelectorAll('.video-track').forEach(div => {
+      div.classList.remove('selected');
+      // Remove blinking REC if present
+      const blink = div.querySelector('.blinking-rec');
+      if (blink) blink.remove();
+    });
     videoTrackDiv.classList.add('selected');
     selectedTrackIndex = i - 1;
 
@@ -96,16 +100,21 @@ for (let i = 1; i <= 10; i++) {
 // Countdown and recording logic
 const countdownOverlay = document.getElementById('countdown-overlay');
 const recButton = document.getElementById('rec-btn');
+const stopRecButton = document.getElementById('stop-rec-btn');
 let mediaRecorder = null;
 let recordedChunks = [];
 let recordingVideoElement = null;
+let recBlinkElem = null;
+let recording = false;
+let audioPlayer = document.getElementById('master-track');
+let audioPlayPromise = null;
 
 recButton.addEventListener('click', async () => {
   if (selectedTrackIndex === null) {
     alert("Please select a track and allow camera access first.");
     return;
   }
-  const audioPlayer = document.getElementById('master-track');
+  audioPlayer = document.getElementById('master-track'); // refresh in case it changed
   // Camera stream must be available for recording
   const stream = videoStreams[selectedTrackIndex];
   if (!stream) {
@@ -116,13 +125,29 @@ recButton.addEventListener('click', async () => {
   // Start countdown
   await startCountdown();
 
-  // Play master track from start
+  // Play master track from start (handle promise for autoplay)
   audioPlayer.currentTime = 0;
-  audioPlayer.play();
+  audioPlayPromise = audioPlayer.play();
+  if (audioPlayPromise !== undefined) {
+    audioPlayPromise.catch(e => {
+      alert("Could not play master track audio automatically. Please interact with the audio controls.");
+    });
+  }
 
   // Start video recording
   recordingVideoElement = document.querySelector(`#video-track-${selectedTrackIndex + 1} video`);
   if (!recordingVideoElement) return;
+
+  // Add blinking REC indicator
+  recBlinkElem = document.createElement('div');
+  recBlinkElem.className = 'blinking-rec';
+  recBlinkElem.innerHTML = '<span class="blinking-circle"></span>REC';
+  document.querySelector(`#video-track-${selectedTrackIndex + 1} .film-frame`).appendChild(recBlinkElem);
+
+  // Show stop recording button, disable rec button
+  recButton.classList.add('hidden');
+  stopRecButton.classList.remove('hidden');
+  recording = true;
 
   // Add audio to stream if desired (for now, video only)
   mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
@@ -131,21 +156,47 @@ recButton.addEventListener('click', async () => {
     if (e.data.size > 0) recordedChunks.push(e.data);
   };
   mediaRecorder.onstop = () => {
+    // Remove blinking REC
+    if (recBlinkElem) recBlinkElem.remove();
+    recording = false;
+    recButton.classList.remove('hidden');
+    stopRecButton.classList.add('hidden');
     // Optionally: preview or save the recording
     const blob = new Blob(recordedChunks, { type: "video/webm" });
     const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-    // For a more advanced app, we'd save or let user download the file!
+
+    // Show video preview overlay with download option
+    showPreview(url);
+
+    // Reset
+    recordedChunks = [];
   };
   mediaRecorder.start();
 
   // Stop recording when audio ends
   audioPlayer.onended = () => {
-    if (mediaRecorder && mediaRecorder.state !== "inactive") {
-      mediaRecorder.stop();
-    }
+    stopRecording();
   };
 });
+
+stopRecButton.addEventListener('click', () => {
+  stopRecording();
+});
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== "inactive") {
+    mediaRecorder.stop();
+  }
+  if (audioPlayer && !audioPlayer.paused) {
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0;
+  }
+  // Remove blinking REC
+  if (recBlinkElem) recBlinkElem.remove();
+  recording = false;
+  recButton.classList.remove('hidden');
+  stopRecButton.classList.add('hidden');
+}
 
 // Simple 3-2-1 countdown animation
 function startCountdown() {
@@ -167,6 +218,25 @@ function startCountdown() {
     }, 900);
   });
 }
+
+// Show video preview overlay
+function showPreview(url) {
+  const overlay = document.getElementById('video-preview-overlay');
+  const video = document.getElementById('recorded-preview');
+  const downloadLink = document.getElementById('download-link');
+  video.src = url;
+  video.load();
+  downloadLink.href = url;
+  overlay.classList.remove('hidden');
+}
+
+// Close preview overlay
+document.getElementById('close-preview').addEventListener('click', function() {
+  document.getElementById('video-preview-overlay').classList.add('hidden');
+  const video = document.getElementById('recorded-preview');
+  video.pause();
+  video.src = '';
+});
 
 // Dice randomization logic
 const diceButton = document.getElementById('dice-btn');
