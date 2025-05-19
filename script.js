@@ -35,6 +35,10 @@ for (let i = 1; i <= 10; i++) {
   videoElement.style.background = "#000";
   filmFrameDiv.appendChild(videoElement);
 
+  // Attach as a property for easier access later
+  videoTrackDiv._filmFrameDiv = filmFrameDiv;
+  videoTrackDiv._videoElement = videoElement;
+
   const controlsDiv = document.createElement('div');
   controlsDiv.classList.add('track-controls');
 
@@ -42,9 +46,10 @@ for (let i = 1; i <= 10; i++) {
   selectButton.classList.add('select-btn');
   selectButton.textContent = `🎯 Select Track ${i}`;
   selectButton.addEventListener('click', async function() {
+    // Remove selected class and blinking rec from all
     document.querySelectorAll('.video-track').forEach(div => {
       div.classList.remove('selected');
-      const blink = div.querySelector('.blinking-rec');
+      const blink = div._filmFrameDiv?.querySelector('.blinking-rec');
       if (blink) blink.remove();
     });
     videoTrackDiv.classList.add('selected');
@@ -137,7 +142,8 @@ recButton.addEventListener('click', async () => {
   }
 
   // Add blinking REC effect inside the selected film frame
-  const filmFrameDiv = document.querySelector(`#video-track-${selectedTrackIndex + 1} .film-frame`);
+  const videoTrackDiv = document.getElementById(`video-track-${selectedTrackIndex + 1}`);
+  const filmFrameDiv = videoTrackDiv._filmFrameDiv;
   if (filmFrameDiv) {
     // Remove any existing rec indicator
     const oldRec = filmFrameDiv.querySelector('.blinking-rec');
@@ -192,8 +198,10 @@ recButton.addEventListener('click', async () => {
     // Save blob to the selected track and display it
     const blob = new Blob(recordedChunks, { type: "video/webm" });
     recordedVideos[selectedTrackIndex] = blob;
+
+    // Always update the selected track's video element
     const videoTrackDiv = document.getElementById(`video-track-${selectedTrackIndex + 1}`);
-    const videoElement = videoTrackDiv.querySelector('video');
+    const videoElement = videoTrackDiv._videoElement;
     videoElement.srcObject = null;
     videoElement.src = URL.createObjectURL(blob);
     videoElement.controls = true;
