@@ -1,4 +1,4 @@
-// Handle audio upload and playback
+// ==== Handle audio upload and playback ====
 document.getElementById('master-track-upload').addEventListener('change', function(event) {
   const audioPlayer = document.getElementById('master-track');
   const audioSource = document.getElementById('audio-source');
@@ -10,6 +10,7 @@ document.getElementById('master-track-upload').addEventListener('change', functi
   }
 });
 
+// ==== Video tracks setup ====
 const videoTracksContainer = document.getElementById('video-tracks-container');
 let selectedTrackIndex = null;
 const videoStreams = Array(10).fill(null);
@@ -19,6 +20,7 @@ const previewVideo = document.getElementById('recorded-preview');
 const downloadLink = document.getElementById('download-link');
 const closePreview = document.getElementById('close-preview');
 
+// Create video tracks and UI
 for (let i = 1; i <= 10; i++) {
   const videoTrackDiv = document.createElement('div');
   videoTrackDiv.classList.add('video-track');
@@ -90,7 +92,7 @@ for (let i = 1; i <= 10; i++) {
   videoTracksContainer.appendChild(videoTrackDiv);
 }
 
-// Recording logic
+// ==== Recording logic ====
 const countdownOverlay = document.getElementById('countdown-overlay');
 const recButton = document.getElementById('rec-btn');
 const stopRecButton = document.getElementById('stop-rec-btn');
@@ -98,6 +100,7 @@ let mediaRecorder = null;
 let recordedChunks = [];
 let recBlinkElem = null;
 let audioPlayer = document.getElementById('master-track');
+let recordingActive = false;
 
 recButton.addEventListener('click', async () => {
   if (selectedTrackIndex === null) {
@@ -129,15 +132,31 @@ recButton.addEventListener('click', async () => {
   recButton.classList.add('hidden');
   stopRecButton.classList.remove('hidden');
 
-  try {
-    mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-  } catch (e) {
-    alert('MediaRecorder is not supported or failed to initialize.');
-    if (recBlinkElem) recBlinkElem.remove();
-    recButton.classList.remove('hidden');
-    stopRecButton.classList.add('hidden');
-    return;
+  // --- Most compatible MediaRecorder initialization ---
+  let options = {};
+  if (window.MediaRecorder && MediaRecorder.isTypeSupported) {
+    if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+      options = { mimeType: 'video/webm;codecs=vp9' };
+    } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+      options = { mimeType: 'video/webm;codecs=vp8' };
+    } else if (MediaRecorder.isTypeSupported('video/webm')) {
+      options = { mimeType: 'video/webm' };
+    }
   }
+  try {
+    mediaRecorder = new MediaRecorder(stream, options);
+  } catch (e) {
+    try {
+      mediaRecorder = new MediaRecorder(stream); // fallback to default
+    } catch (err) {
+      alert('MediaRecorder is not supported in this browser or with this configuration.');
+      if (recBlinkElem) recBlinkElem.remove();
+      recButton.classList.remove('hidden');
+      stopRecButton.classList.add('hidden');
+      return;
+    }
+  }
+
   recordedChunks = [];
   mediaRecorder.ondataavailable = (e) => {
     if (e.data.size > 0) recordedChunks.push(e.data);
@@ -146,6 +165,7 @@ recButton.addEventListener('click', async () => {
     if (recBlinkElem) recBlinkElem.remove();
     recButton.classList.remove('hidden');
     stopRecButton.classList.add('hidden');
+    recordingActive = false;
     if (recordedChunks.length === 0) {
       alert('No video was recorded!');
       return;
@@ -157,12 +177,17 @@ recButton.addEventListener('click', async () => {
   };
 
   mediaRecorder.start();
+  recordingActive = true;
 
-  // Stop recording when audio ends
-  audioPlayer.onended = () => stopRecording();
+  // Automatically stop recording when audio ends
+  audioPlayer.onended = () => {
+    if (recordingActive) stopRecording();
+  };
 });
 
-stopRecButton.addEventListener('click', () => stopRecording());
+stopRecButton.addEventListener('click', () => {
+  if (recordingActive) stopRecording();
+});
 
 function stopRecording() {
   if (mediaRecorder && mediaRecorder.state !== "inactive") {
@@ -175,6 +200,7 @@ function stopRecording() {
   if (recBlinkElem) recBlinkElem.remove();
   recButton.classList.remove('hidden');
   stopRecButton.classList.add('hidden');
+  recordingActive = false;
 }
 
 function startCountdown() {
@@ -197,7 +223,7 @@ function startCountdown() {
   });
 }
 
-// Show video preview overlay
+// ==== Show video preview overlay ====
 function showPreview(url) {
   previewVideo.src = url;
   previewVideo.load();
@@ -210,7 +236,7 @@ closePreview.addEventListener('click', function() {
   previewVideo.src = '';
 });
 
-// Dice, export, etc. (unchanged)
+// ==== Dice, export, etc. (demo) ====
 const diceButton = document.getElementById('dice-btn');
 const option1Button = document.getElementById('option-1');
 const option2Button = document.getElementById('option-2');
