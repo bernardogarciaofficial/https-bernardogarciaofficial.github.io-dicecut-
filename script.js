@@ -14,7 +14,6 @@ const videoTracksContainer = document.getElementById('video-tracks-container');
 let selectedTrackIndex = null;
 const videoStreams = Array(10).fill(null);
 
-// Video preview overlay elements
 const previewOverlay = document.getElementById('video-preview-overlay');
 const previewVideo = document.getElementById('recorded-preview');
 const downloadLink = document.getElementById('download-link');
@@ -91,7 +90,7 @@ for (let i = 1; i <= 10; i++) {
   videoTracksContainer.appendChild(videoTrackDiv);
 }
 
-// Countdown and recording logic
+// Recording logic
 const countdownOverlay = document.getElementById('countdown-overlay');
 const recButton = document.getElementById('rec-btn');
 const stopRecButton = document.getElementById('stop-rec-btn');
