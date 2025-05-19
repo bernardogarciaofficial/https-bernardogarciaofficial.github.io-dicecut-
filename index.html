@@ -8,6 +8,13 @@
 </head>
 <body>
   <h1>Video Multitrack Recorder</h1>
+  
+  <!-- Record and Stop buttons at the top -->
+  <div id="record-controls">
+    <button id="rec-btn">REC</button>
+    <button id="stop-rec-btn" class="hidden">STOP</button>
+  </div>
+
   <!-- Audio upload -->
   <input type="file" id="master-track-upload" accept="audio/*">
   <audio id="master-track" controls>
@@ -19,19 +26,6 @@
 
   <!-- Countdown overlay -->
   <div id="countdown-overlay" class="hidden"></div>
-
-  <!-- Record and Stop buttons -->
-  <div id="record-controls">
-    <button id="rec-btn">REC</button>
-    <button id="stop-rec-btn" class="hidden">STOP</button>
-  </div>
-
-  <!-- Preview overlay (not used with new workflow, but kept for future extension) -->
-  <div id="video-preview-overlay" class="hidden">
-    <video id="recorded-preview" controls></video>
-    <a id="download-link" download="recorded.webm">Download Video</a>
-    <button id="close-preview">Close</button>
-  </div>
 
   <!-- Demo buttons -->
   <div id="bottom-controls">
