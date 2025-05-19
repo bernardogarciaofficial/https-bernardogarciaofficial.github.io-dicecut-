@@ -33,7 +33,6 @@ for (let i = 1; i <= 10; i++) {
   videoElement.setAttribute('width', '800');
   videoElement.setAttribute('height', '450');
   videoElement.style.background = "#000";
-
   filmFrameDiv.appendChild(videoElement);
 
   const controlsDiv = document.createElement('div');
@@ -125,6 +124,8 @@ recButton.addEventListener('click', async () => {
     alert("Please select a track and allow camera access first.");
     return;
   }
+
+  // Show countdown
   await startCountdown();
 
   audioPlayer.currentTime = 0;
