@@ -19,12 +19,18 @@ for (let i = 1; i <= 10; i++) {
   videoTrackDiv.classList.add('video-track');
   videoTrackDiv.id = 'video-track-' + i;
 
+  // Film frame for large video
+  const filmFrameDiv = document.createElement('div');
+  filmFrameDiv.classList.add('film-frame');
+
   const videoElement = document.createElement('video');
   videoElement.setAttribute('autoplay', 'true');
   videoElement.setAttribute('muted', 'true');
-  videoElement.setAttribute('width', '320');
-  videoElement.setAttribute('height', '180');
+  videoElement.setAttribute('width', '800');
+  videoElement.setAttribute('height', '450');
   videoElement.style.background = "#000";
+
+  filmFrameDiv.appendChild(videoElement);
 
   // Controls container
   const controlsDiv = document.createElement('div');
@@ -50,7 +56,7 @@ for (let i = 1; i <= 10; i++) {
     controlsDiv.appendChild(uploadButton);
   }
 
-  videoTrackDiv.appendChild(videoElement);
+  videoTrackDiv.appendChild(filmFrameDiv);
   videoTrackDiv.appendChild(controlsDiv);
 
   videoTracksContainer.appendChild(videoTrackDiv);
@@ -77,4 +83,10 @@ option1Button.addEventListener('click', () => {
 
 option2Button.addEventListener('click', () => {
   alert('Editing the full video with automatic effects and transitions!');
+});
+
+// Export video button (for demonstration)
+const exportButton = document.getElementById('export-btn');
+exportButton.addEventListener('click', () => {
+  alert('Exporting video! (This is a demo action.)');
 });
