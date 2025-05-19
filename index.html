@@ -3,207 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Video Multitrack Recorder</title>
-  <meta name="viewport" content="width=800, initial-scale=1">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #212121;
-      color: #f5f5f5;
-      margin: 0;
-      padding: 0 0 64px 0;
-      min-width: 800px;
-      max-width: 900px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    h1 {
-      text-align: center;
-      margin-top: 24px;
-    }
-    #master-track-upload {
-      margin: 24px 0 10px 0;
-      display: block;
-      width: 100%;
-    }
-    #master-track {
-      width: 100%;
-      margin-bottom: 10px;
-    }
-    #video-tracks-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin: 20px 0;
-    }
-    .video-track {
-      background: #333;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px #1116;
-      padding: 10px;
-      position: relative;
-    }
-    .film-frame {
-      border: 4px solid #555;
-      border-radius: 8px;
-      overflow: hidden;
-      background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 8px;
-      min-height: 250px;
-    }
-    .video-track.selected {
-      border: 2px solid #ffa500;
-      box-shadow: 0 0 24px #ffa50077;
-    }
-    .track-controls {
-      text-align: center;
-      margin-top: 6px;
-    }
-    .select-btn, .upload-btn {
-      background: #252525;
-      color: #fff;
-      border: 1px solid #666;
-      border-radius: 5px;
-      padding: 6px 14px;
-      margin: 0 2px;
-      font-size: 1em;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .select-btn:hover, .upload-btn:hover {
-      background: #444;
-    }
-    .blinking-rec {
-      position: absolute;
-      top: 12px;
-      left: 16px;
-      background: rgba(30,30,30,0.85);
-      color: #ff4444;
-      padding: 2px 8px 2px 6px;
-      border-radius: 4px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      z-index: 5;
-      font-size: 1.12em;
-      box-shadow: 0 2px 8px #000a;
-      letter-spacing: 0.04em;
-      animation: blinkbg 1.25s infinite alternate;
-    }
-    @keyframes blinkbg {
-      0% { background: rgba(30,30,30,0.85);}
-      100% { background: rgba(30,30,30,0.65);}
-    }
-    .blinking-circle {
-      width: 10px;
-      height: 10px;
-      background: #ff4444;
-      border-radius: 50%;
-      margin-right: 7px;
-      display: inline-block;
-      animation: blink 1s infinite;
-    }
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.2; }
-    }
-    #rec-btn, #stop-rec-btn, #dice-btn, #option-1, #option-2, #export-btn {
-      margin: 10px 5px 0 0;
-      padding: 10px 24px;
-      border-radius: 6px;
-      border: none;
-      font-size: 1.1em;
-      background: #444;
-      color: #fff;
-      cursor: pointer;
-      transition: background 0.17s;
-      font-family: inherit;
-    }
-    #rec-btn { background: #ff4444; }
-    #rec-btn:hover { background: #e32b2b; }
-    #stop-rec-btn { background: #ffa500; color: #222; }
-    #stop-rec-btn:hover { background: #ffcb4a; }
-    #dice-btn { background: #222; }
-    #dice-btn:hover { background: #444; }
-    #option-1, #option-2 { background: #222; }
-    #option-1:hover, #option-2:hover { background: #444; }
-    #export-btn { background: #4a92ff; }
-    #export-btn:hover { background: #1261c5; }
-    .hidden { display: none !important; }
-    #countdown-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 6em;
-      color: #fff;
-      z-index: 999;
-      font-weight: bold;
-      letter-spacing: 0.04em;
-      transition: opacity 0.2s;
-      pointer-events: none;
-      user-select: none;
-    }
-    #video-preview-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(20,20,20,0.96);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    #video-preview-overlay.hidden {
-      display: none !important;
-    }
-    #recorded-preview {
-      width: 90vw;
-      max-width: 720px;
-      margin-bottom: 14px;
-      border-radius: 9px;
-      background: #000;
-      box-shadow: 0 2px 24px #000b;
-    }
-    #download-link {
-      background: #ffa500;
-      color: #222;
-      font-weight: bold;
-      text-decoration: none;
-      padding: 8px 22px;
-      border-radius: 8px;
-      margin-right: 10px;
-      font-size: 1.15em;
-      transition: background 0.17s;
-      display: inline-block;
-    }
-    #download-link:hover {
-      background: #ffcb4a;
-    }
-    #close-preview {
-      background: #4a92ff;
-      color: #fff;
-      padding: 8px 18px;
-      border-radius: 8px;
-      border: none;
-      font-size: 1em;
-      margin-left: 10px;
-      cursor: pointer;
-      transition: background 0.17s;
-    }
-    #close-preview:hover {
-      background: #1261c5;
-    }
-    @media (max-width: 900px) {
-      body { min-width: 0; max-width: 100vw; }
-      #video-tracks-container { grid-template-columns: 1fr; }
-      #recorded-preview { width: 98vw; max-width: 99vw; }
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>Video Multitrack Recorder</h1>
@@ -220,10 +21,12 @@
   <div id="countdown-overlay" class="hidden"></div>
 
   <!-- Record and Stop buttons -->
-  <button id="rec-btn">REC</button>
-  <button id="stop-rec-btn" class="hidden">STOP</button>
+  <div id="record-controls">
+    <button id="rec-btn">REC</button>
+    <button id="stop-rec-btn" class="hidden">STOP</button>
+  </div>
 
-  <!-- Preview overlay -->
+  <!-- Preview overlay (not used with new workflow, but kept for future extension) -->
   <div id="video-preview-overlay" class="hidden">
     <video id="recorded-preview" controls></video>
     <a id="download-link" download="recorded.webm">Download Video</a>
@@ -231,10 +34,12 @@
   </div>
 
   <!-- Demo buttons -->
-  <button id="dice-btn">🎲</button>
-  <button id="option-1">Option 1</button>
-  <button id="option-2">Option 2</button>
-  <button id="export-btn">Export</button>
+  <div id="bottom-controls">
+    <button id="dice-btn">🎲</button>
+    <button id="option-1">Option 1</button>
+    <button id="option-2">Option 2</button>
+    <button id="export-btn">Export</button>
+  </div>
 
   <script src="script.js"></script>
 </body>
