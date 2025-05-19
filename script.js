@@ -14,6 +14,7 @@ document.getElementById('master-track-upload').addEventListener('change', functi
 const videoTracksContainer = document.getElementById('video-tracks-container');
 let selectedTrackIndex = null;
 const videoStreams = Array(10).fill(null);
+const recordedVideos = Array(10).fill(null); // Store blobs for each track
 
 const previewOverlay = document.getElementById('video-preview-overlay');
 const previewVideo = document.getElementById('recorded-preview');
@@ -29,6 +30,7 @@ for (let i = 1; i <= 10; i++) {
   const filmFrameDiv = document.createElement('div');
   filmFrameDiv.classList.add('film-frame');
 
+  // --- This video element will show the recorded video for this track ---
   const videoElement = document.createElement('video');
   videoElement.setAttribute('autoplay', 'true');
   videoElement.setAttribute('muted', 'true');
@@ -53,6 +55,8 @@ for (let i = 1; i <= 10; i++) {
     });
     videoTrackDiv.classList.add('selected');
     selectedTrackIndex = i - 1;
+
+    // Stop all other video streams
     videoStreams.forEach((stream, idx) => {
       if (stream && idx !== selectedTrackIndex) {
         stream.getTracks().forEach(track => track.stop());
@@ -61,16 +65,29 @@ for (let i = 1; i <= 10; i++) {
         if (ve) ve.srcObject = null;
       }
     });
-    try {
-      if (!videoStreams[selectedTrackIndex]) {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        videoElement.srcObject = stream;
-        videoStreams[selectedTrackIndex] = stream;
-      } else {
-        videoElement.srcObject = videoStreams[selectedTrackIndex];
+
+    // Show recorded video for this track if it exists
+    if (recordedVideos[selectedTrackIndex]) {
+      videoElement.srcObject = null;
+      videoElement.src = URL.createObjectURL(recordedVideos[selectedTrackIndex]);
+      videoElement.controls = true;
+      videoElement.loop = true;
+      videoElement.play();
+    } else {
+      // Show live camera preview for this track
+      try {
+        if (!videoStreams[selectedTrackIndex]) {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+          videoElement.srcObject = stream;
+          videoElement.controls = false;
+          videoStreams[selectedTrackIndex] = stream;
+        } else {
+          videoElement.srcObject = videoStreams[selectedTrackIndex];
+          videoElement.controls = false;
+        }
+      } catch (e) {
+        alert("Camera access denied or not available.");
       }
-    } catch (e) {
-      alert("Camera access denied or not available.");
     }
   });
 
@@ -124,10 +141,11 @@ recButton.addEventListener('click', async () => {
   }
 
   // Add blinking REC
+  const filmFrameDiv = document.querySelector(`#video-track-${selectedTrackIndex + 1} .film-frame`);
   recBlinkElem = document.createElement('div');
   recBlinkElem.className = 'blinking-rec';
   recBlinkElem.innerHTML = '<span class="blinking-circle"></span>REC';
-  document.querySelector(`#video-track-${selectedTrackIndex + 1} .film-frame`).appendChild(recBlinkElem);
+  filmFrameDiv.appendChild(recBlinkElem);
 
   recButton.classList.add('hidden');
   stopRecButton.classList.remove('hidden');
@@ -170,9 +188,16 @@ recButton.addEventListener('click', async () => {
       alert('No video was recorded!');
       return;
     }
+    // Save blob to the selected track and display it
     const blob = new Blob(recordedChunks, { type: "video/webm" });
-    const url = URL.createObjectURL(blob);
-    showPreview(url);
+    recordedVideos[selectedTrackIndex] = blob;
+    const videoTrackDiv = document.getElementById(`video-track-${selectedTrackIndex + 1}`);
+    const videoElement = videoTrackDiv.querySelector('video');
+    videoElement.srcObject = null;
+    videoElement.src = URL.createObjectURL(blob);
+    videoElement.controls = true;
+    videoElement.loop = true;
+    videoElement.play();
     recordedChunks = [];
   };
 
@@ -223,20 +248,7 @@ function startCountdown() {
   });
 }
 
-// ==== Show video preview overlay ====
-function showPreview(url) {
-  previewVideo.src = url;
-  previewVideo.load();
-  downloadLink.href = url;
-  previewOverlay.classList.remove('hidden');
-}
-closePreview.addEventListener('click', function() {
-  previewOverlay.classList.add('hidden');
-  previewVideo.pause();
-  previewVideo.src = '';
-});
-
-// ==== Dice, export, etc. (demo) ====
+// ==== Demo buttons (still for UI demo only) ====
 const diceButton = document.getElementById('dice-btn');
 const option1Button = document.getElementById('option-1');
 const option2Button = document.getElementById('option-2');
@@ -251,5 +263,5 @@ option2Button.addEventListener('click', () => {
 });
 const exportButton = document.getElementById('export-btn');
 exportButton.addEventListener('click', () => {
-  alert('Exporting video! (This is a demo action.)');
+  alert('Exporting video! (This is a demo action for now.)');
 });
