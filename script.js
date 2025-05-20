@@ -11,12 +11,17 @@ let isRecording = false;
 // Audio upload
 const masterTrack = document.getElementById('master-track');
 const masterTrackUpload = document.getElementById('master-track-upload');
+const audioReadyIndicator = document.getElementById('audio-ready-indicator');
 masterTrackUpload.addEventListener('change', function(event) {
   const file = event.target.files[0];
   if (file) {
     const objectURL = URL.createObjectURL(file);
     document.getElementById('audio-source').src = objectURL;
     masterTrack.load();
+    audioReadyIndicator.style.display = 'none';
+    masterTrack.oncanplaythrough = () => {
+      audioReadyIndicator.style.display = 'inline';
+    };
   }
 });
 
@@ -100,9 +105,9 @@ const stopRecBtn = document.getElementById('stop-rec-btn');
 recBtn.onclick = async () => {
   if (isRecording) return;
 
-  // Only check masterTrack.src and readyState, not duration
-  if (!masterTrack.src || masterTrack.src === window.location.href || masterTrack.readyState < 2) {
-    alert("Upload a master audio track first and wait for it to load.");
+  // Only check that a master audio file is set
+  if (!masterTrack.src || masterTrack.src === window.location.href) {
+    alert("Upload a master audio track first.");
     return;
   }
 
