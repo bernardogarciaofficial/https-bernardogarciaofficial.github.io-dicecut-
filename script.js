@@ -1,210 +1,248 @@
-const NUM_TRACKS = 10;
-let selectedTrack = 0;
-const videoBlobs = Array(NUM_TRACKS).fill(null); // store video blobs per track
-const videoStreams = Array(NUM_TRACKS).fill(null); // store active stream per track
-const videoElements = [];
-let mediaRecorder = null;
-let recordedChunks = [];
-let recBlinkElem = null;
-let isRecording = false;
+// === GLOBAL STATE ===
+let wavesurfer;
+let masterAudioBuffer = null;
+let bpm = 120; // Default BPM; could be user-settable
+let barsPerChunk = 8;
+let chunkStates = []; // { locked: bool }
+let selectedChunk = 0;
+let chunkStartEnd = []; // [{start: seconds, end: seconds}]
+let videoTracks = [];
+let diceEdits = {}; // { chunkIndex: { ...edit info per track } }
 
-// Audio upload
-const masterTrack = document.getElementById('master-track');
-const masterTrackUpload = document.getElementById('master-track-upload');
-const audioReadyIndicator = document.getElementById('audio-ready-indicator');
-masterTrackUpload.addEventListener('change', function(event) {
+// === MASTER AUDIO UPLOAD & WAVEFORM ===
+document.getElementById('master-track-upload').addEventListener('change', async function (event) {
   const file = event.target.files[0];
-  if (file) {
-    const objectURL = URL.createObjectURL(file);
-    document.getElementById('audio-source').src = objectURL;
-    masterTrack.load();
-    audioReadyIndicator.style.display = 'none';
-    masterTrack.oncanplaythrough = () => {
-      audioReadyIndicator.style.display = 'inline';
-    };
+  if (!file) return;
+
+  const audio = document.getElementById('master-track');
+  audio.src = URL.createObjectURL(file);
+
+  if (wavesurfer) {
+    wavesurfer.destroy();
   }
+  wavesurfer = WaveSurfer.create({
+    container: '#waveform-container',
+    waveColor: '#2974fa',
+    progressColor: '#bada55',
+    height: 80,
+    barWidth: 2,
+    responsive: true,
+    hideScrollbar: true
+  });
+  wavesurfer.load(audio.src);
+
+  // decode AudioBuffer for bar calculations
+  const arrayBuffer = await file.arrayBuffer();
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  masterAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+  wavesurfer.on('ready', () => {
+    setupTimelineChunks();
+  });
 });
 
-// Build video tracks UI
-const videoTracksContainer = document.getElementById('video-tracks-container');
-for (let i = 0; i < NUM_TRACKS; i++) {
-  const videoTrackDiv = document.createElement('div');
-  videoTrackDiv.className = 'video-track';
-  if (i === 0) videoTrackDiv.classList.add('selected');
-  videoTrackDiv.id = 'video-track-' + (i + 1);
+// === TIMELINE CHUNKS LOGIC ===
+function setupTimelineChunks() {
+  // Calculate number of bars
+  const secondsPerBeat = 60 / bpm;
+  const beatsPerBar = 4; // assuming 4/4
+  const barLength = secondsPerBeat * beatsPerBar;
+  const totalBars = Math.ceil(masterAudioBuffer.duration / barLength);
+  const chunkCount = Math.ceil(totalBars / barsPerChunk);
 
-  const filmFrame = document.createElement('div');
-  filmFrame.className = 'film-frame';
-
-  const video = document.createElement('video');
-  video.setAttribute('autoplay', 'true');
-  video.setAttribute('muted', 'true');
-  video.setAttribute('playsinline', 'true');
-  video.setAttribute('width', '800');
-  video.setAttribute('height', '450');
-  video.style.background = "#000";
-  filmFrame.appendChild(video);
-  videoElements[i] = video;
-
-  const controlsDiv = document.createElement('div');
-  controlsDiv.className = 'track-controls';
-
-  const selectBtn = document.createElement('button');
-  selectBtn.className = 'select-btn';
-  selectBtn.textContent = `🎯 Select Track ${i + 1}`;
-  selectBtn.onclick = () => selectTrack(i);
-  controlsDiv.appendChild(selectBtn);
-
-  videoTrackDiv.appendChild(filmFrame);
-  videoTrackDiv.appendChild(controlsDiv);
-  videoTracksContainer.appendChild(videoTrackDiv);
-}
-
-// Select track, show video if exists, else live preview
-function selectTrack(idx) {
-  document.querySelectorAll('.video-track').forEach(div => {
-    div.classList.remove('selected');
-    const blink = div.querySelector('.blinking-rec');
-    if (blink) blink.remove();
-  });
-  selectedTrack = idx;
-  document.getElementById('video-track-' + (idx + 1)).classList.add('selected');
-  // Stop all other streams
-  videoStreams.forEach((stream, i) => {
-    if (stream && i !== idx) {
-      stream.getTracks().forEach(track => track.stop());
-      videoStreams[i] = null;
-      videoElements[i].srcObject = null;
-    }
-  });
-  // Show video or live preview
-  if (videoBlobs[idx]) {
-    videoElements[idx].srcObject = null;
-    videoElements[idx].src = URL.createObjectURL(videoBlobs[idx]);
-    videoElements[idx].controls = true;
-    videoElements[idx].loop = true;
-    videoElements[idx].play();
-  } else {
-    // Camera preview
-    navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(stream => {
-      videoElements[idx].srcObject = stream;
-      videoElements[idx].controls = false;
-      videoStreams[idx] = stream;
-    }).catch(() => {
-      alert("Camera access denied or not available.");
-    });
+  chunkStates = [];
+  chunkStartEnd = [];
+  for (let i = 0; i < chunkCount; i++) {
+    const startBar = i * barsPerChunk;
+    const endBar = Math.min((i + 1) * barsPerChunk, totalBars);
+    const startSec = startBar * barLength;
+    const endSec = Math.min(endBar * barLength, masterAudioBuffer.duration);
+    chunkStates.push({ locked: false });
+    chunkStartEnd.push({ start: startSec, end: endSec });
   }
+  selectedChunk = 0;
+
+  renderTimelineChunks();
 }
-selectTrack(0); // initial selection
 
-// Recording logic
-const countdownOverlay = document.getElementById('countdown-overlay');
-const recBtn = document.getElementById('rec-btn');
-const stopRecBtn = document.getElementById('stop-rec-btn');
+function renderTimelineChunks() {
+  const container = document.getElementById('timeline-chunks');
+  container.innerHTML = '';
+  chunkStartEnd.forEach((chunk, i) => {
+    const chunkDiv = document.createElement('div');
+    chunkDiv.className = 'timeline-chunk' + (chunkStates[i].locked ? ' locked' : '') + (i === selectedChunk ? ' selected' : '');
+    chunkDiv.title = chunkStates[i].locked ? 'Locked (click unlock to edit)' : 'Click to select chunk';
+    chunkDiv.innerHTML = `
+      <div>
+        <strong>${i * barsPerChunk + 1}-${Math.round(chunk.end / ((60 / bpm) * 4))}</strong>
+        <br>(${formatTime(chunk.start)}-${formatTime(chunk.end)})
+      </div>
+      <div class="chunk-controls"></div>
+    `;
+    // Lock/unlock icon
+    const iconSpan = document.createElement('span');
+    iconSpan.className = chunkStates[i].locked ? 'lock-icon' : 'unlock-icon';
+    iconSpan.innerHTML = chunkStates[i].locked ? '🔒' : '🔓';
+    chunkDiv.appendChild(iconSpan);
 
-recBtn.onclick = async () => {
-  if (isRecording) return;
+    // Controls: dice, lock, unlock, play
+    const controls = chunkDiv.querySelector('.chunk-controls');
+    controls.innerHTML = '';
 
-  // Only check that a master audio file is set
-  if (!masterTrack.src || masterTrack.src === window.location.href) {
-    alert("Upload a master audio track first.");
+    // Play chunk
+    const playBtn = document.createElement('button');
+    playBtn.innerText = '▶ Play Chunk';
+    playBtn.onclick = (e) => {
+      e.stopPropagation();
+      playChunk(i);
+    };
+    controls.appendChild(playBtn);
+
+    // Dice edit
+    const diceBtn = document.createElement('button');
+    diceBtn.innerText = '🎲 Dice Edit';
+    diceBtn.disabled = chunkStates[i].locked;
+    diceBtn.onclick = (e) => {
+      e.stopPropagation();
+      diceEditChunk(i);
+    };
+    controls.appendChild(diceBtn);
+
+    // Lock/unlock
+    if (chunkStates[i].locked) {
+      const unlockBtn = document.createElement('button');
+      unlockBtn.innerText = '🔓 Unlock';
+      unlockBtn.onclick = (e) => {
+        e.stopPropagation();
+        unlockChunk(i);
+      };
+      controls.appendChild(unlockBtn);
+    } else {
+      const lockBtn = document.createElement('button');
+      lockBtn.innerText = '🔒 Lock';
+      lockBtn.onclick = (e) => {
+        e.stopPropagation();
+        lockChunk(i);
+      };
+      controls.appendChild(lockBtn);
+    }
+
+    chunkDiv.onclick = () => {
+      if (!chunkStates[i].locked) {
+        selectedChunk = i;
+        renderTimelineChunks();
+      }
+    };
+
+    container.appendChild(chunkDiv);
+  });
+}
+
+// === FORMAT TIME ===
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// === LOCK/UNLOCK ===
+function lockChunk(idx) {
+  chunkStates[idx].locked = true;
+  renderTimelineChunks();
+}
+function unlockChunk(idx) {
+  chunkStates[idx].locked = false;
+  renderTimelineChunks();
+}
+
+// === DICE EDIT ===
+function diceEditChunk(idx) {
+  if (chunkStates[idx].locked) return;
+  // Example: for each video track, pick a random segment for this chunk
+  diceEdits[idx] = {};
+  videoTracks.forEach((track, tIdx) => {
+    diceEdits[idx][tIdx] = {
+      randomSeed: Math.random()
+      // Real logic: select a random set of video segments for this chunk
+    };
+  });
+  alert(`Chunk ${idx + 1} has been dice-random-edited!`);
+  lockChunk(idx);
+}
+
+// === PLAY CHUNK ===
+function playChunk(idx) {
+  const audio = document.getElementById('master-track');
+  const { start, end } = chunkStartEnd[idx];
+  audio.currentTime = start;
+  audio.play();
+  // Pause at end of chunk
+  const stopHandler = () => {
+    if (audio.currentTime >= end) {
+      audio.pause();
+      audio.removeEventListener('timeupdate', stopHandler);
+    }
+  };
+  audio.addEventListener('timeupdate', stopHandler);
+  // TODO: Video preview to sync with this chunk if needed
+}
+
+// === DICE ENTIRE VIDEO ===
+document.getElementById('dice-entire-btn').onclick = () => {
+  if (!masterAudioBuffer) {
+    alert('Please upload a master audio track first!');
     return;
   }
-
-  if (!videoStreams[selectedTrack]) {
-    try {
-      videoStreams[selectedTrack] = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-      videoElements[selectedTrack].srcObject = videoStreams[selectedTrack];
-    } catch {
-      alert("Camera access denied or not available.");
-      return;
+  for (let i = 0; i < chunkStates.length; i++) {
+    if (!chunkStates[i].locked) {
+      diceEditChunk(i);
     }
   }
-  await showCountdown();
-
-  // Try to play master audio and catch any error
-  masterTrack.currentTime = 0;
-  let playPromise = masterTrack.play();
-  if (playPromise !== undefined) {
-    playPromise.catch(e => {
-      alert("Could not play master audio automatically. Please click the play ▶️ button on the audio controls, then try recording again. Error: " + e.message);
-    });
-  }
-
-  // Blinking REC
-  const filmFrame = document.getElementById('video-track-' + (selectedTrack + 1)).querySelector('.film-frame');
-  recBlinkElem = document.createElement('div');
-  recBlinkElem.className = 'blinking-rec';
-  recBlinkElem.innerHTML = '<span class="blinking-circle"></span>REC';
-  filmFrame.appendChild(recBlinkElem);
-
-  recBtn.classList.add('hidden');
-  stopRecBtn.classList.remove('hidden');
-  recordedChunks = [];
-  let options = {};
-  if (MediaRecorder.isTypeSupported) {
-    if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) options = { mimeType: 'video/webm;codecs=vp9' };
-    else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) options = { mimeType: 'video/webm;codecs=vp8' };
-    else if (MediaRecorder.isTypeSupported('video/webm')) options = { mimeType: 'video/webm' };
-  }
-  try {
-    mediaRecorder = new MediaRecorder(videoStreams[selectedTrack], options);
-  } catch {
-    mediaRecorder = new MediaRecorder(videoStreams[selectedTrack]);
-  }
-  mediaRecorder.ondataavailable = e => { if (e.data.size) recordedChunks.push(e.data); };
-  mediaRecorder.onstop = () => {
-    if (recBlinkElem) recBlinkElem.remove();
-    recBtn.classList.remove('hidden');
-    stopRecBtn.classList.add('hidden');
-    isRecording = false;
-    if (!recordedChunks.length) {
-      alert('No video was recorded!');
-      return;
-    }
-    const blob = new Blob(recordedChunks, { type: "video/webm" });
-    videoBlobs[selectedTrack] = blob;
-    videoElements[selectedTrack].srcObject = null;
-    videoElements[selectedTrack].src = URL.createObjectURL(blob);
-    videoElements[selectedTrack].controls = true;
-    videoElements[selectedTrack].loop = true;
-    videoElements[selectedTrack].play();
-    recordedChunks = [];
-  };
-  mediaRecorder.start();
-  isRecording = true;
-  masterTrack.onended = () => { if (isRecording) stopRecording(); };
+  alert('Whole video has been dice-edited (unlocked chunks only)!');
 };
 
-stopRecBtn.onclick = () => { if (isRecording) stopRecording(); };
-
-function stopRecording() {
-  if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-  if (masterTrack && !masterTrack.paused) {
-    masterTrack.pause();
-    masterTrack.currentTime = 0;
-  }
-  document.querySelectorAll('.blinking-rec').forEach(rec => rec.remove());
-  recBtn.classList.remove('hidden');
-  stopRecBtn.classList.add('hidden');
-  isRecording = false;
-}
-
-function showCountdown() {
-  return new Promise(resolve => {
-    countdownOverlay.classList.remove('hidden');
-    let count = 3;
-    countdownOverlay.textContent = count;
-    const interval = setInterval(() => {
-      count--;
-      if (count === 0) countdownOverlay.textContent = "🎬";
-      else if (count < 0) {
-        countdownOverlay.classList.add('hidden');
-        clearInterval(interval);
-        resolve();
-      } else {
-        countdownOverlay.textContent = count;
-      }
-    }, 900);
+// === VIDEO TRACKS LOGIC ===
+const videoTracksDiv = document.getElementById('video-tracks');
+document.getElementById('add-track-btn').onclick = () => {
+  const idx = videoTracks.length + 1;
+  videoTracks.push({
+    name: `Track ${idx}`,
+    videos: []
+  });
+  renderVideoTracks();
+};
+function renderVideoTracks() {
+  videoTracksDiv.innerHTML = '';
+  videoTracks.forEach((track, tIdx) => {
+    const trackDiv = document.createElement('div');
+    trackDiv.className = 'video-track';
+    trackDiv.innerHTML = `
+      <h3>${track.name}</h3>
+      <div class="video-preview" id="video-preview-${tIdx}">
+        <span style="color:#aaa;font-size:1.2em;">No video</span>
+      </div>
+      <input type="file" accept="video/*" data-track="${tIdx}">
+      <div class="video-track-controls">
+        <button onclick="removeTrack(${tIdx})">Remove</button>
+      </div>
+    `;
+    // File input
+    const fileInput = trackDiv.querySelector('input[type="file"]');
+    fileInput.addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      videoTracks[tIdx].videos.push(url);
+      const preview = trackDiv.querySelector('.video-preview');
+      preview.innerHTML = `<video src="${url}" controls></video>`;
+    });
+    videoTracksDiv.appendChild(trackDiv);
   });
 }
+window.removeTrack = function(idx) {
+  videoTracks.splice(idx, 1);
+  renderVideoTracks();
+};
+
+// === INITIAL RENDER ===
+renderVideoTracks();
