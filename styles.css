@@ -5,138 +5,87 @@ body {
   color: #222;
 }
 
-h1, h2 {
-  margin-bottom: 0.5em;
-}
-
-section {
-  margin-bottom: 2em;
-  padding: 1em;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
-
 #waveform-container {
-  margin: 20px 0 10px 0;
-  height: 80px;
+  margin-bottom: 24px;
+}
+
+#waveform {
+  width: 100%;
+  height: 90px;
+  background: #ececec;
+  border-radius: 8px;
+  margin-bottom: 18px;
 }
 
 #timeline-chunks {
   display: flex;
-  gap: 5px;
-  margin-bottom: 10px;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 10px;
 }
 
 .timeline-chunk {
-  flex: 1;
-  min-width: 60px;
-  padding: 8px 6px 6px 6px;
-  border: 2px solid #b2b2b2;
+  border: 2px solid #bbb;
   border-radius: 6px;
-  background: #e2eaff;
-  color: #2e2e2e;
-  text-align: center;
+  background: #f7f7f7;
+  padding: 10px 16px;
   position: relative;
-  cursor: pointer;
-  transition: background 0.16s, border 0.16s;
+  min-width: 120px;
+  min-height: 50px;
+  box-shadow: 0 2px 7px rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: background 0.2s, border 0.2s;
 }
 
 .timeline-chunk.locked {
-  background: #bada55;
-  border-color: #7da43a;
-  color: #222;
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.timeline-chunk .lock-icon {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  font-size: 1.1em;
-  color: #5b7329;
-}
-
-.timeline-chunk .unlock-icon {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  font-size: 1.1em;
-  color: #6c6c6c;
+  background: #e0edf7;
+  border-color: #4a90e2;
+  color: #2869b8;
 }
 
 .timeline-chunk.selected {
-  border-color: #2974fa;
-  background: #c8e0fe;
+  border-color: #f39c12;
 }
 
-.timeline-chunk .chunk-controls {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+.chunk-label {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.chunk-time {
+  font-size: 0.95em;
+  color: #555;
+  margin-bottom: 6px;
 }
 
 .timeline-chunk button {
-  font-size: 0.9em;
+  margin: 2px 0;
+  padding: 3px 12px;
+  border-radius: 5px;
   border: none;
-  border-radius: 4px;
-  padding: 3px 7px;
-  margin: 0 auto;
-  background: #2974fa;
-  color: #fff;
+  background: #ececec;
   cursor: pointer;
-  transition: background 0.16s;
+  transition: background 0.2s;
 }
 
-.timeline-chunk button:disabled {
-  background: #c2c2c2;
-  cursor: not-allowed;
+.timeline-chunk button:hover {
+  background: #d6e0ef;
 }
 
-#video-tracks {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
+.timeline-chunk.locked .lock-icon {
+  color: #4a90e2;
+  margin-left: 6px;
 }
 
-.video-track {
-  background: #f3f6fa;
-  border: 1px solid #cdd3dc;
-  border-radius: 8px;
-  padding: 8px;
-  width: 250px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.timeline-chunk .lock-icon {
+  font-size: 1.2em;
+  vertical-align: middle;
 }
 
-.video-track h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.1em;
-}
-
-.video-preview {
-  width: 220px;
-  height: 124px;
-  background: #2c2c2c;
-  border-radius: 6px;
-  margin-bottom: 7px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.video-preview video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.video-track-controls {
-  display: flex;
-  gap: 6px;
-  margin-top: 5px;
+.timeline-chunk .unlock-icon {
+  font-size: 1.2em;
+  vertical-align: middle;
+  color: #888;
 }
