@@ -1,250 +1,195 @@
 // === GLOBAL STATE ===
 let wavesurfer;
 let masterAudioBuffer = null;
-let bpm = 120; // Default BPM; could be user-settable
+let bpm = 120; // Default BPM; can be user-set later.
 let barsPerChunk = 8;
 let chunkStates = []; // { locked: bool }
-let selectedChunk = 0;
 let chunkStartEnd = []; // [{start: seconds, end: seconds}]
-let videoTracks = [];
-let diceEdits = {}; // { chunkIndex: { ...edit info per track } }
+let selectedChunk = 0;
 
-// === MASTER AUDIO UPLOAD & WAVEFORM ===
-document.getElementById('master-track-upload').addEventListener('change', async function (event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const audio = document.getElementById('master-track');
-  audio.src = URL.createObjectURL(file);
-
-  if (wavesurfer) {
-    wavesurfer.destroy();
-  }
-  wavesurfer = WaveSurfer.create({
-    container: '#waveform-container',
-    waveColor: '#2974fa',
-    progressColor: '#bada55',
-    height: 80,
-    barWidth: 2,
-    responsive: true,
-    hideScrollbar: true
-  });
-  wavesurfer.load(audio.src);
-
-  // decode AudioBuffer for bar calculations
-  const arrayBuffer = await file.arrayBuffer();
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  masterAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-
-  wavesurfer.on('ready', () => {
-    document.getElementById('waveform-container').style.display = '';
-    document.getElementById('timeline-chunks').style.display = '';
-    setupTimelineChunks();
-  });
+// === INIT ===
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('master-track-upload').addEventListener('change', handleMasterAudioUpload);
+  document.getElementById('add-video-track').addEventListener('click', addVideoTrack);
+  document.getElementById('dice-edit-all').addEventListener('click', () => alert("Random dice edit for whole video (not yet implemented)"));
+  renderVideoTracks();
 });
 
-// === TIMELINE CHUNKS LOGIC ===
-function setupTimelineChunks() {
-  // Calculate number of bars
-  const secondsPerBeat = 60 / bpm;
-  const beatsPerBar = 4; // assuming 4/4
-  const barLength = secondsPerBeat * beatsPerBar;
-  const totalBars = Math.ceil(masterAudioBuffer.duration / barLength);
-  const chunkCount = Math.ceil(totalBars / barsPerChunk);
+// === AUDIO UPLOAD & WAVESURFER ===
+function handleMasterAudioUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  if (wavesurfer) wavesurfer.destroy();
 
-  chunkStates = [];
+  document.getElementById('waveform-container').style.display = 'block';
+
+  wavesurfer = WaveSurfer.create({
+    container: '#waveform',
+    waveColor: '#b5c9e7',
+    progressColor: '#4a90e2',
+    cursorColor: '#f39c12',
+    barWidth: 2,
+    height: 80,
+    responsive: true
+  });
+  wavesurfer.load(url);
+
+  // Get decoded audio buffer for chunk timing
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const arrayBuffer = ev.target.result;
+    masterAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+    setupTimelineChunks();
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function setupTimelineChunks() {
+  if (!masterAudioBuffer) return;
+  const duration = masterAudioBuffer.duration;
+  const secondsPerBar = 60 / bpm * 4; // assuming 4/4 time, 4 beats per bar
+  const totalBars = Math.ceil(duration / secondsPerBar);
+  const numChunks = Math.ceil(totalBars / barsPerChunk);
+
   chunkStartEnd = [];
-  for (let i = 0; i < chunkCount; i++) {
-    const startBar = i * barsPerChunk;
-    const endBar = Math.min((i + 1) * barsPerChunk, totalBars);
-    const startSec = startBar * barLength;
-    const endSec = Math.min(endBar * barLength, masterAudioBuffer.duration);
+  chunkStates = [];
+  for (let i = 0; i < numChunks; ++i) {
+    const barStart = i * barsPerChunk;
+    const barEnd = Math.min((i + 1) * barsPerChunk, totalBars);
+    const startSec = barStart * secondsPerBar;
+    const endSec = Math.min(barEnd * secondsPerBar, duration);
+    chunkStartEnd.push({ start: startSec, end: endSec, barStart, barEnd });
     chunkStates.push({ locked: false });
-    chunkStartEnd.push({ start: startSec, end: endSec });
   }
   selectedChunk = 0;
-
   renderTimelineChunks();
 }
 
+// === TIMELINE CHUNK UI ===
 function renderTimelineChunks() {
   const container = document.getElementById('timeline-chunks');
   container.innerHTML = '';
   chunkStartEnd.forEach((chunk, i) => {
     const chunkDiv = document.createElement('div');
     chunkDiv.className = 'timeline-chunk' + (chunkStates[i].locked ? ' locked' : '') + (i === selectedChunk ? ' selected' : '');
-    chunkDiv.title = chunkStates[i].locked ? 'Locked (click unlock to edit)' : 'Click to select chunk';
-    chunkDiv.innerHTML = `
-      <div>
-        <strong>${i * barsPerChunk + 1}-${Math.round(chunk.end / ((60 / bpm) * 4))}</strong>
-        <br>(${formatTime(chunk.start)}-${formatTime(chunk.end)})
-      </div>
-      <div class="chunk-controls"></div>
-    `;
 
-    // Show lock or unlock icon depending on state
-    const iconSpan = document.createElement('span');
-    if (chunkStates[i].locked) {
-      iconSpan.className = 'lock-icon';
-      iconSpan.innerHTML = '🔒';
-    } else {
-      iconSpan.className = 'unlock-icon';
-      iconSpan.innerHTML = '🔓';
-    }
-    chunkDiv.appendChild(iconSpan);
+    // Label: bars and time
+    const barsLabel = document.createElement('div');
+    barsLabel.className = 'chunk-label';
+    barsLabel.textContent = `${chunk.barStart + 1}-${chunk.barEnd}`;
+    chunkDiv.appendChild(barsLabel);
 
-    // Controls: play, dice, lock/unlock
-    const controls = chunkDiv.querySelector('.chunk-controls');
-    controls.innerHTML = '';
+    const timeLabel = document.createElement('div');
+    timeLabel.className = 'chunk-time';
+    timeLabel.textContent = `(${formatTime(chunk.start)}-${formatTime(chunk.end)})`;
+    chunkDiv.appendChild(timeLabel);
 
-    // Play chunk
+    // Play only this chunk
     const playBtn = document.createElement('button');
-    playBtn.innerText = '▶ Play Chunk';
+    playBtn.innerHTML = "&#9654; Play Chunk";
     playBtn.onclick = (e) => {
       e.stopPropagation();
-      playChunk(i);
+      playChunk(chunk.start, chunk.end);
     };
-    controls.appendChild(playBtn);
+    chunkDiv.appendChild(playBtn);
 
     // Dice edit
     const diceBtn = document.createElement('button');
-    diceBtn.innerText = '🎲 Dice Edit';
+    diceBtn.innerHTML = "🎲 Dice Edit";
     diceBtn.disabled = chunkStates[i].locked;
     diceBtn.onclick = (e) => {
       e.stopPropagation();
       diceEditChunk(i);
     };
-    controls.appendChild(diceBtn);
+    chunkDiv.appendChild(diceBtn);
 
-    // Only show lock OR unlock button
-    if (chunkStates[i].locked) {
-      const unlockBtn = document.createElement('button');
-      unlockBtn.innerText = '🔓 Unlock';
-      unlockBtn.onclick = (e) => {
-        e.stopPropagation();
-        unlockChunk(i);
-      };
-      controls.appendChild(unlockBtn);
-    } else {
+    // Lock/Unlock
+    if (!chunkStates[i].locked) {
       const lockBtn = document.createElement('button');
-      lockBtn.innerText = '🔒 Lock';
+      lockBtn.innerHTML = "🔒 Lock";
       lockBtn.onclick = (e) => {
         e.stopPropagation();
-        lockChunk(i);
+        chunkStates[i].locked = true;
+        renderTimelineChunks();
       };
-      controls.appendChild(lockBtn);
+      chunkDiv.appendChild(lockBtn);
+    } else {
+      const unlockBtn = document.createElement('button');
+      unlockBtn.innerHTML = "🔓 Unlock";
+      unlockBtn.onclick = (e) => {
+        e.stopPropagation();
+        chunkStates[i].locked = false;
+        renderTimelineChunks();
+      };
+      chunkDiv.appendChild(unlockBtn);
     }
 
+    // Lock/Unlock Icon
+    if (chunkStates[i].locked) {
+      const lockIcon = document.createElement('span');
+      lockIcon.className = 'lock-icon';
+      lockIcon.textContent = '🔒';
+      chunkDiv.appendChild(lockIcon);
+    } else {
+      const unlockIcon = document.createElement('span');
+      unlockIcon.className = 'unlock-icon';
+      unlockIcon.textContent = '🔓';
+      chunkDiv.appendChild(unlockIcon);
+    }
+
+    // Select chunk on click
     chunkDiv.onclick = () => {
-      if (!chunkStates[i].locked) {
-        selectedChunk = i;
-        renderTimelineChunks();
-      }
+      selectedChunk = i;
+      renderTimelineChunks();
     };
 
     container.appendChild(chunkDiv);
   });
 }
 
-// === FORMAT TIME ===
-function formatTime(sec) {
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60);
-  return `${m}:${s.toString().padStart(2, '0')}`;
+// === PLAY ONLY THIS CHUNK ===
+function playChunk(start, end) {
+  if (!wavesurfer) return;
+  wavesurfer.play(start, end);
 }
 
-// === LOCK/UNLOCK ===
-function lockChunk(idx) {
-  chunkStates[idx].locked = true;
-  renderTimelineChunks();
-}
-function unlockChunk(idx) {
-  chunkStates[idx].locked = false;
-  renderTimelineChunks();
+// === DICE EDIT LOGIC ===
+function diceEditChunk(i) {
+  if (chunkStates[i].locked) return;
+  // (Pseudo) randomize video edit for this chunk
+  alert(`Dice random edit for bars ${chunkStartEnd[i].barStart + 1}-${chunkStartEnd[i].barEnd}`);
 }
 
-// === DICE EDIT ===
-function diceEditChunk(idx) {
-  if (chunkStates[idx].locked) return;
-  diceEdits[idx] = {};
-  videoTracks.forEach((track, tIdx) => {
-    diceEdits[idx][tIdx] = {
-      randomSeed: Math.random()
-    };
-  });
-  alert(`Chunk ${idx + 1} has been dice-random-edited!`);
-  lockChunk(idx);
-}
+// === VIDEO TRACKS PLACEHOLDER ===
+let videoTracks = [{ id: 1, name: "Track 1", video: null }];
 
-// === PLAY CHUNK ===
-function playChunk(idx) {
-  const audio = document.getElementById('master-track');
-  const { start, end } = chunkStartEnd[idx];
-  audio.currentTime = start;
-  audio.play();
-  const stopHandler = () => {
-    if (audio.currentTime >= end) {
-      audio.pause();
-      audio.removeEventListener('timeupdate', stopHandler);
-    }
-  };
-  audio.addEventListener('timeupdate', stopHandler);
-}
-
-// === DICE ENTIRE VIDEO ===
-document.getElementById('dice-entire-btn').onclick = () => {
-  if (!masterAudioBuffer) {
-    alert('Please upload a master audio track first!');
-    return;
-  }
-  for (let i = 0; i < chunkStates.length; i++) {
-    if (!chunkStates[i].locked) {
-      diceEditChunk(i);
-    }
-  }
-  alert('Whole video has been dice-edited (unlocked chunks only)!');
-};
-
-// === VIDEO TRACKS LOGIC ===
-const videoTracksDiv = document.getElementById('video-tracks');
-document.getElementById('add-track-btn').onclick = () => {
-  const idx = videoTracks.length + 1;
-  videoTracks.push({
-    name: `Track ${idx}`,
-    videos: []
-  });
-  renderVideoTracks();
-};
 function renderVideoTracks() {
-  videoTracksDiv.innerHTML = '';
-  videoTracks.forEach((track, tIdx) => {
+  const container = document.getElementById('video-tracks');
+  container.innerHTML = '';
+  videoTracks.forEach((track, idx) => {
     const trackDiv = document.createElement('div');
-    trackDiv.className = 'video-track';
-    trackDiv.innerHTML = `
-      <h3>${track.name}</h3>
-      <div class="video-preview" id="video-preview-${tIdx}">
-        <span style="color:#aaa;font-size:1.2em;">No video</span>
-      </div>
-      <input type="file" accept="video/*" data-track="${tIdx}">
-      <div class="video-track-controls">
-        <button onclick="removeTrack(${tIdx})">Remove</button>
-      </div>
-    `;
-    const fileInput = trackDiv.querySelector('input[type="file"]');
-    fileInput.addEventListener('change', function (event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const url = URL.createObjectURL(file);
-      videoTracks[tIdx].videos.push(url);
-      const preview = trackDiv.querySelector('.video-preview');
-      preview.innerHTML = `<video src="${url}" controls></video>`;
-    });
-    videoTracksDiv.appendChild(trackDiv);
+    trackDiv.innerHTML = `<b>${track.name}</b><br>${track.video ? track.video : "No video"}<br>
+      <button onclick="removeVideoTrack(${idx})">Remove</button>`;
+    container.appendChild(trackDiv);
   });
 }
-window.removeTrack = function(idx) {
+
+function addVideoTrack() {
+  videoTracks.push({ id: Date.now(), name: `Track ${videoTracks.length + 1}`, video: null });
+  renderVideoTracks();
+}
+
+window.removeVideoTrack = function(idx) {
   videoTracks.splice(idx, 1);
   renderVideoTracks();
 };
 
-renderVideoTracks();
+// === HELPERS ===
+function formatTime(seconds) {
+  if (!isFinite(seconds)) return "0:00";
+  const min = Math.floor(seconds / 60);
+  const sec = Math.round(seconds % 60);
+  return `${min}:${sec.toString().padStart(2, '0')}`;
+}
