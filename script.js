@@ -3,19 +3,22 @@ let wavesurfer;
 let masterAudioBuffer = null;
 let bpm = 120; // Default BPM; can be user-set later.
 let barsPerChunk = 8;
-let chunkStates = []; // { locked: bool }
+let chunkStates = []; // { locked: bool, rec: bool }
 let chunkStartEnd = []; // [{start: seconds, end: seconds, barStart, barEnd}]
 let selectedChunk = 0;
 
-let videoTracks = [
-  { id: 1, name: "Track 1", video: null }
-];
+// Video tracks: always 10, for now
+let videoTracks = [];
+const NUM_TRACKS = 10;
 
 // === INIT ===
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('master-track-upload').addEventListener('change', handleMasterAudioUpload);
-  document.getElementById('add-video-track').addEventListener('click', addVideoTrack);
   document.getElementById('dice-edit-all').addEventListener('click', () => alert("Random dice edit for whole video (not yet implemented)"));
+  // Initialize 10 tracks
+  for (let i = 0; i < NUM_TRACKS; i++) {
+    videoTracks.push({ id: i + 1, name: `Track ${i + 1}`, video: null });
+  }
   renderVideoTracks();
 });
 
@@ -67,7 +70,7 @@ function setupTimelineChunks() {
     const startSec = barStart * secondsPerBar;
     const endSec = Math.min(barEnd * secondsPerBar, duration);
     chunkStartEnd.push({ start: startSec, end: endSec, barStart, barEnd });
-    chunkStates.push({ locked: false });
+    chunkStates.push({ locked: false, rec: false });
   }
   selectedChunk = 0;
 }
@@ -97,7 +100,7 @@ function renderTimelineChunks(currentTrackIdx) {
 
     // Play only this chunk
     const playBtn = document.createElement('button');
-    playBtn.innerHTML = "&#9654; Play Chunk";
+    playBtn.innerHTML = "&#9654; Play";
     playBtn.onclick = (e) => {
       e.stopPropagation();
       playChunk(chunk.start, chunk.end);
@@ -106,13 +109,35 @@ function renderTimelineChunks(currentTrackIdx) {
 
     // Dice edit
     const diceBtn = document.createElement('button');
-    diceBtn.innerHTML = "🎲 Dice Edit";
+    diceBtn.innerHTML = "🎲 Dice";
     diceBtn.disabled = chunkStates[i].locked;
     diceBtn.onclick = (e) => {
       e.stopPropagation();
       diceEditChunk(i, currentTrackIdx);
     };
     chunkDiv.appendChild(diceBtn);
+
+    // REC button
+    const recBtn = document.createElement('button');
+    recBtn.innerHTML = chunkStates[i].rec ? "⏺ Recording..." : "⏺ REC";
+    recBtn.style.background = chunkStates[i].rec ? '#ff5151' : '#ececec';
+    recBtn.style.color = chunkStates[i].rec ? 'white' : '#222';
+    recBtn.disabled = chunkStates[i].locked || chunkStates[i].rec;
+    recBtn.onclick = (e) => {
+      e.stopPropagation();
+      startRecordingChunk(i);
+    };
+    chunkDiv.appendChild(recBtn);
+
+    // Stop button
+    const stopBtn = document.createElement('button');
+    stopBtn.innerHTML = "■ Stop";
+    stopBtn.disabled = !chunkStates[i].rec;
+    stopBtn.onclick = (e) => {
+      e.stopPropagation();
+      stopRecordingChunk(i);
+    };
+    chunkDiv.appendChild(stopBtn);
 
     // Lock/Unlock
     if (!chunkStates[i].locked) {
@@ -161,8 +186,27 @@ function renderTimelineChunks(currentTrackIdx) {
 }
 
 function rerenderAllChunkTimelines() {
-  // re-render all chunk timelines above every video track
   renderVideoTracks();
+}
+
+// === RECORDING LOGIC ===
+function startRecordingChunk(i) {
+  // Only one chunk can be "recording" at a time
+  chunkStates.forEach((ch, idx) => {
+    if (idx === i) ch.rec = true;
+    else ch.rec = false;
+  });
+  rerenderAllChunkTimelines();
+  // Future: Start recording logic for selected video track/chunk here!
+  // For now: simulate start.
+  alert(`Started recording chunk ${chunkStartEnd[i].barStart + 1}-${chunkStartEnd[i].barEnd}\n(This is a placeholder for actual video recording logic.)`);
+}
+
+function stopRecordingChunk(i) {
+  chunkStates[i].rec = false;
+  rerenderAllChunkTimelines();
+  // Future: Stop recording logic here.
+  alert(`Stopped recording chunk ${chunkStartEnd[i].barStart + 1}-${chunkStartEnd[i].barEnd}\n(This is a placeholder for actual stop logic.)`);
 }
 
 // === PLAY ONLY THIS CHUNK ===
@@ -186,6 +230,7 @@ function renderVideoTracks() {
   videoTracks.forEach((track, idx) => {
     const trackDiv = document.createElement('div');
     trackDiv.className = "video-track-container";
+
     // Timeline per track
     const tlContainer = document.createElement('div');
     tlContainer.className = "tl-chunks-container";
@@ -193,6 +238,12 @@ function renderVideoTracks() {
       tlContainer.appendChild(renderTimelineChunks(idx));
     }
     trackDiv.appendChild(tlContainer);
+
+    // YouTube-size video screen
+    const vScreen = document.createElement('div');
+    vScreen.className = "video-screen";
+    vScreen.innerHTML = track.video ? track.video : `Video Screen ${track.id}<br><span style="font-size:0.9em;">(16:9, YouTube size)</span>`;
+    trackDiv.appendChild(vScreen);
 
     // Track label & controls
     const title = document.createElement('div');
@@ -202,23 +253,12 @@ function renderVideoTracks() {
 
     const controls = document.createElement('div');
     controls.className = "video-track-controls";
-    controls.innerHTML = `${track.video ? track.video : "No video"}<br>
-      <button onclick="removeVideoTrack(${idx})">Remove</button>`;
+    controls.innerHTML = `${track.video ? track.video : "No video"}<br>`;
     trackDiv.appendChild(controls);
 
     container.appendChild(trackDiv);
   });
 }
-
-function addVideoTrack() {
-  videoTracks.push({ id: Date.now(), name: `Track ${videoTracks.length + 1}`, video: null });
-  renderVideoTracks();
-}
-
-window.removeVideoTrack = function(idx) {
-  videoTracks.splice(idx, 1);
-  renderVideoTracks();
-};
 
 // === HELPERS ===
 function formatTime(seconds) {
