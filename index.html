@@ -9,23 +9,20 @@
 <body>
   <h1>Dicecut Music Video Editor</h1>
 
-  <!-- Master Track Upload and Timeline -->
   <section id="master-track-section">
     <label for="master-track-upload">Upload Master Audio Track:</label>
     <input type="file" id="master-track-upload" accept="audio/*">
     <audio id="master-track" controls style="width: 100%; margin-top: 10px;" src=""></audio>
-    <div id="waveform-container"></div>
-    <div id="timeline-chunks"></div>
+    <div id="waveform-container" style="display:none"></div>
+    <div id="timeline-chunks" style="display:none"></div>
   </section>
 
-  <!-- Video Tracks Section -->
   <section id="video-tracks-section">
     <h2>Video Tracks</h2>
     <div id="video-tracks"></div>
     <button id="add-track-btn">Add Video Track</button>
   </section>
 
-  <!-- Controls -->
   <section id="controls-section">
     <h2>Dice Edit Options</h2>
     <button id="dice-entire-btn">Random Dice Edit (Whole Video)</button>
