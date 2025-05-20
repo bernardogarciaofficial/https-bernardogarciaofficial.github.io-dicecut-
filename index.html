@@ -2,32 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Video Multitrack Recorder</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dicecut Music Video Editor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Video Multitrack Recorder</h1>
-  
-  <!-- Record and Stop buttons at the top -->
-  <div id="record-controls">
-    <button id="rec-btn">REC</button>
-    <button id="stop-rec-btn" class="hidden">STOP</button>
-  </div>
+  <h1>Dicecut Music Video Editor</h1>
 
-  <!-- Audio upload -->
-  <input type="file" id="master-track-upload" accept="audio/*">
-  <audio id="master-track" controls>
-    <source id="audio-source" src="">
-  </audio>
-  <span id="audio-ready-indicator" style="color:#0f0; margin-left:10px; font-weight:bold; display:none;">✓ Audio Loaded</span>
+  <!-- Master Track Upload and Timeline -->
+  <section id="master-track-section">
+    <label for="master-track-upload">Upload Master Audio Track:</label>
+    <input type="file" id="master-track-upload" accept="audio/*">
+    <audio id="master-track" controls style="width: 100%; margin-top: 10px;" src=""></audio>
+    <div id="waveform-container"></div>
+    <div id="timeline-chunks"></div>
+  </section>
 
-  <!-- Video tracks container (empty, filled by JS) -->
-  <div id="video-tracks-container"></div>
+  <!-- Video Tracks Section -->
+  <section id="video-tracks-section">
+    <h2>Video Tracks</h2>
+    <div id="video-tracks"></div>
+    <button id="add-track-btn">Add Video Track</button>
+  </section>
 
-  <!-- Countdown overlay -->
-  <div id="countdown-overlay" class="hidden"></div>
+  <!-- Controls -->
+  <section id="controls-section">
+    <h2>Dice Edit Options</h2>
+    <button id="dice-entire-btn">Random Dice Edit (Whole Video)</button>
+  </section>
 
+  <script src="https://unpkg.com/wavesurfer.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
