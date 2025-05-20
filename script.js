@@ -9,10 +9,6 @@ let chunkStartEnd = []; // [{start: seconds, end: seconds}]
 let videoTracks = [];
 let diceEdits = {}; // { chunkIndex: { ...edit info per track } }
 
-// Hide timeline and waveform until audio is uploaded
-document.getElementById('waveform-container').style.display = 'none';
-document.getElementById('timeline-chunks').style.display = 'none';
-
 // === MASTER AUDIO UPLOAD & WAVEFORM ===
 document.getElementById('master-track-upload').addEventListener('change', async function (event) {
   const file = event.target.files[0];
@@ -41,7 +37,6 @@ document.getElementById('master-track-upload').addEventListener('change', async 
   masterAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
   wavesurfer.on('ready', () => {
-    // Show timeline and waveform
     document.getElementById('waveform-container').style.display = '';
     document.getElementById('timeline-chunks').style.display = '';
     setupTimelineChunks();
@@ -171,12 +166,10 @@ function unlockChunk(idx) {
 // === DICE EDIT ===
 function diceEditChunk(idx) {
   if (chunkStates[idx].locked) return;
-  // Example: for each video track, pick a random segment for this chunk
   diceEdits[idx] = {};
   videoTracks.forEach((track, tIdx) => {
     diceEdits[idx][tIdx] = {
       randomSeed: Math.random()
-      // Real logic: select a random set of video segments for this chunk
     };
   });
   alert(`Chunk ${idx + 1} has been dice-random-edited!`);
@@ -189,7 +182,6 @@ function playChunk(idx) {
   const { start, end } = chunkStartEnd[idx];
   audio.currentTime = start;
   audio.play();
-  // Pause at end of chunk
   const stopHandler = () => {
     if (audio.currentTime >= end) {
       audio.pause();
@@ -197,7 +189,6 @@ function playChunk(idx) {
     }
   };
   audio.addEventListener('timeupdate', stopHandler);
-  // TODO: Video preview to sync with this chunk if needed
 }
 
 // === DICE ENTIRE VIDEO ===
@@ -239,7 +230,6 @@ function renderVideoTracks() {
         <button onclick="removeTrack(${tIdx})">Remove</button>
       </div>
     `;
-    // File input
     const fileInput = trackDiv.querySelector('input[type="file"]');
     fileInput.addEventListener('change', function (event) {
       const file = event.target.files[0];
@@ -257,5 +247,4 @@ window.removeTrack = function(idx) {
   renderVideoTracks();
 };
 
-// === INITIAL RENDER ===
 renderVideoTracks();
