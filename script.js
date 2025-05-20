@@ -4,8 +4,12 @@ let masterAudioBuffer = null;
 let bpm = 120; // Default BPM; can be user-set later.
 let barsPerChunk = 8;
 let chunkStates = []; // { locked: bool }
-let chunkStartEnd = []; // [{start: seconds, end: seconds}]
+let chunkStartEnd = []; // [{start: seconds, end: seconds, barStart, barEnd}]
 let selectedChunk = 0;
+
+let videoTracks = [
+  { id: 1, name: "Track 1", video: null }
+];
 
 // === INIT ===
 window.addEventListener('DOMContentLoaded', () => {
@@ -20,12 +24,13 @@ function handleMasterAudioUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
   const url = URL.createObjectURL(file);
-  if (wavesurfer) wavesurfer.destroy();
 
-  document.getElementById('waveform-container').style.display = 'block';
+  // Main waveform (just for visual reference, not per video track)
+  if (wavesurfer) wavesurfer.destroy();
+  document.getElementById('main-waveform-container').style.display = 'block';
 
   wavesurfer = WaveSurfer.create({
-    container: '#waveform',
+    container: '#main-waveform',
     waveColor: '#b5c9e7',
     progressColor: '#4a90e2',
     cursorColor: '#f39c12',
@@ -42,6 +47,7 @@ function handleMasterAudioUpload(e) {
     const arrayBuffer = ev.target.result;
     masterAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
     setupTimelineChunks();
+    renderVideoTracks(); // re-render tracks to show chunk controls
   };
   reader.readAsArrayBuffer(file);
 }
@@ -64,16 +70,19 @@ function setupTimelineChunks() {
     chunkStates.push({ locked: false });
   }
   selectedChunk = 0;
-  renderTimelineChunks();
 }
 
-// === TIMELINE CHUNK UI ===
-function renderTimelineChunks() {
-  const container = document.getElementById('timeline-chunks');
-  container.innerHTML = '';
+// === TIMELINE CHUNK UI (shared state, used above each video track) ===
+function renderTimelineChunks(currentTrackIdx) {
+  // currentTrackIdx: for possible future per-track highlighting (not used now)
+  const container = document.createElement('div');
+  container.className = 'timeline-chunks';
+
   chunkStartEnd.forEach((chunk, i) => {
     const chunkDiv = document.createElement('div');
-    chunkDiv.className = 'timeline-chunk' + (chunkStates[i].locked ? ' locked' : '') + (i === selectedChunk ? ' selected' : '');
+    chunkDiv.className = 'timeline-chunk' +
+      (chunkStates[i].locked ? ' locked' : '') +
+      (i === selectedChunk ? ' selected' : '');
 
     // Label: bars and time
     const barsLabel = document.createElement('div');
@@ -101,7 +110,7 @@ function renderTimelineChunks() {
     diceBtn.disabled = chunkStates[i].locked;
     diceBtn.onclick = (e) => {
       e.stopPropagation();
-      diceEditChunk(i);
+      diceEditChunk(i, currentTrackIdx);
     };
     chunkDiv.appendChild(diceBtn);
 
@@ -112,7 +121,7 @@ function renderTimelineChunks() {
       lockBtn.onclick = (e) => {
         e.stopPropagation();
         chunkStates[i].locked = true;
-        renderTimelineChunks();
+        rerenderAllChunkTimelines();
       };
       chunkDiv.appendChild(lockBtn);
     } else {
@@ -121,7 +130,7 @@ function renderTimelineChunks() {
       unlockBtn.onclick = (e) => {
         e.stopPropagation();
         chunkStates[i].locked = false;
-        renderTimelineChunks();
+        rerenderAllChunkTimelines();
       };
       chunkDiv.appendChild(unlockBtn);
     }
@@ -142,11 +151,18 @@ function renderTimelineChunks() {
     // Select chunk on click
     chunkDiv.onclick = () => {
       selectedChunk = i;
-      renderTimelineChunks();
+      rerenderAllChunkTimelines();
     };
 
     container.appendChild(chunkDiv);
   });
+
+  return container;
+}
+
+function rerenderAllChunkTimelines() {
+  // re-render all chunk timelines above every video track
+  renderVideoTracks();
 }
 
 // === PLAY ONLY THIS CHUNK ===
@@ -156,22 +172,40 @@ function playChunk(start, end) {
 }
 
 // === DICE EDIT LOGIC ===
-function diceEditChunk(i) {
+function diceEditChunk(i, trackIdx) {
   if (chunkStates[i].locked) return;
-  // (Pseudo) randomize video edit for this chunk
-  alert(`Dice random edit for bars ${chunkStartEnd[i].barStart + 1}-${chunkStartEnd[i].barEnd}`);
+  // (Pseudo) randomize video edit for this chunk for the selected video track
+  const trackName = videoTracks[trackIdx] ? videoTracks[trackIdx].name : "Unknown Track";
+  alert(`Dice random edit for bars ${chunkStartEnd[i].barStart + 1}-${chunkStartEnd[i].barEnd} on ${trackName}`);
 }
 
-// === VIDEO TRACKS PLACEHOLDER ===
-let videoTracks = [{ id: 1, name: "Track 1", video: null }];
-
+// === VIDEO TRACKS ===
 function renderVideoTracks() {
   const container = document.getElementById('video-tracks');
   container.innerHTML = '';
   videoTracks.forEach((track, idx) => {
     const trackDiv = document.createElement('div');
-    trackDiv.innerHTML = `<b>${track.name}</b><br>${track.video ? track.video : "No video"}<br>
+    trackDiv.className = "video-track-container";
+    // Timeline per track
+    const tlContainer = document.createElement('div');
+    tlContainer.className = "tl-chunks-container";
+    if (masterAudioBuffer) {
+      tlContainer.appendChild(renderTimelineChunks(idx));
+    }
+    trackDiv.appendChild(tlContainer);
+
+    // Track label & controls
+    const title = document.createElement('div');
+    title.textContent = track.name;
+    title.className = "video-track-title";
+    trackDiv.appendChild(title);
+
+    const controls = document.createElement('div');
+    controls.className = "video-track-controls";
+    controls.innerHTML = `${track.video ? track.video : "No video"}<br>
       <button onclick="removeVideoTrack(${idx})">Remove</button>`;
+    trackDiv.appendChild(controls);
+
     container.appendChild(trackDiv);
   });
 }
