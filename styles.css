@@ -1,3 +1,4 @@
+/* ===== BASIC BODY & FONTS ===== */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -5,6 +6,7 @@ body {
   color: #222;
 }
 
+/* ===== TOP BAR ===== */
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -18,69 +20,120 @@ body {
 .logo {
   font-weight: bold;
   letter-spacing: 2px;
+  color: #205080;
 }
 
-.member-counter {
+.member-counter, #member-counter {
   background: #444;
-  padding: 5px 14px;
-  border-radius: 16px;
+  padding: 6px 16px;
+  border-radius: 18px;
+  font-size: 1.1em;
+  margin-right: 10px;
+  box-shadow: 0 1px 5px rgba(30,60,150,0.05);
+  color: #fff;
 }
 
+/* ===== PAGE HEADINGS ===== */
+h1, h2 {
+  text-align: center;
+  margin: 28px 0 16px 0;
+  font-weight: 600;
+}
+
+h2 {
+  margin-top: 36px;
+}
+
+/* ===== MASTER AUDIO UPLOAD & WAVEFORM ===== */
 .master-audio {
-  margin: 24px auto 16px auto;
+  margin: 30px auto 10px auto;
   background: #fff;
-  padding: 16px 22px;
-  border-radius: 11px;
+  padding: 18px 24px;
+  border-radius: 14px;
   box-shadow: 0 1px 8px rgba(0,0,0,0.025);
-  max-width: 540px;
-}
-#mainMasterWaveform {
-  margin-top: 10px;
-  height: 54px;
-}
-
-.tracks-section {
-  max-width: 580px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-.video-track {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  padding: 18px 22px 16px 22px;
-  margin-bottom: 0;
-  width: 100%;
-  position: relative;
+  max-width: 560px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.waveform-container {
-  width: 96%;
-  margin-bottom: 7px;
-}
-.waveform {
-  height: 44px;
+#masterWaveform, #master-waveform {
+  margin-top: 12px;
+  height: 60px;
+  width: 98%;
+  background: #ececec;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  max-width: 1100px;
 }
 
+/* ===== DICE CONTROLS ===== */
+#dice-controls {
+  margin: 18px 0 18px 0;
+  text-align: center;
+}
+#dice-controls button {
+  margin: 0 6px;
+  font-size: 1.13em;
+  padding: 8px 18px;
+  border-radius: 5px;
+  border: none;
+  background: #ececec;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#dice-controls button:hover {
+  background: #d6e0ef;
+}
+
+/* ===== VIDEO TRACKS ===== */
+#video-tracks {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.video-track {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+  padding: 18px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: background 0.2s, border 0.2s;
+}
+
+.waveform-container {
+  width: 96%;
+  margin-bottom: 8px;
+}
+.waveform {
+  height: 48px;
+  width: 100%;
+}
+
+/* ===== VIDEO AND BUTTONS ===== */
 .video-track video {
   width: 94%;
-  height: 170px;
-  background: #1c1c1c;
-  border-radius: 8px;
-  margin-bottom: 6px;
-  margin-top: 4px;
+  height: 180px;
+  background: #222;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  margin-top: 8px;
 }
 
 .select-btn {
-  margin-top: 6px;
-  padding: 7px 16px;
+  margin: 8px 0 0 0;
+  padding: 7px 20px;
   font-size: 1em;
-  border-radius: 6px;
+  border-radius: 7px;
   background: #1976d2;
   color: #fff;
   border: none;
@@ -92,16 +145,17 @@ body {
   cursor: not-allowed;
 }
 
+/* ===== REC INDICATOR ===== */
 .rec-indicator {
   position: absolute;
-  top: 16px;
-  left: 18px;
-  font-size: 1.5em;
+  top: 20px;
+  left: 20px;
+  font-size: 2em;
   color: #ff3333;
   font-weight: bold;
   background: rgba(255,255,255,0.93);
-  border-radius: 7px;
-  padding: 2px 16px;
+  border-radius: 9px;
+  padding: 4px 20px;
   animation: recFlash 1s infinite alternate;
   z-index: 10;
   pointer-events: none;
@@ -115,77 +169,113 @@ body {
   to { opacity: 1; }
 }
 
-.countdown {
-  font-size: 3.3em;
+/* ===== COUNTDOWN ===== */
+.countdown, .countdown-overlay {
+  font-size: 3.5em;
   font-weight: bold;
   color: #1976d2;
   position: fixed;
   left: 50vw;
-  top: 17vh;
+  top: 18vh;
   z-index: 1000;
   background: rgba(255,255,255,0.8);
-  padding: 16px 38px;
-  border-radius: 18px;
+  padding: 20px 48px;
+  border-radius: 20px;
   display: none;
   pointer-events: none;
   transform: translateX(-50%);
 }
 
-.output-track {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  padding: 18px 22px 18px 22px;
-  margin: 44px auto 0 auto;
-  width: 100%;
-  max-width: 580px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* ===== FINAL OUTPUT SECTION ===== */
+.video-output-section, .output-track {
+  margin-top: 60px;
+  margin-bottom: 30px;
+  text-align: center;
+  padding: 20px 40px;
+  background: #212121;
+  color: #fff;
+  font-size: 1.2em;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
   position: relative;
 }
 
-.output-label {
+.video-final-label, .output-label {
+  font-size: 1.25em;
   font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
   color: #4b4b4b;
-  margin-bottom: 6px;
 }
 
-.output-track .waveform-container {
-  width: 96%;
-  margin-bottom: 7px;
-}
-.output-video {
+.output-video, #outputVideo {
   width: 94%;
-  height: 170px;
+  height: 180px;
   background: #eaeaea;
-  border-radius: 8px;
+  border-radius: 10px;
   margin-top: 8px;
   outline: 2px solid #1976d2;
 }
 
+/* ===== CONTROLS ===== */
 .controls {
-  margin: 38px auto 30px auto;
+  margin: 50px auto 30px auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
 }
 #recBtn {
-  font-size: 1.18em;
+  font-size: 1.3em;
   background: #d32f2f;
   color: #fff;
   border: none;
-  border-radius: 11px;
-  padding: 13px 40px;
+  border-radius: 12px;
+  padding: 16px 48px;
   font-weight: bold;
   letter-spacing: 2px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.09);
   cursor: pointer;
-  margin-bottom: 12px;
+  margin-bottom: 15px;
   transition: background 0.15s;
 }
 #recBtn:disabled {
   background: #aaa;
   cursor: not-allowed;
 }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1150px) {
+  .video-output-section, .output-track {
+    max-width: 98vw;
+    font-size: 1.1em;
+    padding: 10px 2vw;
+  }
+  #masterWaveform, #master-waveform {
+    width: 97vw;
+    max-width: 97vw;
+  }
+  .video-track {
+    max-width: 97vw;
+  }
+  .output-video, #outputVideo, .video-track video {
+    width: 98vw;
+    max-width: 98vw;
+  }
+}
+@media (max-width: 600px) {
+  .master-audio {
+    max-width: 97vw;
+    padding: 12px 4vw;
+  }
+  .video-output-section, .output-track {
+    max-width: 99vw;
+    font-size: 1em;
+    padding: 10px 1vw;
+  }
+}
+
+/* ===== END ===== */
