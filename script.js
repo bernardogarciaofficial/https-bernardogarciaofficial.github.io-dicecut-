@@ -3,14 +3,11 @@ const TRACK_COUNT = 10;
 let masterWavesurfer;
 let masterAudioBuffer = null;
 let barsPerChunk = 8;
-let chunkStates = []; // { locked: bool, rec: bool }
-let chunkStartEnd = []; // [{start: seconds, end: seconds, barStart, barEnd}]
-let selectedChunk = 0;
-let recActiveChunk = null; // Index of currently recording chunk, null if none
-let recActiveFinal = false; // Is the OUT screen recording?
+let chunkStates = [];
+let chunkStartEnd = [];
+let trackWaveSurfers = [];
 let trackStates = Array.from({ length: TRACK_COUNT }, () => ({
   selected: false,
-  rec: false,
   wavesurfer: null,
   stream: null,
   recorder: null,
@@ -19,19 +16,16 @@ let trackStates = Array.from({ length: TRACK_COUNT }, () => ({
 let selectedTrack = null;
 let isRecording = false;
 let memberCount = 0;
-let trackWaveSurfers = [];
-let activeVideoTrack = null;
-let mediaStreams = {};
 
 // ==== DOM ELEMENTS ====
 const recBtn = document.getElementById('recBtn');
 const countdownEl = document.getElementById('countdown');
 const memberCountEl = document.getElementById('member-count');
 const masterAudioInput = document.getElementById('masterAudioInput');
-const loadAudioBtn = document.getElementById('loadAudioBtn');
 const masterWaveformEl = document.getElementById('masterWaveform');
 const outputWaveformEl = document.getElementById('outputWaveform');
 const videoTracksContainer = document.getElementById('video-tracks');
+const chunkTimelineEl = document.getElementById('master-timeline-chunks');
 
 // ==== MEMBER COUNTER SIMULATION ====
 function updateMemberCounter() {
@@ -41,7 +35,116 @@ function updateMemberCounter() {
 setInterval(updateMemberCounter, 4000);
 updateMemberCounter();
 
-// ==== BUILD UI ====
+// ==== AUDIO UPLOAD & WAVEFORM ====
+masterAudioInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const arrayBuffer = await file.arrayBuffer();
+  masterAudioBuffer = await ctx.decodeAudioData(arrayBuffer);
+
+  setupMasterWaveform(url);
+  for (let i = 0; i < TRACK_COUNT; ++i) {
+    setupTrackWaveform(i);
+  }
+  setupOutputWaveform();
+  recBtn.disabled = false;
+  setupTimelineChunks();
+  renderChunkTimeline();
+});
+
+function setupMasterWaveform(audioUrlOrBuffer) {
+  if (masterWavesurfer) {
+    masterWavesurfer.destroy();
+  }
+  masterWavesurfer = WaveSurfer.create({
+    container: masterWaveformEl,
+    waveColor: '#1976d2',
+    progressColor: '#c62828',
+    height: 60,
+  });
+  if (typeof audioUrlOrBuffer === 'string') {
+    masterWavesurfer.load(audioUrlOrBuffer);
+  } else if (audioUrlOrBuffer instanceof AudioBuffer) {
+    masterWavesurfer.loadDecodedBuffer(audioUrlOrBuffer);
+  }
+}
+
+function setupTrackWaveform(idx) {
+  const wsDiv = document.getElementById(`waveform-track-${idx}`);
+  if (trackWaveSurfers[idx]) {
+    trackWaveSurfers[idx].destroy();
+  }
+  trackWaveSurfers[idx] = WaveSurfer.create({
+    container: wsDiv,
+    waveColor: '#1976d2',
+    progressColor: '#c62828',
+    height: 48,
+    interact: false,
+  });
+  if (masterAudioBuffer) {
+    trackWaveSurfers[idx].loadDecodedBuffer(masterAudioBuffer);
+  }
+}
+
+function setupOutputWaveform() {
+  if (outputWaveformEl.children.length) {
+    outputWaveformEl.innerHTML = '';
+  }
+  let ws = WaveSurfer.create({
+    container: outputWaveformEl,
+    waveColor: '#1976d2',
+    progressColor: '#c62828',
+    height: 48,
+    interact: false,
+  });
+  if (masterAudioBuffer) {
+    ws.loadDecodedBuffer(masterAudioBuffer);
+  }
+}
+
+// ==== TIMELINE CHUNKS ====
+function setupTimelineChunks() {
+  if (!masterAudioBuffer) return;
+  const duration = masterAudioBuffer.duration;
+  const bpm = 120;
+  const secondsPerBar = 60 / bpm * 4;
+  const totalBars = Math.ceil(duration / secondsPerBar);
+  const numChunks = Math.ceil(totalBars / barsPerChunk);
+
+  chunkStartEnd = [];
+  chunkStates = [];
+  for (let i = 0; i < numChunks; ++i) {
+    const barStart = i * barsPerChunk;
+    const barEnd = Math.min((i + 1) * barsPerChunk, totalBars);
+    const startSec = barStart * secondsPerBar;
+    const endSec = Math.min(barEnd * secondsPerBar, duration);
+    chunkStartEnd.push({ start: startSec, end: endSec, barStart, barEnd });
+    chunkStates.push({ locked: false, rec: false });
+  }
+}
+
+function renderChunkTimeline() {
+  chunkTimelineEl.innerHTML = '';
+  chunkStartEnd.forEach((chunk, i) => {
+    const chunkDiv = document.createElement('div');
+    chunkDiv.className = 'timeline-chunk';
+    const barsLabel = document.createElement('div');
+    barsLabel.className = 'chunk-label';
+    barsLabel.textContent = `Bars ${chunk.barStart + 1}-${chunk.barEnd}`;
+    chunkDiv.appendChild(barsLabel);
+
+    const timeLabel = document.createElement('div');
+    timeLabel.className = 'chunk-time';
+    timeLabel.textContent = `(${formatTime(chunk.start)} - ${formatTime(chunk.end)})`;
+    chunkDiv.appendChild(timeLabel);
+
+    chunkTimelineEl.appendChild(chunkDiv);
+  });
+}
+
+// ==== TRACKS UI ====
 function buildTracksUI() {
   videoTracksContainer.innerHTML = '';
   for (let i = 0; i < TRACK_COUNT; ++i) {
@@ -88,75 +191,6 @@ function buildTracksUI() {
   }
 }
 buildTracksUI();
-
-// ==== WAVEFORM SETUP ====
-function setupMasterWaveform(audioUrlOrBuffer) {
-  if (masterWavesurfer) {
-    masterWavesurfer.destroy();
-  }
-  masterWavesurfer = WaveSurfer.create({
-    container: masterWaveformEl,
-    waveColor: '#1976d2',
-    progressColor: '#c62828',
-    height: 60,
-  });
-
-  if (typeof audioUrlOrBuffer === 'string') {
-    masterWavesurfer.load(audioUrlOrBuffer);
-  } else if (audioUrlOrBuffer instanceof AudioBuffer) {
-    masterWavesurfer.loadDecodedBuffer(audioUrlOrBuffer);
-  }
-}
-
-function setupTrackWaveform(idx) {
-  const wsDiv = document.getElementById(`waveform-track-${idx}`);
-  if (trackWaveSurfers[idx]) {
-    trackWaveSurfers[idx].destroy();
-  }
-  trackWaveSurfers[idx] = WaveSurfer.create({
-    container: wsDiv,
-    waveColor: '#1976d2',
-    progressColor: '#c62828',
-    height: 48,
-    interact: false,
-  });
-  // Load the master audio buffer if available
-  if (masterAudioBuffer) {
-    trackWaveSurfers[idx].loadDecodedBuffer(masterAudioBuffer);
-  }
-}
-
-function setupOutputWaveform() {
-  if (outputWaveformEl.children.length) {
-    outputWaveformEl.innerHTML = '';
-  }
-  let ws = WaveSurfer.create({
-    container: outputWaveformEl,
-    waveColor: '#1976d2',
-    progressColor: '#c62828',
-    height: 48,
-    interact: false,
-  });
-  if (masterAudioBuffer) {
-    ws.loadDecodedBuffer(masterAudioBuffer);
-  }
-}
-
-// ==== LOAD AUDIO ====
-loadAudioBtn.onclick = async () => {
-  if (!masterAudioInput.files[0]) return;
-  const file = masterAudioInput.files[0];
-  const url = URL.createObjectURL(file);
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  const arrayBuffer = await file.arrayBuffer();
-  masterAudioBuffer = await ctx.decodeAudioData(arrayBuffer);
-  setupMasterWaveform(url);
-  for (let i = 0; i < TRACK_COUNT; ++i) {
-    setupTrackWaveform(i);
-  }
-  setupOutputWaveform();
-  recBtn.disabled = false;
-};
 
 // ==== SELECT VIDEO LOGIC ====
 async function handleSelectVideo(idx) {
@@ -299,8 +333,14 @@ async function showCountdown() {
 
 // ==== INIT: Setup all track waveforms after DOM ====
 window.onload = () => {
-  for (let i = 0; i < TRACK_COUNT; ++i) {
-    setupTrackWaveform(i);
-  }
+  buildTracksUI();
   setupOutputWaveform();
 };
+
+// ==== HELPERS ====
+function formatTime(seconds) {
+  if (!isFinite(seconds)) return "0:00";
+  const min = Math.floor(seconds / 60);
+  const sec = Math.round(seconds % 60);
+  return `${min}:${sec.toString().padStart(2, '0')}`;
+}
