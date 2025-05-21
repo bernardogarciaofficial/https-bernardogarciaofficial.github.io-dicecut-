@@ -3,9 +3,10 @@
 // Number of video tracks
 const VIDEO_TRACKS = 10;
 
-// Segment config: 8-bar chunks, 16 seconds per chunk (example), total segments
+// Segment config: 8-bar chunks, segment duration in seconds, total segments
 const SEGMENT_LENGTH_SEC = 16;
-const TOTAL_SEGMENTS = 9; // Adjust as needed (e.g., for a typical 2:19 song)
+const SEGMENT_BAR_COUNT = 8;
+const TOTAL_SEGMENTS = 9;
 
 // === DOM Elements ===
 
@@ -60,7 +61,7 @@ function renderSegmentsControls() {
   for (let i = 0; i < TOTAL_SEGMENTS; i++) {
     const startSec = i * SEGMENT_LENGTH_SEC;
     const endSec = startSec + SEGMENT_LENGTH_SEC;
-    const label = `${i * 8 + 1}-${(i + 1) * 8} (${formatTime(startSec)}–${formatTime(endSec)})`;
+    const label = `${i * SEGMENT_BAR_COUNT + 1}-${(i + 1) * SEGMENT_BAR_COUNT} (${formatTime(startSec)}–${formatTime(endSec)})`;
 
     const segmentDiv = document.createElement('div');
     segmentDiv.className = 'segment-control';
@@ -134,7 +135,7 @@ function renderBarSegments() {
   const container = audioWaveform;
   if (!container) return;
   const width = container.offsetWidth || 800;
-  const height = container.offsetHeight || 96;
+  const height = container.offsetHeight || 100;
   for (let i = 0; i < TOTAL_SEGMENTS; i++) {
     const segDiv = document.createElement('div');
     segDiv.style.position = 'absolute';
@@ -145,15 +146,15 @@ function renderBarSegments() {
     segDiv.style.borderLeft = i === 0 ? 'none' : '2px solid #b6e356';
     segDiv.style.boxSizing = 'border-box';
     segDiv.style.pointerEvents = 'none';
-    segDiv.style.background = segmentLocks[i] ? 'rgba(182,227,86,0.10)' : 'transparent';
+    segDiv.style.background = segmentLocks[i] ? 'rgba(182,227,86,0.09)' : 'transparent';
 
     // Label
     const text = document.createElement('span');
-    text.textContent = `${i * 8 + 1}-${(i + 1) * 8}`;
+    text.textContent = `${i * SEGMENT_BAR_COUNT + 1}-${(i + 1) * SEGMENT_BAR_COUNT}`;
     text.style.position = 'absolute';
     text.style.top = '6px';
-    text.style.left = '6px';
-    text.style.fontSize = '0.95em';
+    text.style.left = '10px';
+    text.style.fontSize = '0.93em';
     text.style.color = '#b6e356';
     segDiv.appendChild(text);
 
@@ -170,7 +171,7 @@ function drawWaveformPlaceholder(canvas) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const width = canvas.offsetWidth || 800;
-  const height = canvas.offsetHeight || 96;
+  const height = canvas.offsetHeight || 100;
   canvas.width = width;
   canvas.height = height;
   ctx.clearRect(0, 0, width, height);
@@ -180,7 +181,7 @@ function drawWaveformPlaceholder(canvas) {
   ctx.lineWidth = 2;
   ctx.beginPath();
   for (let x = 0; x < width; x += 4) {
-    const y = height / 2 + (Math.sin(x / 32) * height / 3) * Math.sin(x / 64);
+    const y = height / 2 + (Math.sin(x / 31) * height / 3) * Math.sin(x / 48);
     if (x === 0) ctx.moveTo(x, y);
     else ctx.lineTo(x, y);
   }
