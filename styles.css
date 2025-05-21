@@ -5,12 +5,46 @@ body {
   color: #222;
 }
 
-#main-waveform-container {
-  margin-bottom: 24px;
+.video-output-section {
+  margin-top: 60px;
+  margin-bottom: 30px;
+  text-align: center;
 }
 
-#main-waveform {
-  width: 100%;
+.video-final-label {
+  font-size: 1.25em;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #205080;
+  letter-spacing: 1px;
+}
+
+#dice-controls {
+  margin: 18px 0 18px 0;
+}
+#dice-controls button {
+  margin: 0 6px;
+  font-size: 1.13em;
+  padding: 8px 18px;
+  border-radius: 5px;
+  border: none;
+  background: #ececec;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#dice-controls button:hover {
+  background: #d6e0ef;
+}
+
+#master-waveform-container, .waveform-track-container {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+#master-waveform, .waveform-track {
+  width: 85vw;
+  max-width: 1200px;
   height: 90px;
   background: #ececec;
   border-radius: 8px;
@@ -26,6 +60,7 @@ body {
   gap: 14px;
   flex-wrap: wrap;
   margin-top: 10px;
+  justify-content: center;
 }
 
 .timeline-chunk {
@@ -98,7 +133,7 @@ body {
 .video-track-container {
   border: 1.5px solid #cfcfcf;
   border-radius: 8px;
-  margin-bottom: 36px;
+  margin-bottom: 56px;
   background: #fff;
   box-shadow: 0 2px 6px rgba(0,0,0,0.035);
   padding: 18px 18px 18px 18px;
@@ -115,26 +150,43 @@ body {
 }
 
 .video-screen {
-  width: 640px;
-  height: 360px;
+  width: 1080px;
+  max-width: 98vw;
+  height: 608px;
   background: #111;
-  border-radius: 8px;
-  border: 2px solid #222;
-  margin-bottom: 10px;
+  border-radius: 12px;
+  border: 2.5px solid #222;
+  margin: 0 auto 22px auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
   color: #ccc;
-  font-size: 1.4em;
+  font-size: 2em;
   overflow: hidden;
 }
 
-@media (max-width: 700px) {
+.video-desc {
+  font-size: 0.85em;
+  color: #aaa;
+}
+
+@media (max-width: 1150px) {
   .video-screen {
-    width: 100vw;
-    max-width: 100%;
-    height: 56.25vw; /* 16:9 aspect ratio */
-    min-height: 200px;
+    width: 88vw;
+    height: 49vw; /* 16:9 ratio */
+    font-size: 1.2em;
+  }
+}
+
+@media (max-width: 600px) {
+  #master-waveform, .waveform-track {
+    width: 97vw;
+    max-width: 97vw;
+  }
+  .video-screen {
+    width: 98vw;
+    height: 55vw;
+    min-height: 180px;
+    font-size: 1em;
   }
 }
