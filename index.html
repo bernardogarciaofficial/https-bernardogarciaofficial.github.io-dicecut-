@@ -15,19 +15,21 @@
 
   <h1>Dicecut Music Video Editor</h1>
 
-  <!-- Master Audio Upload & Waveform -->
+  <!-- Master Audio Upload -->
   <div class="master-audio">
     <label for="masterAudioInput"><b>Upload Master Audio Track:</b> </label>
     <input type="file" id="masterAudioInput" accept="audio/*">
-    <button id="loadAudioBtn">Load Master Audio</button>
     <div id="masterWaveform"></div>
   </div>
+
+  <!-- 8 Bars Chunk Timeline (above video output) -->
+  <div id="master-timeline-chunks"></div>
 
   <!-- Video Tracks Section -->
   <h2>Video Tracks</h2>
   <div id="video-tracks"></div>
 
-  <!-- Dice Controls (Optional, as per your markup) -->
+  <!-- Dice Controls (Optional) -->
   <div id="dice-controls">
     <button id="dice-edit-all">🎲 Random Dice Edit (Whole Video)</button>
     <button id="dice-edit-chunks">🎲 Dice Edit 8 Bars at a Time</button>
