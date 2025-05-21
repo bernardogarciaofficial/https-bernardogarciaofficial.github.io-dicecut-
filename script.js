@@ -14,6 +14,7 @@ let countdownTimeout = null;
 let videoTracks = [];
 const NUM_TRACKS = 10;
 let mediaStreams = {}; // { trackIdx: stream }
+let activeVideoTrack = null; // Only one video track can be selected for video/camera at a time
 
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('master-track-upload').addEventListener('change', handleMasterAudioUpload);
@@ -28,10 +29,8 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function simulateMemberCounter() {
-  // Simulate member counter (placeholder for real backend connection)
   function updateCounter() {
-    // In production, replace this with real-time backend logic!
-    const n = Math.floor(Math.random() * 7) + 4; // between 4 and 10 for demo
+    const n = Math.floor(Math.random() * 7) + 4;
     document.getElementById("member-count").textContent = n;
   }
   updateCounter();
@@ -44,7 +43,6 @@ function handleMasterAudioUpload(e) {
   if (!file) return;
   const url = URL.createObjectURL(file);
 
-  // Main waveform (at the bottom, with final OUT)
   if (masterWavesurfer) masterWavesurfer.destroy();
   document.getElementById('master-waveform-container').style.display = 'flex';
 
@@ -59,7 +57,6 @@ function handleMasterAudioUpload(e) {
   });
   masterWavesurfer.load(url);
 
-  // Get decoded audio buffer for chunk timing
   const reader = new FileReader();
   reader.onload = async (ev) => {
     try {
@@ -68,7 +65,7 @@ function handleMasterAudioUpload(e) {
       masterAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
       setupTimelineChunks();
       renderMasterTimelineChunks();
-      renderVideoTracks(); // re-render tracks to show waveform and timeline chunks
+      renderVideoTracks();
     } catch (err) {
       alert("Could not load or decode audio file. Please use a standard .mp3 or .wav file.");
     }
@@ -79,7 +76,7 @@ function handleMasterAudioUpload(e) {
 function setupTimelineChunks() {
   if (!masterAudioBuffer) return;
   const duration = masterAudioBuffer.duration;
-  const secondsPerBar = 60 / bpm * 4; // assuming 4/4 time, 4 beats per bar
+  const secondsPerBar = 60 / bpm * 4;
   const totalBars = Math.ceil(duration / secondsPerBar);
   const numChunks = Math.ceil(totalBars / barsPerChunk);
 
@@ -219,7 +216,6 @@ function rerenderAllTimelines() {
 
 // === COUNTDOWN AND REC INDICATOR ===
 function triggerCountdown(target, chunkIdx) {
-  // target: "final" for OUT, or index of video track
   let overlay, screen, recId;
   if (target === "final") {
     overlay = document.getElementById('final-countdown');
@@ -261,7 +257,6 @@ function showRecIndicator(recId, show) {
 
 // === RECORDING LOGIC ===
 function startRecordingChunk(i, isFinal = false, videoTrackIdx = null) {
-  // Only one chunk can be "recording" at a time
   chunkStates.forEach((ch, idx) => {
     if (idx === i) ch.rec = true;
     else ch.rec = false;
@@ -273,7 +268,6 @@ function startRecordingChunk(i, isFinal = false, videoTrackIdx = null) {
   if (isFinal) showRecIndicator('final-rec-indicator', true);
   else showRecIndicator(`rec-indicator-${videoTrackIdx}`, true);
 
-  // Simulate end of recording after 5 seconds for demo
   setTimeout(() => {
     chunkStates[i].rec = false;
     if (isFinal) showRecIndicator('final-rec-indicator', false);
@@ -281,8 +275,6 @@ function startRecordingChunk(i, isFinal = false, videoTrackIdx = null) {
     recActiveChunk = null;
     rerenderAllTimelines();
   }, 5000);
-
-  // Future: Start recording logic for selected video track/chunk here!
 }
 
 // === STOP PLAYBACK ===
@@ -300,16 +292,18 @@ function renderVideoTracks() {
     const trackDiv = document.createElement('div');
     trackDiv.className = "video-track-container";
 
-    // Large waveform above each video screen track
+    // Master waveform above each video screen track
     const waveformDiv = document.createElement('div');
     waveformDiv.className = 'waveform-track-container';
+    waveformDiv.style.marginBottom = "8px";
     if (masterAudioBuffer) {
+      // Render the main waveform as a static image or clone (for demo, just placeholder)
       const wf = document.createElement('div');
       wf.className = 'waveform-track';
-      wf.innerHTML = '<!-- (Waveform rendering placeholder for per-track; can be implemented with a separate wavesurfer instance or image) -->';
+      wf.innerHTML = '<!-- (Master waveform placeholder for per-track; for production, clone the main waveform or render a static image/mini-wavesurfer) -->';
       waveformDiv.appendChild(wf);
-      trackDiv.appendChild(waveformDiv);
     }
+    trackDiv.appendChild(waveformDiv);
 
     // Timeline per track (no Dice button)
     const tlContainer = document.createElement('div');
@@ -319,7 +313,7 @@ function renderVideoTracks() {
     }
     trackDiv.appendChild(tlContainer);
 
-    // Larger YouTube-size video screen
+    // Video screen
     const vScreen = document.createElement('div');
     vScreen.className = "video-screen";
     vScreen.id = `video-screen-${idx}`;
@@ -341,18 +335,29 @@ function renderVideoTracks() {
     controls.className = "video-track-controls";
     controls.innerHTML = `${track.video ? track.video : "No video"}<br>`;
 
-    // Select Video Button (no button on final/out)
+    // Select Video Button - only one track can be active for video
     const selectBtn = document.createElement('button');
     selectBtn.className = "select-video-btn";
     selectBtn.textContent = "Select Video";
+    selectBtn.disabled = (activeVideoTrack !== null && activeVideoTrack !== idx); // Only one can be selected
     selectBtn.onclick = () => selectVideoSource(idx);
     controls.appendChild(selectBtn);
 
+    // If this track is active for video, show "Stop Video" button
+    if (activeVideoTrack === idx && track.video) {
+      const stopBtn = document.createElement('button');
+      stopBtn.className = "select-video-btn";
+      stopBtn.style.background = "#aaa";
+      stopBtn.style.marginLeft = "8px";
+      stopBtn.textContent = "Stop Video";
+      stopBtn.onclick = () => stopVideoSource(idx);
+      controls.appendChild(stopBtn);
+    }
     trackDiv.appendChild(controls);
 
     container.appendChild(trackDiv);
 
-    // If a stream is active, display it in the video element
+    // Show video stream if active
     if (mediaStreams[idx] && track.video) {
       const videoEl = document.getElementById(`video-element-${idx}`);
       if (videoEl && videoEl.srcObject !== mediaStreams[idx]) {
@@ -364,20 +369,34 @@ function renderVideoTracks() {
 
 // === CAMERA PERMISSION & VIDEO DISPLAY ===
 async function selectVideoSource(idx) {
+  // Only one video track may be active at a time
+  if (activeVideoTrack !== null && activeVideoTrack !== idx) return;
   try {
     if (mediaStreams[idx]) {
-      // Already streaming, just show it
       videoTracks[idx].video = true;
+      activeVideoTrack = idx;
       renderVideoTracks();
       return;
     }
     const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false });
     mediaStreams[idx] = stream;
     videoTracks[idx].video = true;
+    activeVideoTrack = idx;
     renderVideoTracks();
   } catch (err) {
     alert('Could not access camera. Please allow camera permissions for video recording.');
   }
+}
+
+function stopVideoSource(idx) {
+  if (mediaStreams[idx]) {
+    let tracks = mediaStreams[idx].getTracks();
+    tracks.forEach((t) => t.stop());
+    delete mediaStreams[idx];
+  }
+  videoTracks[idx].video = null;
+  if (activeVideoTrack === idx) activeVideoTrack = null;
+  renderVideoTracks();
 }
 
 // === PLAY ONLY THIS CHUNK ===
