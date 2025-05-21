@@ -9,20 +9,30 @@
 <body>
   <h1>Dicecut Music Video Editor</h1>
 
-  <div>
+  <!-- Main Audio Upload -->
+  <div style="margin-bottom:30px;">
     <label for="master-track-upload"><b>Upload Master Audio Track:</b> </label>
     <input type="file" id="master-track-upload" accept="audio/*">
-  </div>
-
-  <div id="main-waveform-container" style="margin-top: 30px; display: none;">
-    <div id="main-waveform"></div>
   </div>
 
   <h2>Video Tracks</h2>
   <div id="video-tracks"></div>
 
-  <h2>Dice Edit Options</h2>
-  <button id="dice-edit-all">Random Dice Edit (Whole Video)</button>
+  <!-- Final Video Output Area (now at the bottom) -->
+  <div id="final-output-container" class="video-output-section">
+    <div class="video-final-label">Final Master Video Output (OUT)</div>
+    <div class="video-screen video-final-screen">
+      Final Video Output<br><span class="video-desc">(16:9, YouTube size)</span>
+    </div>
+    <div id="dice-controls">
+      <button id="dice-edit-all">🎲 Random Dice Edit (Whole Video)</button>
+      <button id="dice-edit-chunks">🎲 Dice Edit 8 Bars at a Time</button>
+    </div>
+    <div id="master-waveform-container" style="margin: 20px 0;">
+      <div id="master-waveform"></div>
+    </div>
+    <div id="master-timeline-chunks"></div>
+  </div>
 
   <script src="https://unpkg.com/wavesurfer.js"></script>
   <script src="script.js"></script>
