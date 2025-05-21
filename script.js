@@ -14,22 +14,20 @@ let trackStates = Array.from({ length: TRACK_COUNT }, () => ({
 }));
 let selectedTrack = null;
 let isRecording = false;
-let countdownTimeout = null;
 let memberCount = 0;
 
 // ==== DOM ELEMENTS ====
-const tracksContainer = document.querySelector('.tracks-container');
+const tracksSection = document.querySelector('.tracks-section');
 const recBtn = document.getElementById('recBtn');
 const countdownEl = document.getElementById('countdown');
 const memberCountEl = document.getElementById('memberCount');
 const masterAudioInput = document.getElementById('masterAudioInput');
 const loadAudioBtn = document.getElementById('loadAudioBtn');
-const masterWaveformEl = document.getElementById('masterWaveform');
+const mainMasterWaveformEl = document.getElementById('mainMasterWaveform');
 const outputWaveformEl = document.getElementById('outputWaveform');
 
 // ==== MEMBER COUNTER SIMULATION ====
 function updateMemberCounter() {
-  // Simulate online users for demo
   memberCount = Math.floor(Math.random() * 120) + 2;
   memberCountEl.textContent = memberCount;
 }
@@ -38,7 +36,7 @@ updateMemberCounter();
 
 // ==== BUILD UI ====
 function buildTracksUI() {
-  tracksContainer.innerHTML = '';
+  tracksSection.innerHTML = '';
   for (let i = 0; i < TRACK_COUNT; ++i) {
     const track = document.createElement('div');
     track.className = 'video-track';
@@ -56,7 +54,7 @@ function buildTracksUI() {
     // Video element
     const video = document.createElement('video');
     video.width = 280;
-    video.height = 180;
+    video.height = 170;
     video.autoplay = false;
     video.controls = false;
     video.muted = true;
@@ -79,27 +77,28 @@ function buildTracksUI() {
     selectBtn.onclick = () => handleSelectVideo(i);
     track.appendChild(selectBtn);
 
-    tracksContainer.appendChild(track);
+    tracksSection.appendChild(track);
   }
 }
 buildTracksUI();
 
 // ==== WAVEFORM SETUP ====
-function setupMasterWaveform(audioUrlOrBuffer) {
-  if (masterWavesurfer) {
-    masterWavesurfer.destroy();
+let mainMasterWS = null;
+function setupMainMasterWaveform(audioUrlOrBuffer) {
+  if (mainMasterWS) {
+    mainMasterWS.destroy();
   }
-  masterWavesurfer = WaveSurfer.create({
-    container: masterWaveformEl,
+  mainMasterWS = WaveSurfer.create({
+    container: mainMasterWaveformEl,
     waveColor: '#1976d2',
     progressColor: '#c62828',
-    height: 60,
+    height: 54,
   });
 
   if (typeof audioUrlOrBuffer === 'string') {
-    masterWavesurfer.load(audioUrlOrBuffer);
+    mainMasterWS.load(audioUrlOrBuffer);
   } else if (audioUrlOrBuffer instanceof AudioBuffer) {
-    masterWavesurfer.loadDecodedBuffer(audioUrlOrBuffer);
+    mainMasterWS.loadDecodedBuffer(audioUrlOrBuffer);
   }
 }
 
@@ -112,10 +111,9 @@ function setupTrackWaveform(idx) {
     container: wsDiv,
     waveColor: '#1976d2',
     progressColor: '#c62828',
-    height: 48,
+    height: 44,
     interact: false,
   });
-  // Load the master audio buffer if available
   if (masterAudioBuffer) {
     trackStates[idx].wavesurfer.loadDecodedBuffer(masterAudioBuffer);
   }
@@ -129,7 +127,7 @@ function setupOutputWaveform() {
     container: outputWaveformEl,
     waveColor: '#1976d2',
     progressColor: '#c62828',
-    height: 48,
+    height: 44,
     interact: false,
   });
   if (masterAudioBuffer) {
@@ -145,7 +143,7 @@ loadAudioBtn.onclick = async () => {
   const ctx = new (window.AudioContext || window.webkitAudioContext)();
   const arrayBuffer = await file.arrayBuffer();
   masterAudioBuffer = await ctx.decodeAudioData(arrayBuffer);
-  setupMasterWaveform(url);
+  setupMainMasterWaveform(url);
   for (let i = 0; i < TRACK_COUNT; ++i) {
     setupTrackWaveform(i);
   }
@@ -247,8 +245,10 @@ recBtn.onclick = async () => {
   };
 
   // Sync play all waveforms
-  masterWavesurfer.seekTo(0);
-  masterWavesurfer.play();
+  if (mainMasterWS) {
+    mainMasterWS.seekTo(0);
+    mainMasterWS.play();
+  }
   for (let i = 0; i < TRACK_COUNT; ++i) {
     if (trackStates[i].wavesurfer) {
       trackStates[i].wavesurfer.seekTo(0);
@@ -272,7 +272,7 @@ recBtn.onclick = async () => {
   setTimeout(() => {
     recorder.stop();
     trackSource.stop();
-    masterWavesurfer.stop();
+    if (mainMasterWS) mainMasterWS.stop();
     for (let i = 0; i < TRACK_COUNT; ++i) {
       if (trackStates[i].wavesurfer) {
         trackStates[i].wavesurfer.stop();
