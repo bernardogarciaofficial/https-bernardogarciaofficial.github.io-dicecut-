@@ -7,39 +7,33 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="topbar">
-    <div id="member-counter">👤 Members online: <span id="member-count">0</span></div>
+  <div class="topbar">
+    <span class="logo">🎲 Dicecut Editor</span>
+    <span class="member-counter">Members Online: <span id="memberCount"></span></span>
   </div>
-
-  <h1>Dicecut Music Video Editor</h1>
-
-  <!-- Main Audio Upload -->
-  <div style="margin-bottom:30px;">
-    <label for="master-track-upload"><b>Upload Master Audio Track:</b> </label>
-    <input type="file" id="master-track-upload" accept="audio/*">
+  <div class="master-audio">
+    <input type="file" id="masterAudioInput" accept="audio/*">
+    <button id="loadAudioBtn">Load Master Audio</button>
+    <div id="masterWaveform"></div>
   </div>
-
-  <h2>Video Tracks</h2>
-  <div id="video-tracks"></div>
-
-  <!-- Final Video Output Area (at the bottom!) -->
-  <div id="final-output-container" class="video-output-section">
-    <div class="video-final-label">Final Master Video Output (OUT)</div>
-    <div class="video-screen video-final-screen" id="final-video-screen">
-      Final Video Output<br><span class="video-desc">(16:9, YouTube size)</span>
-      <div class="rec-indicator" id="final-rec-indicator" style="display:none"></div>
-      <div class="countdown-overlay" id="final-countdown"></div>
+  <div class="video-tracks">
+    <!-- 10 Video Tracks -->
+    <div class="tracks-container">
+      <!-- Tracks will be injected here by script.js -->
     </div>
-    <div id="dice-controls">
-      <button id="dice-edit-all">🎲 Random Dice Edit (Whole Video)</button>
-      <button id="dice-edit-chunks">🎲 Dice Edit 8 Bars at a Time</button>
+    <!-- Output/official video screen -->
+    <div class="output-track">
+      <div class="output-label">Official Output</div>
+      <div class="waveform-container">
+        <div class="waveform" id="outputWaveform"></div>
+      </div>
+      <video id="outputVideo" class="output-video" controls></video>
     </div>
-    <div id="master-waveform-container" style="margin: 20px 0;">
-      <div id="master-waveform"></div>
-    </div>
-    <div id="master-timeline-chunks"></div>
   </div>
-
+  <div class="controls">
+    <button id="recBtn" disabled>REC</button>
+    <span id="countdown" class="countdown"></span>
+  </div>
   <script src="https://unpkg.com/wavesurfer.js"></script>
   <script src="script.js"></script>
 </body>
