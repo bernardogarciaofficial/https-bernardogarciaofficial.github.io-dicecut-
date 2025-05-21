@@ -5,6 +5,23 @@ body {
   color: #222;
 }
 
+#topbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+#member-counter {
+  font-size: 1.1em;
+  color: #4b4b4b;
+  background: #f2f6ff;
+  border-radius: 10px;
+  padding: 6px 16px;
+  margin-right: 10px;
+  box-shadow: 0 1px 5px rgba(30,60,150,0.05);
+}
+
 .video-output-section {
   margin-top: 60px;
   margin-bottom: 30px;
@@ -163,11 +180,50 @@ body {
   color: #ccc;
   font-size: 2em;
   overflow: hidden;
+  position: relative;
 }
 
 .video-desc {
   font-size: 0.85em;
   color: #aaa;
+}
+
+.rec-indicator {
+  position: absolute;
+  top: 22px;
+  left: 32px;
+  font-size: 2.3em;
+  color: #ff1d1d;
+  font-weight: bold;
+  text-shadow: 0 0 12px #ff1d1d88;
+  animation: recblink 1s steps(1) infinite;
+  z-index: 11;
+  pointer-events: none;
+}
+@keyframes recblink {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+.countdown-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 7em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  font-weight: bold;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.countdown-overlay.show {
+  opacity: 1;
 }
 
 @media (max-width: 1150px) {
