@@ -6,6 +6,9 @@ let barsPerChunk = 8;
 let chunkStates = []; // { locked: bool, rec: bool }
 let chunkStartEnd = []; // [{start: seconds, end: seconds, barStart, barEnd}]
 let selectedChunk = 0;
+let recActiveChunk = null; // Index of currently recording chunk, null if none
+let recActiveFinal = false; // Is the OUT screen recording?
+let countdownTimeout = null;
 
 // Video tracks: always 10, for now
 let videoTracks = [];
@@ -21,7 +24,19 @@ window.addEventListener('DOMContentLoaded', () => {
     videoTracks.push({ id: i + 1, name: `Track ${i + 1}`, video: null });
   }
   renderVideoTracks();
+  simulateMemberCounter();
 });
+
+function simulateMemberCounter() {
+  // Simulate member counter (placeholder for real backend connection)
+  function updateCounter() {
+    // In production, replace this with real-time backend logic!
+    const n = Math.floor(Math.random() * 7) + 4; // between 4 and 10 for demo
+    document.getElementById("member-count").textContent = n;
+  }
+  updateCounter();
+  setInterval(updateCounter, 5000);
+}
 
 // === AUDIO UPLOAD & WAVESURFER ===
 function handleMasterAudioUpload(e) {
@@ -86,10 +101,10 @@ function renderMasterTimelineChunks() {
   const container = document.getElementById('master-timeline-chunks');
   container.innerHTML = '';
   if (!masterAudioBuffer) return;
-  container.appendChild(renderTimelineChunks({ showDice: true }));
+  container.appendChild(renderTimelineChunks({ showDice: true, isFinal: true }));
 }
 
-function renderTimelineChunks({ showDice = false } = {}) {
+function renderTimelineChunks({ showDice = false, isFinal = false } = {}) {
   const container = document.createElement('div');
   container.className = 'timeline-chunks';
 
@@ -147,7 +162,7 @@ function renderTimelineChunks({ showDice = false } = {}) {
     recBtn.disabled = chunkStates[i].locked || chunkStates[i].rec;
     recBtn.onclick = (e) => {
       e.stopPropagation();
-      startRecordingChunk(i);
+      triggerCountdown(isFinal ? "final" : selectedChunk, i);
     };
     chunkDiv.appendChild(recBtn);
 
@@ -202,16 +217,72 @@ function rerenderAllTimelines() {
   renderVideoTracks();
 }
 
+// === COUNTDOWN AND REC INDICATOR ===
+function triggerCountdown(target, chunkIdx) {
+  // target: "final" for OUT, or index of video track
+  let overlay, screen, recId;
+  if (target === "final") {
+    overlay = document.getElementById('final-countdown');
+    screen = document.getElementById('final-video-screen');
+    recId = 'final-rec-indicator';
+  } else {
+    overlay = document.getElementById(`countdown-${target}`);
+    screen = document.getElementById(`video-screen-${target}`);
+    recId = `rec-indicator-${target}`;
+  }
+  if (!overlay || !screen) return;
+
+  let count = 3;
+  overlay.innerText = count;
+  overlay.classList.add("show");
+
+  function nextCount() {
+    count--;
+    if (count > 0) {
+      overlay.innerText = count;
+      countdownTimeout = setTimeout(nextCount, 800);
+    } else {
+      overlay.innerText = "GO!";
+      countdownTimeout = setTimeout(() => {
+        overlay.classList.remove("show");
+        overlay.innerText = "";
+        startRecordingChunk(chunkIdx, target === "final");
+        showRecIndicator(recId, true);
+      }, 800);
+    }
+  }
+  countdownTimeout = setTimeout(nextCount, 800);
+}
+
+function showRecIndicator(recId, show) {
+  const el = document.getElementById(recId);
+  if (el) el.style.display = show ? "block" : "none";
+}
+
 // === RECORDING LOGIC ===
-function startRecordingChunk(i) {
+function startRecordingChunk(i, isFinal = false) {
   // Only one chunk can be "recording" at a time
   chunkStates.forEach((ch, idx) => {
     if (idx === i) ch.rec = true;
     else ch.rec = false;
   });
+  recActiveChunk = i;
+  recActiveFinal = isFinal;
   rerenderAllTimelines();
+  // Show REC indicator
+  if (isFinal) showRecIndicator('final-rec-indicator', true);
+  else showRecIndicator(`rec-indicator-${i}`, true);
+
+  // Simulate end of recording after 5 seconds for demo
+  setTimeout(() => {
+    chunkStates[i].rec = false;
+    showRecIndicator(isFinal ? 'final-rec-indicator' : `rec-indicator-${i}`, false);
+    recActiveChunk = null;
+    rerenderAllTimelines();
+  }, 5000);
+
   // Future: Start recording logic for selected video track/chunk here!
-  alert(`Started recording chunk ${chunkStartEnd[i].barStart + 1}-${chunkStartEnd[i].barEnd}\n(This is a placeholder for actual video recording logic.)`);
+  // alert(`Started recording chunk ${chunkStartEnd[i].barStart + 1}-${chunkStartEnd[i].barEnd}\n(This is a placeholder for actual video recording logic.)`);
 }
 
 // === STOP PLAYBACK ===
@@ -251,7 +322,10 @@ function renderVideoTracks() {
     // Larger YouTube-size video screen
     const vScreen = document.createElement('div');
     vScreen.className = "video-screen";
-    vScreen.innerHTML = track.video ? track.video : `Video Screen ${track.id}<br><span class="video-desc">(16:9, YouTube size)</span>`;
+    vScreen.id = `video-screen-${idx}`;
+    vScreen.innerHTML = (track.video ? track.video : `Video Screen ${track.id}<br><span class="video-desc">(16:9, YouTube size)</span>`)
+      + `<div class="rec-indicator" id="rec-indicator-${idx}" style="display:none">● REC</div>`
+      + `<div class="countdown-overlay" id="countdown-${idx}"></div>`;
     trackDiv.appendChild(vScreen);
 
     // Track label & controls
