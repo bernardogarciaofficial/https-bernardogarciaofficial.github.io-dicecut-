@@ -47,12 +47,16 @@ function handleMasterAudioUpload(e) {
   // Get decoded audio buffer for chunk timing
   const reader = new FileReader();
   reader.onload = async (ev) => {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const arrayBuffer = ev.target.result;
-    masterAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-    setupTimelineChunks();
-    renderMasterTimelineChunks();
-    renderVideoTracks(); // re-render tracks to show waveform and timeline chunks
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const arrayBuffer = ev.target.result;
+      masterAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+      setupTimelineChunks();
+      renderMasterTimelineChunks();
+      renderVideoTracks(); // re-render tracks to show waveform and timeline chunks
+    } catch (err) {
+      alert("Could not load or decode audio file. Please use a standard .mp3 or .wav file.");
+    }
   };
   reader.readAsArrayBuffer(file);
 }
