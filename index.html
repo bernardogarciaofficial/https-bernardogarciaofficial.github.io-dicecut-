@@ -14,21 +14,17 @@
   <div class="master-audio">
     <input type="file" id="masterAudioInput" accept="audio/*">
     <button id="loadAudioBtn">Load Master Audio</button>
-    <div id="masterWaveform"></div>
+    <div id="mainMasterWaveform"></div>
   </div>
-  <div class="video-tracks">
-    <!-- 10 Video Tracks -->
-    <div class="tracks-container">
-      <!-- Tracks will be injected here by script.js -->
+  <div class="tracks-section">
+    <!-- Tracks injected by script.js -->
+  </div>
+  <div class="output-track">
+    <div class="output-label">Official Output</div>
+    <div class="waveform-container">
+      <div class="waveform" id="outputWaveform"></div>
     </div>
-    <!-- Output/official video screen -->
-    <div class="output-track">
-      <div class="output-label">Official Output</div>
-      <div class="waveform-container">
-        <div class="waveform" id="outputWaveform"></div>
-      </div>
-      <video id="outputVideo" class="output-video" controls></video>
-    </div>
+    <video id="outputVideo" class="output-video" controls></video>
   </div>
   <div class="controls">
     <button id="recBtn" disabled>REC</button>
