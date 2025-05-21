@@ -1,5 +1,5 @@
 // === GLOBAL STATE ===
-let wavesurfer;
+let masterWavesurfer;
 let masterAudioBuffer = null;
 let bpm = 120; // Default BPM; can be user-set later.
 let barsPerChunk = 8;
@@ -15,6 +15,7 @@ const NUM_TRACKS = 10;
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('master-track-upload').addEventListener('change', handleMasterAudioUpload);
   document.getElementById('dice-edit-all').addEventListener('click', () => alert("Random dice edit for whole video (not yet implemented)"));
+  document.getElementById('dice-edit-chunks').addEventListener('click', () => alert("Random dice edit 8 bars at a time (not yet implemented)"));
   // Initialize 10 tracks
   for (let i = 0; i < NUM_TRACKS; i++) {
     videoTracks.push({ id: i + 1, name: `Track ${i + 1}`, video: null });
@@ -28,12 +29,12 @@ function handleMasterAudioUpload(e) {
   if (!file) return;
   const url = URL.createObjectURL(file);
 
-  // Main waveform (just for visual reference, not per video track)
-  if (wavesurfer) wavesurfer.destroy();
-  document.getElementById('main-waveform-container').style.display = 'block';
+  // Main waveform (at the bottom, with final OUT)
+  if (masterWavesurfer) masterWavesurfer.destroy();
+  document.getElementById('master-waveform-container').style.display = 'flex';
 
-  wavesurfer = WaveSurfer.create({
-    container: '#main-waveform',
+  masterWavesurfer = WaveSurfer.create({
+    container: '#master-waveform',
     waveColor: '#b5c9e7',
     progressColor: '#4a90e2',
     cursorColor: '#f39c12',
@@ -41,7 +42,7 @@ function handleMasterAudioUpload(e) {
     height: 80,
     responsive: true
   });
-  wavesurfer.load(url);
+  masterWavesurfer.load(url);
 
   // Get decoded audio buffer for chunk timing
   const reader = new FileReader();
@@ -50,7 +51,8 @@ function handleMasterAudioUpload(e) {
     const arrayBuffer = ev.target.result;
     masterAudioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
     setupTimelineChunks();
-    renderVideoTracks(); // re-render tracks to show chunk controls
+    renderMasterTimelineChunks();
+    renderVideoTracks(); // re-render tracks to show waveform and timeline chunks
   };
   reader.readAsArrayBuffer(file);
 }
@@ -75,9 +77,15 @@ function setupTimelineChunks() {
   selectedChunk = 0;
 }
 
-// === TIMELINE CHUNK UI (shared state, used above each video track) ===
-function renderTimelineChunks(currentTrackIdx) {
-  // currentTrackIdx: for possible future per-track highlighting (not used now)
+// === TIMELINE CHUNK UI (MASTER OUTPUT) ===
+function renderMasterTimelineChunks() {
+  const container = document.getElementById('master-timeline-chunks');
+  container.innerHTML = '';
+  if (!masterAudioBuffer) return;
+  container.appendChild(renderTimelineChunks({ showDice: true }));
+}
+
+function renderTimelineChunks({ showDice = false } = {}) {
   const container = document.createElement('div');
   container.className = 'timeline-chunks';
 
@@ -107,15 +115,25 @@ function renderTimelineChunks(currentTrackIdx) {
     };
     chunkDiv.appendChild(playBtn);
 
-    // Dice edit
-    const diceBtn = document.createElement('button');
-    diceBtn.innerHTML = "🎲 Dice";
-    diceBtn.disabled = chunkStates[i].locked;
-    diceBtn.onclick = (e) => {
+    // STOP button
+    const stopBtn = document.createElement('button');
+    stopBtn.innerHTML = "■ Stop";
+    stopBtn.onclick = (e) => {
       e.stopPropagation();
-      diceEditChunk(i, currentTrackIdx);
+      stopPlayback();
     };
-    chunkDiv.appendChild(diceBtn);
+    chunkDiv.appendChild(stopBtn);
+
+    // Dice edit button (only on master/final output)
+    if (showDice) {
+      const diceBtn = document.createElement('button');
+      diceBtn.innerHTML = "🎲 Dice";
+      diceBtn.onclick = (e) => {
+        e.stopPropagation();
+        alert(`Dice random edit for bars ${chunk.barStart + 1}-${chunk.barEnd} (not yet implemented)`);
+      };
+      chunkDiv.appendChild(diceBtn);
+    }
 
     // REC button
     const recBtn = document.createElement('button');
@@ -129,16 +147,6 @@ function renderTimelineChunks(currentTrackIdx) {
     };
     chunkDiv.appendChild(recBtn);
 
-    // Stop button
-    const stopBtn = document.createElement('button');
-    stopBtn.innerHTML = "■ Stop";
-    stopBtn.disabled = !chunkStates[i].rec;
-    stopBtn.onclick = (e) => {
-      e.stopPropagation();
-      stopRecordingChunk(i);
-    };
-    chunkDiv.appendChild(stopBtn);
-
     // Lock/Unlock
     if (!chunkStates[i].locked) {
       const lockBtn = document.createElement('button');
@@ -146,7 +154,7 @@ function renderTimelineChunks(currentTrackIdx) {
       lockBtn.onclick = (e) => {
         e.stopPropagation();
         chunkStates[i].locked = true;
-        rerenderAllChunkTimelines();
+        rerenderAllTimelines();
       };
       chunkDiv.appendChild(lockBtn);
     } else {
@@ -155,7 +163,7 @@ function renderTimelineChunks(currentTrackIdx) {
       unlockBtn.onclick = (e) => {
         e.stopPropagation();
         chunkStates[i].locked = false;
-        rerenderAllChunkTimelines();
+        rerenderAllTimelines();
       };
       chunkDiv.appendChild(unlockBtn);
     }
@@ -176,7 +184,7 @@ function renderTimelineChunks(currentTrackIdx) {
     // Select chunk on click
     chunkDiv.onclick = () => {
       selectedChunk = i;
-      rerenderAllChunkTimelines();
+      rerenderAllTimelines();
     };
 
     container.appendChild(chunkDiv);
@@ -185,7 +193,8 @@ function renderTimelineChunks(currentTrackIdx) {
   return container;
 }
 
-function rerenderAllChunkTimelines() {
+function rerenderAllTimelines() {
+  renderMasterTimelineChunks();
   renderVideoTracks();
 }
 
@@ -196,31 +205,16 @@ function startRecordingChunk(i) {
     if (idx === i) ch.rec = true;
     else ch.rec = false;
   });
-  rerenderAllChunkTimelines();
+  rerenderAllTimelines();
   // Future: Start recording logic for selected video track/chunk here!
-  // For now: simulate start.
   alert(`Started recording chunk ${chunkStartEnd[i].barStart + 1}-${chunkStartEnd[i].barEnd}\n(This is a placeholder for actual video recording logic.)`);
 }
 
-function stopRecordingChunk(i) {
-  chunkStates[i].rec = false;
-  rerenderAllChunkTimelines();
-  // Future: Stop recording logic here.
-  alert(`Stopped recording chunk ${chunkStartEnd[i].barStart + 1}-${chunkStartEnd[i].barEnd}\n(This is a placeholder for actual stop logic.)`);
-}
-
-// === PLAY ONLY THIS CHUNK ===
-function playChunk(start, end) {
-  if (!wavesurfer) return;
-  wavesurfer.play(start, end);
-}
-
-// === DICE EDIT LOGIC ===
-function diceEditChunk(i, trackIdx) {
-  if (chunkStates[i].locked) return;
-  // (Pseudo) randomize video edit for this chunk for the selected video track
-  const trackName = videoTracks[trackIdx] ? videoTracks[trackIdx].name : "Unknown Track";
-  alert(`Dice random edit for bars ${chunkStartEnd[i].barStart + 1}-${chunkStartEnd[i].barEnd} on ${trackName}`);
+// === STOP PLAYBACK ===
+function stopPlayback() {
+  if (masterWavesurfer) {
+    masterWavesurfer.stop();
+  }
 }
 
 // === VIDEO TRACKS ===
@@ -231,18 +225,29 @@ function renderVideoTracks() {
     const trackDiv = document.createElement('div');
     trackDiv.className = "video-track-container";
 
-    // Timeline per track
+    // Large waveform above each video screen track
+    const waveformDiv = document.createElement('div');
+    waveformDiv.className = 'waveform-track-container';
+    if (masterAudioBuffer) {
+      const wf = document.createElement('div');
+      wf.className = 'waveform-track';
+      wf.innerHTML = '<!-- (Waveform rendering placeholder for per-track; can be implemented with a separate wavesurfer instance or image) -->';
+      waveformDiv.appendChild(wf);
+      trackDiv.appendChild(waveformDiv);
+    }
+
+    // Timeline per track (no Dice button)
     const tlContainer = document.createElement('div');
     tlContainer.className = "tl-chunks-container";
     if (masterAudioBuffer) {
-      tlContainer.appendChild(renderTimelineChunks(idx));
+      tlContainer.appendChild(renderTimelineChunks({ showDice: false }));
     }
     trackDiv.appendChild(tlContainer);
 
-    // YouTube-size video screen
+    // Larger YouTube-size video screen
     const vScreen = document.createElement('div');
     vScreen.className = "video-screen";
-    vScreen.innerHTML = track.video ? track.video : `Video Screen ${track.id}<br><span style="font-size:0.9em;">(16:9, YouTube size)</span>`;
+    vScreen.innerHTML = track.video ? track.video : `Video Screen ${track.id}<br><span class="video-desc">(16:9, YouTube size)</span>`;
     trackDiv.appendChild(vScreen);
 
     // Track label & controls
@@ -258,6 +263,12 @@ function renderVideoTracks() {
 
     container.appendChild(trackDiv);
   });
+}
+
+// === PLAY ONLY THIS CHUNK ===
+function playChunk(start, end) {
+  if (!masterWavesurfer) return;
+  masterWavesurfer.play(start, end);
 }
 
 // === HELPERS ===
