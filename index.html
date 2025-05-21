@@ -2,57 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dicecut Music Video Editor</title>
+  <title>🎲 Dicecut Editor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Topbar: Members Online & Logo -->
-  <div class="topbar">
-    <span class="logo">🎲 Dicecut Editor</span>
-    <span class="member-counter">👤 Members online: <span id="member-count">0</span></span>
-  </div>
+  <header>
+    <h1>🎲 Dicecut Editor</h1>
+    <div class="members-online">👤 Members online: <span id="members-online">48</span></div>
+  </header>
 
-  <h1>Dicecut Music Video Editor</h1>
+  <main>
+    <section class="audio-section">
+      <h2>Master Audio Track</h2>
+      <input type="file" id="audio-upload" accept="audio/*">
+      <div id="audio-timeline-container">
+        <canvas id="audio-waveform"></canvas>
+        <div id="bar-segments"></div>
+      </div>
+    </section>
 
-  <!-- Master Audio Upload -->
-  <div class="master-audio">
-    <label for="masterAudioInput"><b>Upload Master Audio Track:</b> </label>
-    <input type="file" id="masterAudioInput" accept="audio/*">
-    <div id="masterWaveform"></div>
-  </div>
+    <section class="timeline-section">
+      <!-- Master Audio Timeline is already above, now stack video tracks -->
+      <div id="video-tracks-container">
+        <h2>Video Tracks</h2>
+        <!-- Video tracks will be generated here -->
+      </div>
+      <div id="final-output-container">
+        <h2>Final Output Video Track</h2>
+        <div class="output-track">
+          <video id="output-video" controls></video>
+          <canvas id="output-audio-waveform"></canvas>
+        </div>
+      </div>
+    </section>
 
-  <!-- 8 Bars Chunk Timeline (above video output) -->
-  <div id="master-timeline-chunks"></div>
+    <section class="segments-controls-section">
+      <h2>Timeline Segment Controls</h2>
+      <div id="segments-controls"></div>
+    </section>
+  </main>
 
-  <!-- Video Tracks Section -->
-  <h2>Video Tracks</h2>
-  <div id="video-tracks"></div>
-
-  <!-- Dice Controls (Optional) -->
-  <div id="dice-controls">
-    <button id="dice-edit-all">🎲 Random Dice Edit (Whole Video)</button>
-    <button id="dice-edit-chunks">🎲 Dice Edit 8 Bars at a Time</button>
-  </div>
-
-  <!-- Final Output Section -->
-  <div id="final-output-container" class="video-output-section">
-    <div class="video-final-label">Final Master Video Output (OUT)</div>
-    <div class="waveform-container">
-      <div class="waveform" id="outputWaveform"></div>
-    </div>
-    <video id="outputVideo" class="output-video" controls></video>
-    <div class="rec-indicator" id="final-rec-indicator" style="display:none"></div>
-    <div class="countdown-overlay" id="final-countdown"></div>
-  </div>
-
-  <!-- Global Countdown and REC controls -->
-  <div class="controls">
-    <button id="recBtn" disabled>REC</button>
-    <span id="countdown" class="countdown"></span>
-  </div>
-
-  <script src="https://unpkg.com/wavesurfer.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
