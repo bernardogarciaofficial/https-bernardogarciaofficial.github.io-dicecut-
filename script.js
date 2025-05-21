@@ -16,6 +16,9 @@ const NUM_TRACKS = 10;
 let mediaStreams = {}; // { trackIdx: stream }
 let activeVideoTrack = null; // Only one video track can be selected for video/camera at a time
 
+// Per-track waveform instances
+let trackWaveSurfers = [];
+
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('master-track-upload').addEventListener('change', handleMasterAudioUpload);
   document.getElementById('dice-edit-all').addEventListener('click', () => alert("Random dice edit for whole video (not yet implemented)"));
@@ -23,6 +26,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // Initialize 10 tracks
   for (let i = 0; i < NUM_TRACKS; i++) {
     videoTracks.push({ id: i + 1, name: `Track ${i + 1}`, video: null });
+    trackWaveSurfers.push(null);
   }
   renderVideoTracks();
   simulateMemberCounter();
@@ -43,6 +47,7 @@ function handleMasterAudioUpload(e) {
   if (!file) return;
   const url = URL.createObjectURL(file);
 
+  // Main waveform (OUT section)
   if (masterWavesurfer) masterWavesurfer.destroy();
   document.getElementById('master-waveform-container').style.display = 'flex';
 
@@ -57,6 +62,31 @@ function handleMasterAudioUpload(e) {
   });
   masterWavesurfer.load(url);
 
+  // Load waveforms for all tracks
+  for (let idx = 0; idx < NUM_TRACKS; idx++) {
+    if (trackWaveSurfers[idx]) {
+      trackWaveSurfers[idx].destroy();
+      trackWaveSurfers[idx] = null;
+    }
+    const containerId = `track-waveform-${idx}`;
+    const waveContainer = document.getElementById(containerId);
+    if (waveContainer) {
+      waveContainer.innerHTML = "";
+      trackWaveSurfers[idx] = WaveSurfer.create({
+        container: `#${containerId}`,
+        waveColor: '#b5c9e7',
+        progressColor: '#4a90e2',
+        cursorColor: '#f39c12',
+        barWidth: 2,
+        height: 60,
+        responsive: true
+      });
+      trackWaveSurfers[idx].load(url);
+      trackWaveSurfers[idx].setMute(true);
+    }
+  }
+
+  // Decode for chunk timing
   const reader = new FileReader();
   reader.onload = async (ev) => {
     try {
@@ -242,6 +272,7 @@ function triggerCountdown(target, chunkIdx) {
       countdownTimeout = setTimeout(() => {
         overlay.classList.remove("show");
         overlay.innerText = "";
+        // Main logic: press REC, play audio, start video recording in sync
         startRecordingChunk(chunkIdx, target === "final", target === "final" ? null : target);
         showRecIndicator(recId, true);
       }, 800);
@@ -265,6 +296,16 @@ function startRecordingChunk(i, isFinal = false, videoTrackIdx = null) {
   recActiveFinal = isFinal;
   rerenderAllTimelines();
 
+  // Play audio in sync with video recording on slave track
+  if (!isFinal && typeof videoTrackIdx === "number" && activeVideoTrack === videoTrackIdx) {
+    // Play audio chunk in all waveforms for monitoring (including per-track waveform)
+    playChunk(chunkStartEnd[i].start, chunkStartEnd[i].end);
+    // Start "recording" (simulate for now)
+    // Future: Here you would trigger MediaRecorder on the video stream for this track
+  } else if (isFinal) {
+    playChunk(chunkStartEnd[i].start, chunkStartEnd[i].end);
+    // Future: Here you would record the OUT video if needed
+  }
   if (isFinal) showRecIndicator('final-rec-indicator', true);
   else showRecIndicator(`rec-indicator-${videoTrackIdx}`, true);
 
@@ -274,14 +315,14 @@ function startRecordingChunk(i, isFinal = false, videoTrackIdx = null) {
     else showRecIndicator(`rec-indicator-${videoTrackIdx}`, false);
     recActiveChunk = null;
     rerenderAllTimelines();
-  }, 5000);
+  }, (chunkStartEnd[i].end - chunkStartEnd[i].start) * 1000); // auto stop after chunk
 }
 
 // === STOP PLAYBACK ===
 function stopPlayback() {
-  if (masterWavesurfer) {
-    masterWavesurfer.stop();
-  }
+  if (masterWavesurfer) masterWavesurfer.stop();
+  for (let idx = 0; idx < NUM_TRACKS; idx++)
+    if (trackWaveSurfers[idx]) trackWaveSurfers[idx].stop();
 }
 
 // === VIDEO TRACKS ===
@@ -296,13 +337,8 @@ function renderVideoTracks() {
     const waveformDiv = document.createElement('div');
     waveformDiv.className = 'waveform-track-container';
     waveformDiv.style.marginBottom = "8px";
-    if (masterAudioBuffer) {
-      // Render the main waveform as a static image or clone (for demo, just placeholder)
-      const wf = document.createElement('div');
-      wf.className = 'waveform-track';
-      wf.innerHTML = '<!-- (Master waveform placeholder for per-track; for production, clone the main waveform or render a static image/mini-wavesurfer) -->';
-      waveformDiv.appendChild(wf);
-    }
+    const trackWaveId = `track-waveform-${idx}`;
+    waveformDiv.innerHTML = `<div class="waveform-track" id="${trackWaveId}"></div>`;
     trackDiv.appendChild(waveformDiv);
 
     // Timeline per track (no Dice button)
@@ -335,24 +371,20 @@ function renderVideoTracks() {
     controls.className = "video-track-controls";
     controls.innerHTML = `${track.video ? track.video : "No video"}<br>`;
 
-    // Select Video Button - only one track can be active for video
+    // Select/Deselect Video Button -- only one track can be active for video
     const selectBtn = document.createElement('button');
     selectBtn.className = "select-video-btn";
-    selectBtn.textContent = "Select Video";
-    selectBtn.disabled = (activeVideoTrack !== null && activeVideoTrack !== idx); // Only one can be selected
-    selectBtn.onclick = () => selectVideoSource(idx);
+    if (activeVideoTrack === idx) {
+      selectBtn.textContent = "Deselect Video";
+      selectBtn.onclick = () => stopVideoSource(idx);
+      selectBtn.disabled = false;
+    } else {
+      selectBtn.textContent = "Select Video";
+      selectBtn.onclick = () => selectVideoSource(idx);
+      selectBtn.disabled = (activeVideoTrack !== null && activeVideoTrack !== idx);
+    }
     controls.appendChild(selectBtn);
 
-    // If this track is active for video, show "Stop Video" button
-    if (activeVideoTrack === idx && track.video) {
-      const stopBtn = document.createElement('button');
-      stopBtn.className = "select-video-btn";
-      stopBtn.style.background = "#aaa";
-      stopBtn.style.marginLeft = "8px";
-      stopBtn.textContent = "Stop Video";
-      stopBtn.onclick = () => stopVideoSource(idx);
-      controls.appendChild(stopBtn);
-    }
     trackDiv.appendChild(controls);
 
     container.appendChild(trackDiv);
@@ -365,11 +397,17 @@ function renderVideoTracks() {
       }
     }
   });
+
+  // Reload waveforms for all tracks if needed
+  for (let idx = 0; idx < NUM_TRACKS; idx++) {
+    if (trackWaveSurfers[idx]) {
+      trackWaveSurfers[idx].drawBuffer();
+    }
+  }
 }
 
 // === CAMERA PERMISSION & VIDEO DISPLAY ===
 async function selectVideoSource(idx) {
-  // Only one video track may be active at a time
   if (activeVideoTrack !== null && activeVideoTrack !== idx) return;
   try {
     if (mediaStreams[idx]) {
@@ -403,6 +441,8 @@ function stopVideoSource(idx) {
 function playChunk(start, end) {
   if (!masterWavesurfer) return;
   masterWavesurfer.play(start, end);
+  for (let idx = 0; idx < NUM_TRACKS; idx++)
+    if (trackWaveSurfers[idx]) trackWaveSurfers[idx].play(start, end);
 }
 
 // === HELPERS ===
