@@ -13,8 +13,8 @@ let countdownTimeout = null;
 // Video tracks: always 10, for now
 let videoTracks = [];
 const NUM_TRACKS = 10;
+let mediaStreams = {}; // { trackIdx: stream }
 
-// === INIT ===
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('master-track-upload').addEventListener('change', handleMasterAudioUpload);
   document.getElementById('dice-edit-all').addEventListener('click', () => alert("Random dice edit for whole video (not yet implemented)"));
@@ -246,7 +246,7 @@ function triggerCountdown(target, chunkIdx) {
       countdownTimeout = setTimeout(() => {
         overlay.classList.remove("show");
         overlay.innerText = "";
-        startRecordingChunk(chunkIdx, target === "final");
+        startRecordingChunk(chunkIdx, target === "final", target === "final" ? null : target);
         showRecIndicator(recId, true);
       }, 800);
     }
@@ -260,7 +260,7 @@ function showRecIndicator(recId, show) {
 }
 
 // === RECORDING LOGIC ===
-function startRecordingChunk(i, isFinal = false) {
+function startRecordingChunk(i, isFinal = false, videoTrackIdx = null) {
   // Only one chunk can be "recording" at a time
   chunkStates.forEach((ch, idx) => {
     if (idx === i) ch.rec = true;
@@ -269,20 +269,20 @@ function startRecordingChunk(i, isFinal = false) {
   recActiveChunk = i;
   recActiveFinal = isFinal;
   rerenderAllTimelines();
-  // Show REC indicator
+
   if (isFinal) showRecIndicator('final-rec-indicator', true);
-  else showRecIndicator(`rec-indicator-${i}`, true);
+  else showRecIndicator(`rec-indicator-${videoTrackIdx}`, true);
 
   // Simulate end of recording after 5 seconds for demo
   setTimeout(() => {
     chunkStates[i].rec = false;
-    showRecIndicator(isFinal ? 'final-rec-indicator' : `rec-indicator-${i}`, false);
+    if (isFinal) showRecIndicator('final-rec-indicator', false);
+    else showRecIndicator(`rec-indicator-${videoTrackIdx}`, false);
     recActiveChunk = null;
     rerenderAllTimelines();
   }, 5000);
 
   // Future: Start recording logic for selected video track/chunk here!
-  // alert(`Started recording chunk ${chunkStartEnd[i].barStart + 1}-${chunkStartEnd[i].barEnd}\n(This is a placeholder for actual video recording logic.)`);
 }
 
 // === STOP PLAYBACK ===
@@ -323,7 +323,10 @@ function renderVideoTracks() {
     const vScreen = document.createElement('div');
     vScreen.className = "video-screen";
     vScreen.id = `video-screen-${idx}`;
-    vScreen.innerHTML = (track.video ? track.video : `Video Screen ${track.id}<br><span class="video-desc">(16:9, YouTube size)</span>`)
+    vScreen.innerHTML =
+      (track.video
+        ? `<video class="video-element" id="video-element-${idx}" autoplay muted playsinline></video>`
+        : `Video Screen ${track.id}<br><span class="video-desc">(16:9, YouTube size)</span>`)
       + `<div class="rec-indicator" id="rec-indicator-${idx}" style="display:none">● REC</div>`
       + `<div class="countdown-overlay" id="countdown-${idx}"></div>`;
     trackDiv.appendChild(vScreen);
@@ -337,10 +340,44 @@ function renderVideoTracks() {
     const controls = document.createElement('div');
     controls.className = "video-track-controls";
     controls.innerHTML = `${track.video ? track.video : "No video"}<br>`;
+
+    // Select Video Button (no button on final/out)
+    const selectBtn = document.createElement('button');
+    selectBtn.className = "select-video-btn";
+    selectBtn.textContent = "Select Video";
+    selectBtn.onclick = () => selectVideoSource(idx);
+    controls.appendChild(selectBtn);
+
     trackDiv.appendChild(controls);
 
     container.appendChild(trackDiv);
+
+    // If a stream is active, display it in the video element
+    if (mediaStreams[idx] && track.video) {
+      const videoEl = document.getElementById(`video-element-${idx}`);
+      if (videoEl && videoEl.srcObject !== mediaStreams[idx]) {
+        videoEl.srcObject = mediaStreams[idx];
+      }
+    }
   });
+}
+
+// === CAMERA PERMISSION & VIDEO DISPLAY ===
+async function selectVideoSource(idx) {
+  try {
+    if (mediaStreams[idx]) {
+      // Already streaming, just show it
+      videoTracks[idx].video = true;
+      renderVideoTracks();
+      return;
+    }
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false });
+    mediaStreams[idx] = stream;
+    videoTracks[idx].video = true;
+    renderVideoTracks();
+  } catch (err) {
+    alert('Could not access camera. Please allow camera permissions for video recording.');
+  }
 }
 
 // === PLAY ONLY THIS CHUNK ===
