@@ -5,7 +5,6 @@
   <title>🎲 Dicecut Editor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
-  <!-- wavesurfer.js for waveform rendering -->
   <script src="https://unpkg.com/wavesurfer.js"></script>
 </head>
 <body>
@@ -13,17 +12,20 @@
     <h1>🎲 Dicecut Editor</h1>
     <div class="members-online">👤 Members online: <span id="members-online">48</span></div>
   </header>
-
   <main>
     <section class="audio-section">
       <h2>Master Audio Track</h2>
-      <input type="file" id="audio-upload" accept="audio/*">
+      <div class="transport-controls">
+        <button id="play-btn">▶ Play</button>
+        <button id="rec-btn">⏺ REC</button>
+        <button id="stop-btn">■ Stop</button>
+        <input type="file" id="audio-upload" accept="audio/*" style="margin-left:2em;">
+      </div>
       <div id="audio-timeline-container">
         <div id="waveform"></div>
         <div id="bars-overlay"></div>
       </div>
     </section>
-
     <section class="timeline-section">
       <div id="video-tracks-container">
         <h2>Video Tracks</h2>
