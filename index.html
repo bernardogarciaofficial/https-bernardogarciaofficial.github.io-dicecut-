@@ -5,6 +5,8 @@
   <title>🎲 Dicecut Editor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
+  <!-- wavesurfer.js for real waveform and overlays -->
+  <script src="https://unpkg.com/wavesurfer.js"></script>
 </head>
 <body>
   <header>
@@ -17,8 +19,9 @@
       <h2>Master Audio Track</h2>
       <input type="file" id="audio-upload" accept="audio/*">
       <div id="audio-timeline-container">
-        <canvas id="audio-waveform"></canvas>
-        <div id="bar-segments"></div>
+        <div id="waveform"></div>
+        <!-- Overlay for lock status, bars, etc -->
+        <div id="bars-overlay"></div>
       </div>
     </section>
 
@@ -28,20 +31,13 @@
         <!-- Video tracks will be generated here by JS -->
       </div>
       <div id="final-output-container">
-        <h2>Final Output Video Track</h2>
+        <h2>Main Output Video Track</h2>
         <div class="output-track">
           <video id="output-video" controls></video>
-          <canvas id="output-audio-waveform"></canvas>
         </div>
       </div>
     </section>
-
-    <section class="segments-controls-section">
-      <h2>Timeline Segment Controls</h2>
-      <div id="segments-controls"></div>
-    </section>
   </main>
-
   <script src="script.js"></script>
 </body>
 </html>
