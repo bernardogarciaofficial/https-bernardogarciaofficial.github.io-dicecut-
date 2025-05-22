@@ -120,7 +120,7 @@ function dicecutNext8Bars() {
 document.getElementById('dicecut-all-btn').onclick = dicecutAll;
 document.getElementById('dicecut-8bars-btn').onclick = dicecutNext8Bars;
 
-// === Video Track Monitors (same as before, for continuity) ===
+// === Video Track Monitors (as before) ===
 const VIDEO_TRACKS = 10;
 let cameraStream = null;
 let activeTrackIndex = null;
