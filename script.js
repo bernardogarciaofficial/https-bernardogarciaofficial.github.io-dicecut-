@@ -1,28 +1,15 @@
-// === Configuration ===
-
-// Number of video tracks
+// --- CONFIGURATION ---
 const VIDEO_TRACKS = 10;
+const SEGMENT_BAR_COUNT = 8; // 8 bars per segment
+const TOTAL_SEGMENTS = 9; // for example, covers 72 bars (8*9)
+const SEGMENT_LENGTH_SEC = 16; // you may want to calculate this from BPM for real use
 
-// Segment config: 8-bar chunks, segment duration in seconds, total segments
-const SEGMENT_LENGTH_SEC = 16;
-const SEGMENT_BAR_COUNT = 8;
-const TOTAL_SEGMENTS = 9;
-
-// === DOM Elements ===
-
-const videoTracksContainer = document.getElementById('video-tracks-container');
-const segmentsControlsContainer = document.getElementById('segments-controls');
-const barSegmentsDiv = document.getElementById('bar-segments');
-const audioUpload = document.getElementById('audio-upload');
-const audioWaveform = document.getElementById('audio-waveform');
-const outputAudioWaveform = document.getElementById('output-audio-waveform');
-
-// === State ===
-
+// --- STATE ---
 let segmentLocks = Array(TOTAL_SEGMENTS).fill(false);
+let currentAudioDuration = 0;
 
-// === Render Video Tracks ===
-
+// --- VIDEO TRACKS RENDER ---
+const videoTracksContainer = document.getElementById('video-tracks-container');
 function renderVideoTracks() {
   for (let i = 0; i < VIDEO_TRACKS; i++) {
     const trackDiv = document.createElement('div');
@@ -45,166 +32,99 @@ function renderVideoTracks() {
     videoTracksContainer.appendChild(trackDiv);
   }
 }
-
 renderVideoTracks();
 
-// === Render Segment Controls ===
+// --- WAVESURFER SETUP ---
+let wavesurfer;
+let barsOverlay = document.getElementById('bars-overlay');
+
+function destroyWaveSurfer() {
+  if (wavesurfer) {
+    try { wavesurfer.destroy(); } catch(e){}
+    wavesurfer = null;
+  }
+  barsOverlay.innerHTML = '';
+}
 
 function formatTime(sec) {
   const m = Math.floor(sec / 60);
-  const s = sec % 60;
+  const s = Math.floor(sec % 60);
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-function renderSegmentsControls() {
-  segmentsControlsContainer.innerHTML = '';
+// --- BAR & LOCK OVERLAYS ---
+function renderBarsOverlay(duration) {
+  barsOverlay.innerHTML = '';
+  const container = document.getElementById('waveform');
+  const width = container.offsetWidth || 800;
   for (let i = 0; i < TOTAL_SEGMENTS; i++) {
     const startSec = i * SEGMENT_LENGTH_SEC;
-    const endSec = startSec + SEGMENT_LENGTH_SEC;
-    const label = `${i * SEGMENT_BAR_COUNT + 1}-${(i + 1) * SEGMENT_BAR_COUNT} (${formatTime(startSec)}–${formatTime(endSec)})`;
+    const endSec = Math.min(startSec + SEGMENT_LENGTH_SEC, duration);
 
-    const segmentDiv = document.createElement('div');
-    segmentDiv.className = 'segment-control';
-    if (segmentLocks[i]) segmentDiv.classList.add('locked');
+    const left = (startSec / duration) * 100;
+    const right = (endSec / duration) * 100;
+    const region = document.createElement('div');
+    region.className = 'lock-region';
+    if (segmentLocks[i]) region.classList.add('locked');
+    region.style.left = `${left}%`;
+    region.style.width = `${right - left}%`;
 
-    const segmentLabel = document.createElement('div');
-    segmentLabel.className = 'segment-label';
-    segmentLabel.textContent = label;
+    // Bar label
+    const barLabel = document.createElement('span');
+    barLabel.textContent = `${i * SEGMENT_BAR_COUNT + 1}-${(i + 1) * SEGMENT_BAR_COUNT} (${formatTime(startSec)}–${formatTime(endSec)})`;
+    barLabel.style.position = 'absolute';
+    barLabel.style.left = '8px';
+    barLabel.style.top = '8px';
+    barLabel.style.color = '#b6e356';
+    barLabel.style.fontSize = '0.93em';
+    barLabel.style.pointerEvents = 'none';
+    region.appendChild(barLabel);
 
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'segment-actions';
+    // Lock/Unlock button
+    const lockBtn = document.createElement('button');
+    lockBtn.className = 'lock-btn' + (segmentLocks[i] ? ' locked' : '');
+    lockBtn.innerHTML = segmentLocks[i] ? '🔒 Locked' : '🔓 Lock';
+    lockBtn.onclick = (e) => {
+      e.stopPropagation();
+      segmentLocks[i] = !segmentLocks[i];
+      renderBarsOverlay(duration);
+    };
+    region.appendChild(lockBtn);
 
-    // Play
-    const playBtn = document.createElement('button');
-    playBtn.textContent = '▶ Play';
-    playBtn.onclick = () => alert(`Play segment ${label}`);
-    playBtn.disabled = segmentLocks[i];
-    actionsDiv.appendChild(playBtn);
-
-    // Rec
-    const recBtn = document.createElement('button');
-    recBtn.textContent = '⏺ REC';
-    recBtn.onclick = () => alert(`Record on segment ${label}`);
-    recBtn.disabled = segmentLocks[i];
-    actionsDiv.appendChild(recBtn);
-
-    // Stop
-    const stopBtn = document.createElement('button');
-    stopBtn.textContent = '■ Stop';
-    stopBtn.onclick = () => alert(`Stop segment ${label}`);
-    actionsDiv.appendChild(stopBtn);
-
-    // Lock/Unlock
-    if (!segmentLocks[i]) {
-      const lockBtn = document.createElement('button');
-      lockBtn.textContent = '🔒 Lock';
-      lockBtn.className = 'lock-btn';
-      lockBtn.onclick = () => {
-        segmentLocks[i] = true;
-        renderSegmentsControls();
-        renderBarSegments();
-      };
-      actionsDiv.appendChild(lockBtn);
-    } else {
-      const unlockBtn = document.createElement('button');
-      unlockBtn.textContent = '🔓 Unlock';
-      unlockBtn.className = 'unlock-btn';
-      unlockBtn.onclick = () => {
-        segmentLocks[i] = false;
-        renderSegmentsControls();
-        renderBarSegments();
-      };
-      actionsDiv.appendChild(unlockBtn);
-    }
-
-    segmentDiv.appendChild(segmentLabel);
-    segmentDiv.appendChild(actionsDiv);
-
-    segmentsControlsContainer.appendChild(segmentDiv);
+    barsOverlay.appendChild(region);
   }
 }
 
-renderSegmentsControls();
-
-// === Render Bar Segments Overlay on Audio Timeline ===
-
-function renderBarSegments() {
-  // Clear previous
-  barSegmentsDiv.innerHTML = '';
-  // Calculate width of each segment
-  const container = audioWaveform;
-  if (!container) return;
-  const width = container.offsetWidth || 800;
-  const height = container.offsetHeight || 100;
-  for (let i = 0; i < TOTAL_SEGMENTS; i++) {
-    const segDiv = document.createElement('div');
-    segDiv.style.position = 'absolute';
-    segDiv.style.left = (i * (100 / TOTAL_SEGMENTS)) + '%';
-    segDiv.style.top = '0';
-    segDiv.style.width = (100 / TOTAL_SEGMENTS) + '%';
-    segDiv.style.height = '100%';
-    segDiv.style.borderLeft = i === 0 ? 'none' : '2px solid #b6e356';
-    segDiv.style.boxSizing = 'border-box';
-    segDiv.style.pointerEvents = 'none';
-    segDiv.style.background = segmentLocks[i] ? 'rgba(182,227,86,0.09)' : 'transparent';
-
-    // Label
-    const text = document.createElement('span');
-    text.textContent = `${i * SEGMENT_BAR_COUNT + 1}-${(i + 1) * SEGMENT_BAR_COUNT}`;
-    text.style.position = 'absolute';
-    text.style.top = '6px';
-    text.style.left = '10px';
-    text.style.fontSize = '0.93em';
-    text.style.color = '#b6e356';
-    segDiv.appendChild(text);
-
-    barSegmentsDiv.appendChild(segDiv);
-  }
-}
-
-// Rerender bars when window resizes (to fit timeline width)
-window.addEventListener('resize', renderBarSegments);
-
-// === Audio Waveform Drawing (Basic Placeholder) ===
-
-function drawWaveformPlaceholder(canvas) {
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const width = canvas.offsetWidth || 800;
-  const height = canvas.offsetHeight || 100;
-  canvas.width = width;
-  canvas.height = height;
-  ctx.clearRect(0, 0, width, height);
-
-  // Draw some fake waveform lines for now
-  ctx.strokeStyle = '#b6e356';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  for (let x = 0; x < width; x += 4) {
-    const y = height / 2 + (Math.sin(x / 31) * height / 3) * Math.sin(x / 48);
-    if (x === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-}
-
-drawWaveformPlaceholder(audioWaveform);
-drawWaveformPlaceholder(outputAudioWaveform);
-
-// Re-render waveform and bars after loading
-setTimeout(() => {
-  drawWaveformPlaceholder(audioWaveform);
-  drawWaveformPlaceholder(outputAudioWaveform);
-  renderBarSegments();
-}, 400);
-
-// === Audio Upload (load waveform) ===
-// (Real audio waveform rendering can be integrated with a library like wavesurfer.js)
-
+// --- AUDIO UPLOAD + WAVEFORM ---
+const audioUpload = document.getElementById('audio-upload');
 audioUpload.addEventListener('change', function(event) {
-  // TODO: Implement audio waveform visualization
-  alert('Audio upload selected (real waveform visualization can be added here)');
+  const file = event.target.files[0];
+  if (!file) return;
+  destroyWaveSurfer();
+  wavesurfer = WaveSurfer.create({
+    container: '#waveform',
+    waveColor: '#b6e356',
+    progressColor: '#6c8d3c',
+    cursorColor: '#9acd32',
+    height: 120,
+    barWidth: 2,
+    responsive: true,
+    normalize: true,
+    backend: 'WebAudio'
+  });
+  wavesurfer.load(URL.createObjectURL(file));
+  wavesurfer.on('ready', () => {
+    currentAudioDuration = wavesurfer.getDuration();
+    renderBarsOverlay(currentAudioDuration);
+  });
+  // Redraw overlays on resize
+  window.addEventListener('resize', () => {
+    renderBarsOverlay(currentAudioDuration);
+  });
 });
 
-// === INITIALIZE ===
-renderBarSegments();
+// Initial empty overlay (optional, for placeholder)
+window.addEventListener('DOMContentLoaded', () => {
+  // placeholder for overlay on load
+  renderBarsOverlay(SEGMENT_LENGTH_SEC * TOTAL_SEGMENTS);
+});
