@@ -42,6 +42,7 @@ main {
   gap: 1rem;
   margin-bottom: 0.5rem;
 }
+
 .transport-controls button {
   background: #33334a;
   color: #fff;
@@ -57,6 +58,7 @@ main {
   background: #b6e356;
   color: #232326;
 }
+
 #audio-timeline-container {
   position: relative;
   margin-top: 0.2rem;
@@ -239,6 +241,30 @@ main {
   border-radius: 6px;
   background: #101012;
 }
+
+/* Dicecut controls at the bottom */
+.dicecut-controls-bottom {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: 2.5rem 0 2.5rem 0;
+}
+.dicecut-controls-bottom button {
+  background: #33334a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.7em 2em;
+  font-size: 1.18em;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.18s;
+}
+.dicecut-controls-bottom button:active {
+  background: #b6e356;
+  color: #232326;
+}
+
 @media (max-width: 900px) {
   .video-monitor { width: 98vw; height: 42vw; max-width: 540px; max-height: 300px;}
   .video-track { min-height: 180px; }
