@@ -8,6 +8,8 @@
     --border-radius: 12px;
     --track-highlight: #d1c4e9;
     --recording: #ffb300;
+    --bar-region: rgba(255,205,56,0.14);
+    --bar-region-alt: rgba(84, 19, 136, 0.08);
 }
 
 body {
@@ -90,7 +92,7 @@ input[type="file"] {
     background: #f4effc;
     border-radius: 8px;
     min-height: 72px;
-    max-width: 100%;
+    max-width: 100vw;
     overflow-x: auto;
     box-shadow: 0 2px 7px 0 #ddd;
 }
@@ -98,7 +100,7 @@ input[type="file"] {
 .videos-grid {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2.2rem;
     width: 100%;
 }
 
@@ -108,38 +110,59 @@ input[type="file"] {
     border: 3px solid var(--primary);
     border-radius: var(--border-radius);
     background: var(--track-highlight);
-    padding: 1.1rem 0.7rem;
+    padding: 1.3rem 0.7rem;
     gap: 2.5rem;
     width: 100%;
-    max-width: 100%;
-    min-height: 210px;
+    min-height: 280px;
     box-sizing: border-box;
     transition: background 0.2s, border 0.2s;
     position: relative;
+    flex-wrap: wrap;
 }
 .video-track.recording {
-    border: 3px solid var(--recording);
+    border: 3.5px solid var(--recording);
     background: #fffde7;
-    box-shadow: 0 0 15px 0 var(--recording);
+    box-shadow: 0 0 16px 0 var(--recording);
 }
-.video-track video {
-    width: 94vw;
-    max-width: 980px;
-    height: 200px;
+.video-track video,
+.video-track .thumb-preview {
+    width: 100vw;
+    max-width: 990px;
+    height: 260px;
     background: #222;
     border-radius: var(--border-radius);
     object-fit: contain;
-    border: 2px solid #bbb;
+    border: 2.5px solid #bbb;
+    box-shadow: 0 1px 9px 0 #ccc;
+    display: block;
+    margin: 0 auto;
+}
+.video-track .thumb-preview {
+    object-fit: cover;
+    filter: brightness(1.08) contrast(1.06);
+    opacity: 0.87;
+    position: absolute;
+    left: 50%;
+    top: 15px;
+    transform: translateX(-50%);
+    z-index: 1;
+}
+.video-track .thumb-preview.hidden {
+    display: none !important;
 }
 .video-track .record-btn {
     background: var(--accent);
     color: var(--primary);
     border: none;
     border-radius: var(--border-radius);
-    padding: 1em 1.8em;
+    padding: 1em 2.5em;
     cursor: pointer;
-    font-size: 1.15rem;
+    font-size: 1.23rem;
     transition: background 0.15s;
+    margin-top: 1.2em;
+    margin-bottom: 0.5em;
+    position: relative;
+    z-index: 2;
 }
 .video-track .record-btn.recording {
     background: var(--secondary);
@@ -157,11 +180,14 @@ input[type="file"] {
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    width: 2.7em;
-    height: 2.7em;
+    width: 2.5em;
+    height: 2.5em;
     font-size: 2em;
-    margin-left: .7em;
+    margin-left: 1.2em;
+    margin-top: 1em;
     transition: background 0.15s;
+    z-index: 2;
+    position: relative;
 }
 .video-track .delete-btn:hover {
     background: var(--secondary);
@@ -169,15 +195,34 @@ input[type="file"] {
 }
 .video-track .track-label {
     position: absolute;
-    left: 8px;
-    top: 8px;
-    font-size: 1.25em;
+    left: 10px;
+    top: 12px;
+    font-size: 1.45em;
     color: var(--primary);
     font-weight: bold;
     background: #fffde7;
     border-radius: 5px;
-    padding: 0.2em 0.5em;
-    opacity: 0.8;
+    padding: 0.22em 0.7em;
+    letter-spacing: 0.03em;
+    opacity: 0.83;
+    z-index: 2;
+}
+.video-track .recording-indicator {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    font-size: 1.3em;
+    color: var(--secondary);
+    font-weight: bold;
+    background: #fff;
+    border-radius: 8px;
+    padding: 0.17em 1.2em;
+    box-shadow: 0 1px 5px 0 #ffb3003a;
+    z-index: 2;
+    display: none;
+}
+.video-track.recording .recording-indicator {
+    display: block;
 }
 
 .dice-controls {
@@ -223,28 +268,30 @@ footer {
 /* Responsive */
 @media (max-width: 1100px) {
     main {
-        max-width: 98vw;
+        max-width: 99vw;
         padding: 0.2em;
         border-radius: 0;
     }
-    .video-track video {
-        width: 98vw;
-        height: 24vw;
-        max-width: 98vw;
+    .video-track video,
+    .video-track .thumb-preview {
+        width: 99vw;
+        height: 33vw;
+        max-width: 99vw;
         min-height: 170px;
     }
     #output-video {
-        width: 98vw;
+        width: 99vw;
         min-height: 170px;
         max-width: 99vw;
     }
 }
 @media (max-width: 600px) {
-    .video-track video {
-        min-height: 120px;
-        height: 24vw;
+    .video-track video,
+    .video-track .thumb-preview {
+        min-height: 110px;
+        height: 30vw;
     }
     #output-video {
-        min-height: 120px;
+        min-height: 110px;
     }
 }
