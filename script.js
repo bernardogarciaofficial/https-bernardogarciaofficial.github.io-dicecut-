@@ -1,11 +1,12 @@
-// Globals
+// DiceCut Enhanced MVP - Visual polish, thumbnails, 8-bar regions, working multi-track video recording, delete/re-record, clear recording state
+
 let wavesurfer = null;
 let audioUrl = '';
 let audioBuffer = null;
 let duration = 0;
 let barCount = 0;
 let barRegions = [];
-let bpm = 120; // Default, can be user input for more accuracy
+let bpm = 120; // Default
 let barsPerChunk = 8;
 let isRecPlayMode = false;
 let currentRecordingTrack = null;
@@ -27,20 +28,20 @@ const exportBtn = document.getElementById('export-btn');
 const exportFormat = document.getElementById('export-format');
 const exportResolution = document.getElementById('export-resolution');
 
-// --- AUDIO & WAVEFORM LOADING ---
+// AUDIO & WAVEFORM LOADING
 audioInput.addEventListener('change', async function () {
     if (!audioInput.files[0]) return;
     const file = audioInput.files[0];
     audioUrl = URL.createObjectURL(file);
 
-    // Load into AudioContext for precise timing if needed
+    // Load into AudioContext for timing
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const arrayBuffer = await file.arrayBuffer();
     audioBuffer = await ctx.decodeAudioData(arrayBuffer);
     duration = audioBuffer.duration;
 
-    // Guess bar count (user can edit BPM support later)
-    barCount = Math.round((duration / 60) * bpm / 4); // 4 beats per bar
+    // Guess bar count
+    barCount = Math.round((duration / 60) * bpm / 4); // 4 beats/bar
     barsPerChunk = 8;
 
     // WaveSurfer setup
@@ -58,14 +59,14 @@ audioInput.addEventListener('change', async function () {
     });
     wavesurfer.load(audioUrl);
 
-    // When ready, add 8-bar regions
+    // Add 8-bar regions
     wavesurfer.on('ready', () => {
         drawBarRegions();
         enableWaveformControls();
     });
 });
 
-// --- WAVEFORM CONTROLS ---
+// WAVEFORM CONTROLS
 function enableWaveformControls() {
     playBtn.disabled = false;
     pauseBtn.disabled = false;
@@ -81,7 +82,7 @@ recPlayBtn.onclick = () => {
     wavesurfer.play();
 };
 
-// --- BAR CHUNK REGIONS ---
+// BAR CHUNK REGIONS
 function drawBarRegions() {
     // Remove old
     wavesurfer.clearRegions();
@@ -94,7 +95,7 @@ function drawBarRegions() {
         let region = wavesurfer.addRegion({
             start: start,
             end: end,
-            color: (i % 2 === 0) ? 'rgba(255,205,56,0.08)' : 'rgba(255,107,107,0.09)',
+            color: (i % 2 === 0) ? 'var(--bar-region)' : 'var(--bar-region-alt)',
             drag: false,
             resize: false
         });
@@ -102,7 +103,7 @@ function drawBarRegions() {
     }
 }
 
-// --- VIDEO TRACKS UI ---
+// VIDEO TRACKS UI
 function createVideoTracks() {
     videosGrid.innerHTML = '';
     for (let i = 0; i < 10; i++) {
@@ -116,7 +117,23 @@ function createVideoTracks() {
         label.textContent = `Take ${i + 1}`;
         trackDiv.appendChild(label);
 
-        // Video element
+        // Recording indicator
+        const recInd = document.createElement('span');
+        recInd.className = 'recording-indicator';
+        recInd.textContent = '● Recording...';
+        trackDiv.appendChild(recInd);
+
+        // Thumbnail preview
+        const thumb = document.createElement('img');
+        thumb.className = 'thumb-preview hidden';
+        thumb.alt = 'Preview';
+        if (videoBlobs[i]) {
+            thumb.src = URL.createObjectURL(videoBlobs[i]);
+            thumb.classList.remove('hidden');
+        }
+        trackDiv.appendChild(thumb);
+
+        // Video element (hidden until has blob)
         const videoEl = document.createElement('video');
         videoEl.setAttribute('playsinline', true);
         videoEl.setAttribute('controls', true);
@@ -129,7 +146,8 @@ function createVideoTracks() {
         const recBtn = document.createElement('button');
         recBtn.className = 'record-btn';
         recBtn.textContent = videoBlobs[i] ? 'Re-record' : 'Record';
-        recBtn.onclick = () => handleRecord(i, recBtn, videoEl, trackDiv);
+        recBtn.onclick = () => handleRecord(i, recBtn, videoEl, thumb, trackDiv, recInd);
+        if (isRecording[i]) recBtn.classList.add('recording');
         trackDiv.appendChild(recBtn);
 
         // Delete button
@@ -137,17 +155,20 @@ function createVideoTracks() {
         delBtn.className = 'delete-btn';
         delBtn.innerHTML = '🗑️';
         delBtn.title = 'Delete this take';
-        delBtn.onclick = () => deleteTake(i, videoEl, recBtn, trackDiv);
+        delBtn.onclick = () => deleteTake(i, videoEl, recBtn, thumb, trackDiv);
         delBtn.style.display = videoBlobs[i] ? '' : 'none';
         trackDiv.appendChild(delBtn);
+
+        // Set .recording class if this track is recording
+        if (isRecording[i]) trackDiv.classList.add('recording');
 
         videosGrid.appendChild(trackDiv);
     }
 }
 createVideoTracks();
 
-// --- VIDEO RECORDING HANDLER ---
-async function handleRecord(trackIdx, btn, videoEl, trackDiv) {
+// VIDEO RECORDING HANDLER
+async function handleRecord(trackIdx, btn, videoEl, thumb, trackDiv, recInd) {
     // Prevent double recording
     if (isRecording[trackIdx]) return;
 
@@ -162,10 +183,16 @@ async function handleRecord(trackIdx, btn, videoEl, trackDiv) {
 
     // Highlight UI
     btn.textContent = 'Recording...';
+    btn.classList.add('recording');
     btn.disabled = true;
     trackDiv.classList.add('recording');
+    recInd.style.display = 'block';
     isRecording[trackIdx] = true;
     currentRecordingTrack = trackIdx;
+
+    // Hide video/thumbnail during recording
+    videoEl.style.display = 'none';
+    thumb.classList.add('hidden');
 
     // Play audio in "record mode"
     let audioPlay;
@@ -184,12 +211,17 @@ async function handleRecord(trackIdx, btn, videoEl, trackDiv) {
         videoBlobs[trackIdx] = blob;
         videoEl.src = URL.createObjectURL(blob);
         videoEl.style.display = '';
+        // Thumbnail
+        thumb.src = URL.createObjectURL(blob);
+        thumb.classList.remove('hidden');
         btn.textContent = 'Re-record';
         btn.disabled = false;
+        btn.classList.remove('recording');
         isRecording[trackIdx] = false;
         currentRecordingTrack = null;
         stream.getTracks().forEach(track => track.stop());
         trackDiv.classList.remove('recording');
+        recInd.style.display = 'none';
         trackDiv.querySelector('.delete-btn').style.display = '';
         if (audioPlay) audioPlay.pause();
     };
@@ -202,16 +234,20 @@ async function handleRecord(trackIdx, btn, videoEl, trackDiv) {
     }, recDuration);
 }
 
-// --- DELETE TAKE ---
-function deleteTake(idx, videoEl, recBtn, trackDiv) {
+// DELETE TAKE
+function deleteTake(idx, videoEl, recBtn, thumb, trackDiv) {
     videoBlobs[idx] = null;
     videoEl.src = '';
     videoEl.style.display = 'none';
     recBtn.textContent = 'Record';
+    thumb.src = '';
+    thumb.classList.add('hidden');
     trackDiv.querySelector('.delete-btn').style.display = 'none';
+    trackDiv.classList.remove('recording');
+    isRecording[idx] = false;
 }
 
-// --- DICE EDIT (SIMULATED FOR NOW) ---
+// DICE EDIT (SIMULATED FOR NOW)
 function diceEdit(fullSong = true) {
     if (!videoBlobs.some(Boolean)) {
         alert('Record at least one video take.');
@@ -231,7 +267,7 @@ function diceEdit(fullSong = true) {
 fullDiceBtn.onclick = () => diceEdit(true);
 barDiceBtn.onclick = () => diceEdit(false);
 
-// --- EXPORT ---
+// EXPORT
 exportBtn.onclick = () => {
     if (!outputVideo.src) {
         alert('Nothing to export!');
@@ -243,5 +279,5 @@ exportBtn.onclick = () => {
     a.click();
 };
 
-// --- Re-create video tracks on resize for better layout ---
+// Responsive: re-create video tracks on resize for optimal size
 window.addEventListener('resize', createVideoTracks);
