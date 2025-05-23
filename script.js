@@ -1,118 +1,162 @@
-// === Timeline & Waveform Logic ===
-const SEGMENT_BAR_COUNT = 8;
-const TOTAL_SEGMENTS = 9;
-const SEGMENT_LENGTH_SEC = 16;
+// DiceCut MVP Script
+// Core logic: Audio upload, waveform, video recording, dice edit simulation, preview, export
 
-let segmentLocks = Array(TOTAL_SEGMENTS).fill(false);
-let currentAudioDuration = SEGMENT_LENGTH_SEC * TOTAL_SEGMENTS;
-let wavesurfer;
-let barsOverlay = document.getElementById('bars-overlay');
+// Globals
+let audioBuffer = null;
+let audioUrl = '';
+let videoStreams = Array(10).fill(null);
+let videoBlobs = Array(10).fill(null);
+let mediaRecorders = Array(10).fill(null);
+let isRecording = Array(10).fill(false);
+let audioContext = null;
 
-function destroyWaveSurfer() {
-  if (wavesurfer) {
-    try { wavesurfer.destroy(); } catch(e){}
-    wavesurfer = null;
-  }
-  barsOverlay.innerHTML = '';
+// DOM Elements
+const audioInput = document.getElementById('audio-upload');
+const waveformDiv = document.getElementById('waveform');
+const videosGrid = document.getElementById('videos-grid');
+const fullDiceBtn = document.getElementById('full-dice-btn');
+const barDiceBtn = document.getElementById('bar-dice-btn');
+const outputVideo = document.getElementById('output-video');
+const exportBtn = document.getElementById('export-btn');
+
+// Utils
+function createWaveform(file) {
+    // Simple waveform placeholder: show filename for now
+    waveformDiv.innerHTML = `<div class="waveform-placeholder">Waveform: ${file.name}</div>`;
 }
 
-function formatTime(sec) {
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60);
-  return `${m}:${s.toString().padStart(2, '0')}`;
-}
+// Audio Upload Handler
+audioInput.addEventListener('change', async function () {
+    if (!audioInput.files[0]) return;
+    const file = audioInput.files[0];
+    audioUrl = URL.createObjectURL(file);
+    createWaveform(file);
 
-// Render 8-bar overlays and lock buttons inside waveform
-function renderBarsOverlay(duration) {
-  barsOverlay.innerHTML = '';
-  for (let i = 0; i < TOTAL_SEGMENTS; i++) {
-    const startSec = i * SEGMENT_LENGTH_SEC;
-    const endSec = Math.min(startSec + SEGMENT_LENGTH_SEC, duration);
-    const left = (startSec / duration) * 100;
-    const right = (endSec / duration) * 100;
-    const region = document.createElement('div');
-    region.className = 'lock-segment';
-    if (segmentLocks[i]) region.classList.add('locked');
-    region.style.left = `${left}%`;
-    region.style.width = `${right - left}%`;
-    region.style.height = "100%";
-    region.style.pointerEvents = "auto";
-    // Bar label
-    const barLabel = document.createElement('span');
-    barLabel.textContent = `${i * SEGMENT_BAR_COUNT + 1}-${(i + 1) * SEGMENT_BAR_COUNT} (${formatTime(startSec)}–${formatTime(endSec)})`;
-    barLabel.className = 'segment-label';
-    region.appendChild(barLabel);
-    // Lock/Unlock button
-    const lockBtn = document.createElement('button');
-    lockBtn.className = 'lock-btn' + (segmentLocks[i] ? ' locked' : '');
-    lockBtn.innerHTML = segmentLocks[i] ? '🔒 Locked' : '🔓 Lock';
-    lockBtn.onclick = (e) => {
-      e.stopPropagation();
-      segmentLocks[i] = !segmentLocks[i];
-      renderBarsOverlay(duration);
+    // Load into AudioContext for precise timing, waveform, etc.
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const arrayBuffer = await file.arrayBuffer();
+    audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+});
+
+// Generate 10 Video Tracks UI
+function createVideoTracks() {
+    for (let i = 0; i < 10; i++) {
+        const trackDiv = document.createElement('div');
+        trackDiv.className = 'video-track';
+        trackDiv.dataset.track = i;
+
+        const videoEl = document.createElement('video');
+        videoEl.setAttribute('playsinline', true);
+        videoEl.setAttribute('controls', true);
+        videoEl.id = `video-take-${i}`;
+        trackDiv.appendChild(videoEl);
+
+        const recBtn = document.createElement('button');
+        recBtn.className = 'record-btn';
+        recBtn.textContent = 'Record';
+        recBtn.onclick = () => handleRecord(i, recBtn, videoEl);
+        trackDiv.appendChild(recBtn);
+
+        videosGrid.appendChild(trackDiv);
+    }
+}
+createVideoTracks();
+
+// Video Recording Handler
+async function handleRecord(trackIdx, btn, videoEl) {
+    if (isRecording[trackIdx]) {
+        // Stop recording
+        mediaRecorders[trackIdx]?.stop();
+        btn.textContent = 'Record';
+        btn.classList.remove('recording');
+        isRecording[trackIdx] = false;
+        return;
+    }
+
+    // Request camera access
+    let stream = null;
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        videoStreams[trackIdx] = stream;
+    } catch (e) {
+        alert('Camera access denied!');
+        return;
+    }
+
+    // Countdown, then start
+    btn.textContent = '3';
+    await new Promise(res => setTimeout(res, 400));
+    btn.textContent = '2';
+    await new Promise(res => setTimeout(res, 400));
+    btn.textContent = '1';
+    await new Promise(res => setTimeout(res, 400));
+    btn.textContent = 'Recording...';
+    btn.classList.add('recording');
+    isRecording[trackIdx] = true;
+
+    // Play audio if available
+    let audio;
+    if (audioUrl) {
+        audio = new Audio(audioUrl);
+        audio.play();
+    }
+
+    // Start recording
+    let chunks = [];
+    const recorder = new MediaRecorder(stream);
+    mediaRecorders[trackIdx] = recorder;
+    recorder.ondataavailable = (e) => chunks.push(e.data);
+    recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        videoBlobs[trackIdx] = blob;
+        videoEl.src = URL.createObjectURL(blob);
+        stream.getTracks().forEach(track => track.stop());
+        btn.textContent = 'Record';
+        btn.classList.remove('recording');
+        isRecording[trackIdx] = false;
+        if (audio) audio.pause();
     };
-    region.appendChild(lockBtn);
-    barsOverlay.appendChild(region);
-  }
+    recorder.start();
+
+    // Stop after audio ends or 30s max
+    let duration = audioBuffer ? audioBuffer.duration * 1000 : 30000;
+    setTimeout(() => {
+        if (isRecording[trackIdx]) recorder.stop();
+    }, duration);
 }
 
-// --- Audio upload and waveform ---
-const audioUpload = document.getElementById('audio-upload');
-audioUpload.addEventListener('change', function(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  destroyWaveSurfer();
-  wavesurfer = WaveSurfer.create({
-    container: '#waveform',
-    waveColor: '#b6e356',
-    progressColor: '#6c8d3c',
-    cursorColor: '#9acd32',
-    height: 120,
-    barWidth: 2,
-    responsive: true,
-    normalize: true,
-    backend: 'WebAudio'
-  });
-  wavesurfer.load(URL.createObjectURL(file));
-  wavesurfer.on('ready', () => {
-    currentAudioDuration = wavesurfer.getDuration();
-    renderBarsOverlay(currentAudioDuration);
-  });
-  window.addEventListener('resize', () => {
-    renderBarsOverlay(currentAudioDuration);
-  });
+// Dice Edit: Simulate Random Cuts
+function diceEdit(fullSong = true) {
+    // For MVP: randomly select video takes in sequence, join segments for a "dice" edit
+    if (!videoBlobs.some(Boolean)) {
+        alert('Record at least one video take.');
+        return;
+    }
+    let segmentCount = fullSong ? 30 : 4; // Full = 30 segments, else 4 (8-bar)
+    let selectedTakes = [];
+    for (let i = 0; i < segmentCount; i++) {
+        // Pick a random video take that exists
+        const available = videoBlobs.map((b, idx) => b ? idx : null).filter(i => i !== null);
+        selectedTakes.push(available[Math.floor(Math.random() * available.length)]);
+    }
+    // Simulate "edit": just play the first available take for now
+    const first = videoBlobs[selectedTakes[0]];
+    if (first) outputVideo.src = URL.createObjectURL(first);
+    outputVideo.load();
+}
+
+// Event Listeners for Dice Buttons
+fullDiceBtn.addEventListener('click', () => diceEdit(true));
+barDiceBtn.addEventListener('click', () => diceEdit(false));
+
+// Export Handler
+exportBtn.addEventListener('click', () => {
+    if (!outputVideo.src) {
+        alert('Nothing to export!');
+        return;
+    }
+    const a = document.createElement('a');
+    a.href = outputVideo.src;
+    a.download = 'dicecut-music-video.webm';
+    a.click();
 });
-window.addEventListener('DOMContentLoaded', () => {
-  renderBarsOverlay(currentAudioDuration);
-});
-
-// --- Transport Controls ---
-let isPlaying = false;
-const playBtn = document.getElementById('play-btn');
-const stopBtn = document.getElementById('stop-btn');
-playBtn.onclick = () => {
-  if (wavesurfer) wavesurfer.play();
-  isPlaying = true;
-};
-stopBtn.onclick = () => {
-  if (wavesurfer) wavesurfer.stop();
-  isPlaying = false;
-};
-
-// --- Dicecut Logic (stub) ---
-function dicecutAll() {
-  alert('🎲 Dicecut All: Randomly edit the entire video (all unlocked segments).');
-}
-function dicecutNext8Bars() {
-  const index = segmentLocks.findIndex(l => !l);
-  if (index === -1) {
-    alert("All segments are locked!");
-    return;
-  }
-  alert(`🎲 Dicecut: Randomly edit bars ${index * SEGMENT_BAR_COUNT + 1}-${(index + 1) * SEGMENT_BAR_COUNT}`);
-}
-document.getElementById('dicecut-all-btn').onclick = dicecutAll;
-document.getElementById('dicecut-8bars-btn').onclick = dicecutNext8Bars;
-
-// === Video Track Monitors Logic (if you need it) ===
-// -- Existing video track monitor/recording code would go here --
