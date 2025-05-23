@@ -1,135 +1,180 @@
-// DiceCut Demo Script
+// DiceCut UI starter logic
 
-// --- Simulated State ---
-let audioUploaded = false;
-let videoTakes = Array(10).fill(false); // Tracks which takes are 'recorded'
-let currentTake = null;
-let editedSegments = [];
-let outputVideoReady = false;
+// Profile Dropdown
+document.querySelector('.avatar').addEventListener('click', function() {
+  document.querySelector('.profile-dropdown ul').classList.toggle('show');
+});
 
-// --- DOM Elements ---
-const uploadInput = document.createElement("input");
-uploadInput.type = "file";
-uploadInput.accept = "audio/*";
+// Simulate Waveform
+const waveform = document.getElementById('waveform');
+document.getElementById('audio-upload').addEventListener('change', function(e) {
+  waveform.innerHTML = '<span>🎵 Audio Loaded! (Simulated waveform display)</span>';
+});
 
-const diceResult = document.getElementById("dice-result");
-const signupBtn = document.getElementById('signup-btn');
+// Bar Navigation
+const barElems = document.querySelectorAll('.bar');
+barElems.forEach(bar => {
+  bar.addEventListener('click', function() {
+    barElems.forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    // Simulate jumping to bar in audio
+    waveform.innerHTML = `<span>Jumped to Bar ${this.dataset.bar}</span>`;
+  });
+});
 
-// Simulate Audio Upload
-function handleAudioUpload() {
-  uploadInput.click();
-  uploadInput.onchange = (e) => {
-    if (uploadInput.files.length > 0) {
-      audioUploaded = true;
-      alert("Audio uploaded! Waveform and bar lines generated.");
+// Main Preview Video
+const mainPreview = document.getElementById('main-preview');
+
+// Takes Panel - Recording Simulation
+const recordButtons = document.querySelectorAll('.record-btn');
+const countdownModal = document.getElementById('countdown-modal');
+const countdownNumber = document.getElementById('countdown-number');
+recordButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Simulate camera permission
+    if (confirm('Allow camera access for DiceCut to record your take?')) {
+      // Show countdown modal
+      countdownModal.style.display = 'flex';
+      let count = 3;
+      countdownNumber.textContent = count;
+      btn.disabled = true;
+      btn.classList.add('active');
+      const interval = setInterval(() => {
+        count--;
+        countdownNumber.textContent = count > 0 ? count : '🎬';
+        if (count === 0) {
+          clearInterval(interval);
+          setTimeout(() => {
+            countdownModal.style.display = 'none';
+            // Simulate recording: 3 seconds
+            btn.textContent = 'Recording...';
+            setTimeout(() => {
+              btn.textContent = 'Recorded!';
+              btn.style.background = '#7d5fff';
+              btn.disabled = false;
+              btn.classList.remove('active');
+            }, 3000);
+          }, 700);
+        }
+      }, 1000);
     }
-  };
+  });
+});
+
+// Editing Modes
+const fullSongBtn = document.getElementById('full-song-btn');
+const barEditBtn = document.getElementById('bar-edit-btn');
+const fullSongDice = document.getElementById('full-song-dice');
+const barEditControls = document.getElementById('bar-edit-controls');
+const barEditLabel = document.getElementById('bar-edit-label');
+let currentBarSegment = 1;
+
+fullSongBtn.addEventListener('click', () => {
+  fullSongBtn.classList.add('active');
+  barEditBtn.classList.remove('active');
+  fullSongDice.style.display = 'flex';
+  barEditControls.style.display = 'none';
+});
+
+barEditBtn.addEventListener('click', () => {
+  barEditBtn.classList.add('active');
+  fullSongBtn.classList.remove('active');
+  fullSongDice.style.display = 'none';
+  barEditControls.style.display = 'flex';
+  updateBarEditLabel();
+});
+
+function updateBarEditLabel() {
+  barEditLabel.textContent = `Bars ${1 + 8 * (currentBarSegment - 1)}-${8 * currentBarSegment}`;
 }
 
-// Simulate Recording Video Takes
-function recordTake(index) {
-  if (!audioUploaded) {
-    alert("Please upload your song first!");
-    return;
-  }
-  if (videoTakes[index]) {
-    alert(`Take ${index + 1} already recorded.`);
-    return;
-  }
-  currentTake = index;
-  alert(`Recording Take ${index + 1}...\n(Countdown 3-2-1, music plays in sync)`);
+// Dice Editing (Simulation)
+fullSongDice.querySelectorAll('.dice-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    mainPreview.poster = '';
+    mainPreview.innerHTML = '';
+    mainPreview.style.background = '#7d5fff';
+    setTimeout(() => {
+      mainPreview.style.background = '#1d1c24';
+      alert('🎲 Random edit generated for FULL SONG! (Simulated)');
+    }, 1200);
+  });
+});
+document.getElementById('bar-dice-btn').addEventListener('click', () => {
+  mainPreview.style.background = '#f23b5b';
   setTimeout(() => {
-    videoTakes[index] = true;
-    alert(`Take ${index + 1} recorded and synced!`);
-    currentTake = null;
-  }, 1500);
-}
+    mainPreview.style.background = '#1d1c24';
+    alert(`🎲 Random edit for Bars ${1 + 8 * (currentBarSegment - 1)}-${8 * currentBarSegment} (Simulated)`);
+  }, 900);
+});
+document.getElementById('lock-bar-btn').addEventListener('click', () => {
+  alert(`🔒 Locked Bars ${1 + 8 * (currentBarSegment - 1)}-${8 * currentBarSegment}`);
+});
 
-// Simulate Dice Edit
-function rollDiceEdit(full = true) {
-  if (!videoTakes.every(Boolean)) {
-    diceResult.textContent = "Please record all 10 video takes first!";
-    return;
+// Bar Navigation for 8-Bar Edit
+document.getElementById('prev-bar-btn').addEventListener('click', () => {
+  if (currentBarSegment > 1) {
+    currentBarSegment--;
+    updateBarEditLabel();
   }
-  if (full) {
-    diceResult.textContent = "🎲 Full Song Edit: " + rollEditResult();
-    outputVideoReady = true;
-  } else {
-    const segment = "8-Bar Segment " + (editedSegments.length + 1);
-    const result = rollEditResult();
-    diceResult.textContent = `🎲 ${segment}: ${result}`;
-    editedSegments.push(result);
-    if (editedSegments.length >= 5) { // Assume 5 segments for demo
-      outputVideoReady = true;
-      diceResult.textContent += "\nAll segments edited! Video ready to preview.";
+});
+document.getElementById('next-bar-btn').addEventListener('click', () => {
+  currentBarSegment++;
+  updateBarEditLabel();
+});
+
+// Effects & Filters (Simulation)
+document.querySelectorAll('.effects-panel input[type="checkbox"]').forEach(chk => {
+  chk.addEventListener('change', () => {
+    alert(`Effect "${chk.id}" ${chk.checked ? 'enabled' : 'disabled'} (Simulated)`);
+  });
+});
+
+// Playback Controls (Simulated)
+document.getElementById('play-btn').addEventListener('click', () => {
+  waveform.innerHTML = '<span>▶️ Playing...</span>';
+});
+document.getElementById('pause-btn').addEventListener('click', () => {
+  waveform.innerHTML = '<span>⏸️ Paused</span>';
+});
+document.getElementById('rewind-btn').addEventListener('click', () => {
+  waveform.innerHTML = '<span>⏪ Rewinded</span>';
+});
+document.getElementById('ff-btn').addEventListener('click', () => {
+  waveform.innerHTML = '<span>⏩ Fast-Forwarded</span>';
+});
+document.getElementById('loop-btn').addEventListener('click', () => {
+  alert('🔁 Loop enabled (Simulated)');
+});
+
+// Export Controls (Simulated)
+document.getElementById('preview-btn').addEventListener('click', () => {
+  mainPreview.play();
+});
+document.getElementById('export-btn').addEventListener('click', () => {
+  const indicator = document.getElementById('progress-indicator');
+  const progress = document.getElementById('render-progress');
+  indicator.style.display = 'flex';
+  progress.value = 0;
+  let val = 0;
+  const interval = setInterval(() => {
+    val += 7 + Math.random() * 10;
+    if (val >= 100) {
+      progress.value = 100;
+      clearInterval(interval);
+      setTimeout(() => {
+        indicator.style.display = 'none';
+        alert('✅ Export complete! (Simulated)');
+      }, 700);
+    } else {
+      progress.value = val;
     }
+  }, 220);
+});
+
+// Hide dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.navbar-right')) {
+    document.querySelector('.profile-dropdown ul').classList.remove('show');
   }
-}
-
-// Simulate Edit Results
-function rollEditResult() {
-  const edits = [
-    "Seamless cuts with energetic transitions!",
-    "Cinematic dissolves and dynamic angles.",
-    "Flashy effects and smooth scene changes.",
-    "Quick cuts for a high-energy vibe.",
-    "Moody transitions and stylish overlays.",
-    "Classic edits with natural flow.",
-    "Pop-art effects and rhythmic edits.",
-    "Super smooth, minimalistic cuts.",
-    "Randomized for maximum creativity!",
-    "Vintage filters and dramatic transitions."
-  ];
-  return edits[Math.floor(Math.random() * edits.length)];
-}
-
-// Simulate Preview and Export
-function previewAndExport() {
-  if (!outputVideoReady) {
-    alert("Please finish editing your video first!");
-    return;
-  }
-  alert("Previewing your completed video!\nClick 'Export' to download your music video.");
-  setTimeout(() => {
-    alert("Video exported! Ready to share with the world.");
-  }, 1000);
-}
-
-// Hook up Dice Buttons
-document.getElementById('dice-full').addEventListener('click', () => rollDiceEdit(true));
-document.getElementById('dice-step').addEventListener('click', () => rollDiceEdit(false));
-
-// Simulate Take Recording Buttons (demo, not rendered in original HTML)
-const howItWorksSection = document.querySelector('.how-it-works');
-if (howItWorksSection) {
-  const takesDiv = document.createElement('div');
-  takesDiv.style.margin = "1em 0";
-  takesDiv.innerHTML = "<strong>Record Takes:</strong> ";
-  for (let i = 0; i < 10; i++) {
-    const btn = document.createElement('button');
-    btn.textContent = `Take ${i + 1}`;
-    btn.style.marginRight = "0.2em";
-    btn.addEventListener('click', () => recordTake(i));
-    takesDiv.appendChild(btn);
-  }
-  howItWorksSection.appendChild(takesDiv);
-
-  // Simulate audio upload button
-  const audioBtn = document.createElement('button');
-  audioBtn.textContent = "Upload Song";
-  audioBtn.style.margin = "0.6em 0.5em";
-  audioBtn.addEventListener('click', handleAudioUpload);
-  howItWorksSection.insertBefore(audioBtn, howItWorksSection.firstChild);
-
-  // Simulate preview/export button
-  const previewBtn = document.createElement('button');
-  previewBtn.textContent = "Preview & Export";
-  previewBtn.style.marginLeft = "1em";
-  previewBtn.addEventListener('click', previewAndExport);
-  howItWorksSection.appendChild(previewBtn);
-}
-
-// Signup
-signupBtn.addEventListener('click', function() {
-  alert("Sign up coming soon! Stay tuned for DiceCut's launch.");
 });
