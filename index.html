@@ -2,65 +2,189 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DiceCut – The Easiest Music Video Editing Platform</title>
+  <title>🎛️ DiceCut: Music Video Editing Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>DiceCut</h1>
-    <p>The Easiest Music Video Editing Platform for Musicians Worldwide</p>
-  </header>
-  <main>
-    <section class="intro">
-      <h2>Why DiceCut?</h2>
-      <p>Create professional music videos without the hassle or high cost. No tech skills required!</p>
-    </section>
-    <section class="how-it-works">
-      <h2>How Does DiceCut Work?</h2>
-      <ol>
-        <li>
-          <strong>Upload Your Song:</strong>
-          <span>See your waveform and bar lines for easy navigation.</span>
-        </li>
-        <li>
-          <strong>Record 10 Video Takes:</strong>
-          <span>Capture different angles & scenes. All takes are synced automatically.</span>
-        </li>
-        <li>
-          <strong>Random Dice Editing:</strong>
-          <span>
-            <ul>
-              <li>Full Song Dice Edit: <button id="dice-full">🎲 Full Song</button></li>
-              <li>8-Bar Step-by-Step Edit: <button id="dice-step">🎲 8-Bar Segment</button></li>
-            </ul>
-          </span>
-          <div id="dice-result"></div>
-        </li>
-        <li>
-          <strong>Preview and Export:</strong>
-          <span>Watch your video and download when ready.</span>
-        </li>
-      </ol>
-    </section>
-    <section class="features">
-      <h2>Why Choose DiceCut?</h2>
-      <ul>
-        <li>No complicated timelines or editing jargon</li>
-        <li>Perfect synchronization guaranteed</li>
-        <li>Fast, creative, and fun random editing options</li>
-        <li>Professional effects and transitions built-in</li>
-        <li>Designed for musicians, by musicians</li>
-      </ul>
-    </section>
-    <section class="cta">
-      <h2>Ready to bring your music to life?</h2>
-      <button id="signup-btn">Sign Up Now</button>
-    </section>
-  </main>
-  <footer>
-    <p>© 2025 Bernardo Garcia — Founder, DiceCut</p>
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <div class="navbar-left">
+      <img src="logo.png" alt="DiceCut Logo" class="logo">
+      <span class="brand">DiceCut</span>
+    </div>
+    <ul class="navbar-menu">
+      <li>Dashboard</li>
+      <li>My Projects</li>
+      <li>Tutorials</li>
+      <li>Settings</li>
+      <li>Help</li>
+    </ul>
+    <div class="navbar-right">
+      <img src="avatar.png" alt="User Avatar" class="avatar">
+      <div class="profile-dropdown">
+        <span>▼</span>
+        <ul>
+          <li>Account Settings</li>
+          <li>Log Out</li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Workspace -->
+  <div class="workspace">
+    <!-- Video Takes Panel -->
+    <aside class="takes-panel">
+      <h2>Video Takes</h2>
+      <div class="takes-list">
+        <!-- 10 Take Slots -->
+        <div class="take-slot" data-take="1">
+          <span>🎥 Take 1</span>
+          <button class="record-btn" data-take="1">Record</button>
+        </div>
+        <div class="take-slot" data-take="2">
+          <span>🎥 Take 2</span>
+          <button class="record-btn" data-take="2">Record</button>
+        </div>
+        <div class="take-slot" data-take="3">
+          <span>🎥 Take 3</span>
+          <button class="record-btn" data-take="3">Record</button>
+        </div>
+        <div class="take-slot" data-take="4">
+          <span>🎥 Take 4</span>
+          <button class="record-btn" data-take="4">Record</button>
+        </div>
+        <div class="take-slot" data-take="5">
+          <span>🎥 Take 5</span>
+          <button class="record-btn" data-take="5">Record</button>
+        </div>
+        <div class="take-slot" data-take="6">
+          <span>🎥 Take 6</span>
+          <button class="record-btn" data-take="6">Record</button>
+        </div>
+        <div class="take-slot" data-take="7">
+          <span>🎥 Take 7</span>
+          <button class="record-btn" data-take="7">Record</button>
+        </div>
+        <div class="take-slot" data-take="8">
+          <span>🎥 Take 8</span>
+          <button class="record-btn" data-take="8">Record</button>
+        </div>
+        <div class="take-slot" data-take="9">
+          <span>🎥 Take 9</span>
+          <button class="record-btn" data-take="9">Record</button>
+        </div>
+        <div class="take-slot" data-take="10">
+          <span>🎥 Take 10</span>
+          <button class="record-btn" data-take="10">Record</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Audio Waveform Panel -->
+      <section class="waveform-panel">
+        <input type="file" id="audio-upload" accept="audio/*">
+        <div id="waveform" class="waveform-placeholder">
+          <span>Waveform Display Placeholder</span>
+        </div>
+        <div class="waveform-controls">
+          <button id="play-btn">▶️</button>
+          <button id="pause-btn">⏸️</button>
+          <button id="rewind-btn">⏪</button>
+          <button id="ff-btn">⏩</button>
+          <button id="loop-btn">🔁</button>
+        </div>
+        <div class="bar-navigation">
+          <!-- Simulated bar numbers -->
+          <span class="bar" data-bar="1">| 1</span>
+          <span class="bar" data-bar="2">| 2</span>
+          <span class="bar" data-bar="3">| 3</span>
+          <span class="bar" data-bar="4">| 4</span>
+          <span class="bar" data-bar="5">| 5</span>
+          <span class="bar" data-bar="6">| 6</span>
+          <span class="bar" data-bar="7">| 7</span>
+          <span class="bar" data-bar="8">| 8</span>
+          <span class="bar" data-bar="9">| 9</span>
+          <span class="bar" data-bar="10">| 10</span>
+        </div>
+      </section>
+
+      <!-- Main Video Preview Window -->
+      <section class="preview-panel">
+        <video id="main-preview" controls poster="preview-placeholder.png"></video>
+        <div class="editing-modes">
+          <button id="full-song-btn" class="active">Full Song Dice Edit</button>
+          <button id="bar-edit-btn">8-Bar Step-by-Step Dice Edit</button>
+        </div>
+        <div class="dice-controls" id="full-song-dice">
+          <button class="dice-btn" title="Roll Dice for Full Song">🎲</button>
+          <button class="dice-btn" title="Roll Dice for Full Song">🎲</button>
+        </div>
+        <div class="bar-edit-controls" id="bar-edit-controls" style="display:none;">
+          <button id="prev-bar-btn">⬅️</button>
+          <span id="bar-edit-label">Bars 1-8</span>
+          <button class="dice-btn" id="bar-dice-btn" title="Roll Dice for Bars">🎲</button>
+          <button id="lock-bar-btn">🔒 Lock Bars</button>
+          <button id="next-bar-btn">➡️</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Effects & Filters Panel -->
+    <aside class="effects-panel">
+      <h2>Effects & Filters</h2>
+      <div class="effects-section">
+        <h3>Transitions</h3>
+        <ul>
+          <li><input type="checkbox" id="fade" checked> <label for="fade">Fade</label></li>
+          <li><input type="checkbox" id="slide"> <label for="slide">Slide</label></li>
+          <li><input type="checkbox" id="wipe"> <label for="wipe">Wipe</label></li>
+        </ul>
+      </div>
+      <div class="effects-section">
+        <h3>Filters</h3>
+        <ul>
+          <li><input type="checkbox" id="vintage"> <label for="vintage">Vintage</label></li>
+          <li><input type="checkbox" id="bw"> <label for="bw">Black & White</label></li>
+          <li><input type="checkbox" id="cinematic"> <label for="cinematic">Cinematic</label></li>
+        </ul>
+      </div>
+      <div class="effects-section">
+        <h3>Special Effects</h3>
+        <ul>
+          <li><input type="checkbox" id="slowmo"> <label for="slowmo">Slow Motion</label></li>
+          <li><input type="checkbox" id="zoom"> <label for="zoom">Zoom</label></li>
+          <li><input type="checkbox" id="grading"> <label for="grading">Color Grading</label></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Bottom Control Bar -->
+  <footer class="control-bar">
+    <div class="timeline-overview">
+      <span>Timeline Overview Placeholder</span>
+    </div>
+    <div class="export-controls">
+      <button id="preview-btn">Preview</button>
+      <button id="export-btn">Export</button>
+      <div class="progress-indicator" id="progress-indicator" style="display:none;">
+        <span>Rendering...</span>
+        <progress value="0" max="100" id="render-progress"></progress>
+      </div>
+    </div>
   </footer>
+
+  <!-- Countdown and Prompts -->
+  <div id="countdown-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span id="countdown-number">3</span>
+      <p>Get ready to record!</p>
+    </div>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
