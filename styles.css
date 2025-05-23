@@ -11,6 +11,7 @@
     --recording: #ffb300;
 }
 
+/* General styles */
 body {
     background: var(--bg);
     color: var(--text);
@@ -26,6 +27,7 @@ header {
     text-align: center;
     border-bottom-left-radius: var(--border-radius);
     border-bottom-right-radius: var(--border-radius);
+    position: relative;
 }
 
 main {
@@ -41,9 +43,11 @@ section {
     margin-bottom: 2rem;
 }
 
+/* Audio and waveform controls */
 .audio-controls-bar {
     margin-bottom: 1em;
 }
+
 .button {
     background: var(--secondary);
     color: white;
@@ -109,8 +113,24 @@ input[type="file"] {
     max-width: 100vw;
     overflow-x: auto;
     box-shadow: 0 2px 7px 0 #ddd;
+    position: relative;
 }
 
+/* Bar labels for every 8th bar in waveform */
+.bar-label {
+    position: absolute;
+    top: 2px;
+    font-size: 0.92em;
+    background: rgba(255,255,255,0.8);
+    color: #ff6b6b;
+    border-radius: 5px;
+    padding: 0.11em 0.6em;
+    font-weight: bold;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Video Selector Bar */
 .video-selector-bar {
     display: flex;
     align-items: center;
@@ -129,11 +149,14 @@ input[type="file"] {
     margin-right: 1.2em;
 }
 
+/* Videos grid and track styles - YouTube style, stacked vertically, full-width */
 .videos-grid {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 1.1em;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .video-track {
@@ -219,93 +242,84 @@ input[type="file"] {
 }
 .video-track .recording-indicator {
     position: absolute;
-    right: 24px;
-    top: 28px;
-    font-size: 1.25em;
-    color: var(--secondary);
+    right: 16px;
+    top: 22px;
+    font-size: 1.1em;
+    color: var(--recording);
     font-weight: bold;
-    background: #fff;
-    border-radius: 8px;
-    padding: 0.21em 1.2em;
-    box-shadow: 0 1px 5px 0 #ffb3003a;
+    opacity: 0.95;
     z-index: 2;
-    display: none;
-}
-.video-track.recording .recording-indicator {
-    display: block;
 }
 .video-track .no-video-msg {
-    color: #666;
-    font-size: 1.3em;
-    margin: 2.5em 0 1em 0;
+    color: #888;
+    font-size: 1.1em;
+    margin-top: 2.5em;
+    margin-bottom: 2.5em;
+}
+.video-track .delete-btn {
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0.7em 2em;
+    cursor: pointer;
+    font-size: 1.15rem;
+    margin-top: 0.7em;
+    transition: background 0.15s;
+}
+.video-track .delete-btn:hover {
+    background: #ba2d1e;
 }
 
+/* Dice controls */
 .dice-controls {
-    margin-bottom: 1rem;
-}
-
-.export-opts {
-    margin: 1em 0;
-    gap: 1em;
     display: flex;
-    align-items: center;
+    gap: 1em;
     flex-wrap: wrap;
 }
+
+/* Export options */
+.export-opts {
+    margin: 1em 0;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
 .export-opts label {
-    margin-right: .5em;
-    font-weight: 500;
-}
-.export-opts select {
-    font-size: 1rem;
-    padding: 0.2em 0.6em;
-    border-radius: 6px;
-    border: 1px solid #bbb;
-    margin-right: 1.5em;
+    font-weight: bold;
 }
 
-#output-video {
-    width: 100%;
-    max-width: 850px;
-    min-height: 220px;
-    margin-top: 1rem;
-    border-radius: var(--border-radius);
-    background: #111;
-    border: 2px solid #c2b5da;
-}
-
-footer {
-    text-align: center;
-    color: #777;
-    font-size: 0.95rem;
-    margin: 2rem 0 1rem 0;
-}
-
-@media (max-width: 1100px) {
-    main {
-        max-width: 99vw;
-        padding: 0.2em;
-        border-radius: 0;
-    }
+/* Responsive adjustments */
+@media (max-width: 800px) {
     .video-track video,
     .video-track .thumb-preview {
-        width: 99vw;
-        height: 34vw;
-        max-width: 99vw;
-        min-height: 190px;
+        width: 98vw;
+        max-width: 98vw;
+        height: 220px;
     }
-    #output-video {
-        width: 99vw;
-        min-height: 170px;
-        max-width: 99vw;
+    .video-track {
+        min-height: 220px;
+        padding: 1.2rem 0.3rem 1.2rem 0.3rem;
     }
 }
+
 @media (max-width: 600px) {
-    .video-track video,
-    .video-track .thumb-preview {
-        min-height: 110px;
-        height: 35vw;
+    main {
+        padding: 0.3rem;
     }
-    #output-video {
-        min-height: 110px;
+    .video-track .track-label, .video-track .recording-indicator {
+        font-size: 1.05em;
+        left: 8px;
+        right: 8px;
+        top: 10px;
     }
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    background: #f4effc;
+}
+::-webkit-scrollbar-thumb {
+    background: #d1c4e9;
+    border-radius: 5px;
 }
