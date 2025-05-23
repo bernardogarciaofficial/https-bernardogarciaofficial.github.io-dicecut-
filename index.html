@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <!-- wavesurfer.js CDN for waveform display -->
     <script src="https://unpkg.com/wavesurfer.js"></script>
+    <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.regions.min.js"></script>
 </head>
 <body>
     <header>
@@ -19,23 +20,13 @@
         <section class="upload-section">
             <label for="audio-upload" class="button">Upload Your Song</label>
             <input type="file" id="audio-upload" accept="audio/*">
-            <div id="waveform"></div>
-        </section>
-
-        <!-- User Guidance and Progress -->
-        <section id="user-guidance">
-            <div id="progress-indicator"></div>
-            <button id="help-btn" class="button small">?</button>
-            <div id="help-overlay" class="hidden">
-                <h3>Welcome to DiceCut!</h3>
-                <ol>
-                    <li>Upload your song to see the waveform.</li>
-                    <li>Record up to 10 different video takes.</li>
-                    <li>Use the dice editor to randomly cut your video.</li>
-                    <li>Preview and export your polished music video.</li>
-                </ol>
-                <button id="close-help" class="button small">Close</button>
+            <div id="waveform-controls">
+                <button id="play-btn" class="waveform-btn" disabled>▶️ Play</button>
+                <button id="pause-btn" class="waveform-btn" disabled>⏸️ Pause</button>
+                <button id="stop-btn" class="waveform-btn" disabled>⏹️ Stop</button>
+                <button id="rec-play-btn" class="waveform-btn" disabled>🔴 Record Mode Play</button>
             </div>
+            <div id="waveform"></div>
         </section>
 
         <!-- Video Recording Section -->
@@ -53,7 +44,6 @@
                 <button id="full-dice-btn" class="button">Roll Full Song Dice 🎲🎲</button>
                 <button id="bar-dice-btn" class="button">8-Bar Dice Edit 🎲</button>
             </div>
-            <div id="edit-waveform"></div>
         </section>
 
         <!-- Preview and Export -->
@@ -73,10 +63,6 @@
                 </select>
             </div>
             <button id="export-btn" class="button">Export Music Video</button>
-            <div id="export-progress" class="hidden">
-                <span>Exporting...</span>
-                <div class="progress-bar"><div class="progress-fill"></div></div>
-            </div>
         </section>
     </main>
 
