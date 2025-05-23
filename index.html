@@ -2,87 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>DiceCut – Music Video Editing Made Easy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Style and libraries -->
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://unpkg.com/wavesurfer.js"></script>
-    <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.regions.min.js"></script>
+    <title>Dicecut Platform</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header style="position:relative;">
-        <h1>🎲 DiceCut</h1>
-        <!-- Member counter widget -->
-        <div id="member-counter" style="position: absolute; top: 1.5rem; right: 2.5rem; font-size: 1.2em; color: #fff;">
-            <!-- Member count will load here -->
-        </div>
-        <p>The Easiest Music Video Editing Platform for Musicians</p>
+    <header>
+        <h1>Dicecut Platform</h1>
+        <p>Record, edit, and share your audio-visual content effortlessly.</p>
     </header>
-
     <main>
-        <!-- Audio Upload and Waveform Controls -->
-        <section class="upload-section" id="audio-section">
-            <div class="audio-controls-bar">
-                <label for="audio-upload" class="button">Upload Your Song</label>
-                <input type="file" id="audio-upload" accept="audio/*" />
-            </div>
-            <div id="waveform-controls" class="waveform-controls">
-                <button id="play-btn" class="waveform-btn" disabled>▶️ Play</button>
-                <button id="pause-btn" class="waveform-btn" disabled>⏸️ Pause</button>
-                <button id="stop-btn" class="waveform-btn" disabled>⏹️ Stop</button>
-                <button id="rec-play-btn" class="waveform-btn" disabled>🔴 Record Mode Play</button>
-            </div>
-            <div id="waveform" style="position:relative;"></div>
+        <section id="member-counter">
+            <p>👤 Members: Loading...</p>
         </section>
-
-        <!-- Video Track Selector (optional, still here for UX) -->
-        <section id="video-selector-section">
-            <div class="video-selector-bar">
-                <label for="video-track-select"><b>Select Take:</b></label>
-                <select id="video-track-select"></select>
-                <button id="deselect-btn" class="button small">Deselect</button>
-                <button id="main-record-btn" class="button">Record</button>
-                <button id="delete-btn" class="button small danger">Delete</button>
-            </div>
+        <section id="videos-grid" class="videos-grid">
+            <!-- Video tracks will be dynamically inserted here -->
         </section>
-
-        <!-- Video Tracks Section (now shows all 10 tracks stacked vertically) -->
-        <section id="video-section">
-            <div class="videos-grid" id="videos-grid">
-                <!-- Video tracks will be dynamically inserted here -->
-            </div>
+        <section id="waveform">
+            <!-- Waveform visualization will be rendered here -->
         </section>
-
-        <!-- Dice Edit Feature -->
-        <section id="dice-section">
-            <h2>🎲 Dice Edit</h2>
-            <div class="dice-controls">
-                <button id="full-dice-btn" class="button">Roll Full Song Dice 🎲🎲</button>
-                <button id="bar-dice-btn" class="button">8-Bar Dice Edit 🎲</button>
-            </div>
-        </section>
-
-        <!-- Preview and Export Section -->
-        <section id="preview-section">
-            <h2>Preview & Export</h2>
-            <video id="output-video" controls></video>
-            <div class="export-opts">
-                <label for="export-format">Format:</label>
-                <select id="export-format">
-                    <option value="webm">WEBM</option>
-                    <option value="mp4" disabled>MP4 (coming soon)</option>
-                </select>
-                <label for="export-resolution">Resolution:</label>
-                <select id="export-resolution">
-                    <option value="720">720p</option>
-                    <option value="1080">1080p</option>
-                </select>
-            </div>
-            <button id="export-btn" class="button">Export Music Video</button>
+        <section id="controls">
+            <button id="record-btn" class="button">Start Recording</button>
+            <button id="export-btn" class="button">Export</button>
         </section>
     </main>
-
-    <!-- Scripts -->
     <script src="script.js"></script>
 </body>
 </html>
