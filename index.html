@@ -1,31 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dicecut Platform</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DiceCut – The Easiest Music Video Editing Platform</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Dicecut Platform</h1>
-        <p>Record, edit, and share your audio-visual content effortlessly.</p>
-    </header>
-    <main>
-        <section id="member-counter">
-            <p>👤 Members: Loading...</p>
-        </section>
-        <section id="videos-grid" class="videos-grid">
-            <!-- Video tracks will be dynamically inserted here -->
-        </section>
-        <section id="waveform">
-            <!-- Waveform visualization will be rendered here -->
-        </section>
-        <section id="controls">
-            <button id="record-btn" class="button">Start Recording</button>
-            <button id="export-btn" class="button">Export</button>
-        </section>
-    </main>
-    <script src="script.js"></script>
+  <header>
+    <h1>DiceCut</h1>
+    <p>The Easiest Music Video Editing Platform for Musicians Worldwide</p>
+  </header>
+  <main>
+    <section class="intro">
+      <h2>Why DiceCut?</h2>
+      <p>Create professional music videos without the hassle or high cost. No tech skills required!</p>
+    </section>
+    <section class="how-it-works">
+      <h2>How Does DiceCut Work?</h2>
+      <ol>
+        <li>
+          <strong>Upload Your Song:</strong>
+          <span>See your waveform and bar lines for easy navigation.</span>
+        </li>
+        <li>
+          <strong>Record 10 Video Takes:</strong>
+          <span>Capture different angles & scenes. All takes are synced automatically.</span>
+        </li>
+        <li>
+          <strong>Random Dice Editing:</strong>
+          <span>
+            <ul>
+              <li>Full Song Dice Edit: <button id="dice-full">🎲 Full Song</button></li>
+              <li>8-Bar Step-by-Step Edit: <button id="dice-step">🎲 8-Bar Segment</button></li>
+            </ul>
+          </span>
+          <div id="dice-result"></div>
+        </li>
+        <li>
+          <strong>Preview and Export:</strong>
+          <span>Watch your video and download when ready.</span>
+        </li>
+      </ol>
+    </section>
+    <section class="features">
+      <h2>Why Choose DiceCut?</h2>
+      <ul>
+        <li>No complicated timelines or editing jargon</li>
+        <li>Perfect synchronization guaranteed</li>
+        <li>Fast, creative, and fun random editing options</li>
+        <li>Professional effects and transitions built-in</li>
+        <li>Designed for musicians, by musicians</li>
+      </ul>
+    </section>
+    <section class="cta">
+      <h2>Ready to bring your music to life?</h2>
+      <button id="signup-btn">Sign Up Now</button>
+    </section>
+  </main>
+  <footer>
+    <p>© 2025 Bernardo Garcia — Founder, DiceCut</p>
+  </footer>
+  <script src="script.js"></script>
 </body>
 </html>
