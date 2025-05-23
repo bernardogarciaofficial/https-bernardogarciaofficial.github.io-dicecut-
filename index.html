@@ -15,11 +15,13 @@
     </header>
 
     <main>
-        <!-- Audio Upload Section -->
-        <section class="upload-section">
-            <label for="audio-upload" class="button">Upload Your Song</label>
-            <input type="file" id="audio-upload" accept="audio/*">
-            <div id="waveform-controls">
+        <!-- Audio Upload and Waveform Controls -->
+        <section class="upload-section" id="audio-section">
+            <div class="audio-controls-bar">
+                <label for="audio-upload" class="button">Upload Your Song</label>
+                <input type="file" id="audio-upload" accept="audio/*" />
+            </div>
+            <div id="waveform-controls" class="waveform-controls">
                 <button id="play-btn" class="waveform-btn" disabled>▶️ Play</button>
                 <button id="pause-btn" class="waveform-btn" disabled>⏸️ Pause</button>
                 <button id="stop-btn" class="waveform-btn" disabled>⏹️ Stop</button>
@@ -28,26 +30,22 @@
             <div id="waveform"></div>
         </section>
 
-        <!-- Video Track Selector Section -->
         <section id="video-selector-section">
             <div class="video-selector-bar">
                 <label for="video-track-select"><b>Select Take:</b></label>
-                <select id="video-track-select">
-                    <!-- dynamically filled -->
-                </select>
+                <select id="video-track-select"></select>
                 <button id="deselect-btn" class="button small">Deselect</button>
                 <button id="main-record-btn" class="button">Record</button>
+                <button id="delete-btn" class="button small danger">Delete</button>
             </div>
         </section>
 
-        <!-- Video Recording Section -->
         <section id="video-section">
             <div class="videos-grid" id="videos-grid">
                 <!-- Only one video track (selected) is shown at a time -->
             </div>
         </section>
 
-        <!-- Dice Edit Section -->
         <section id="dice-section">
             <h2>🎲 Dice Edit</h2>
             <div class="dice-controls">
@@ -56,7 +54,6 @@
             </div>
         </section>
 
-        <!-- Preview and Export -->
         <section id="preview-section">
             <h2>Preview & Export</h2>
             <video id="output-video" controls></video>
