@@ -10,7 +10,7 @@ let isRecPlayMode = false;
 let currentRecordingTrack = null;
 let videoBlobs = Array(10).fill(null);
 let isRecording = Array(10).fill(false);
-let currentSelectedTrack = null;
+let currentSelectedTrack = 0;
 
 // DOM
 const audioInput = document.getElementById('audio-upload');
@@ -29,6 +29,7 @@ const exportResolution = document.getElementById('export-resolution');
 const trackSelect = document.getElementById('video-track-select');
 const deselectBtn = document.getElementById('deselect-btn');
 const mainRecordBtn = document.getElementById('main-record-btn');
+const deleteBtn = document.getElementById('delete-btn');
 
 // --- AUDIO & WAVEFORM LOADING ---
 audioInput.addEventListener('change', async function () {
@@ -48,6 +49,8 @@ audioInput.addEventListener('change', async function () {
 
     // WaveSurfer setup
     if (wavesurfer) wavesurfer.destroy();
+    // Clear waveform container
+    waveformDiv.innerHTML = '';
     wavesurfer = WaveSurfer.create({
         container: waveformDiv,
         waveColor: '#b39ddb',
@@ -61,7 +64,6 @@ audioInput.addEventListener('change', async function () {
     });
     wavesurfer.load(audioUrl);
 
-    // Add 8-bar regions
     wavesurfer.on('ready', () => {
         drawBarRegions();
         enableWaveformControls();
@@ -75,18 +77,20 @@ function enableWaveformControls() {
     stopBtn.disabled = false;
     recPlayBtn.disabled = false;
 }
-playBtn.onclick = () => { isRecPlayMode = false; wavesurfer.play(); };
-pauseBtn.onclick = () => wavesurfer.pause();
-stopBtn.onclick = () => wavesurfer.stop();
+playBtn.onclick = () => { isRecPlayMode = false; if (wavesurfer) wavesurfer.play(); };
+pauseBtn.onclick = () => { if (wavesurfer) wavesurfer.pause(); };
+stopBtn.onclick = () => { if (wavesurfer) wavesurfer.stop(); };
 recPlayBtn.onclick = () => {
     isRecPlayMode = true;
-    wavesurfer.seekTo(0);
-    wavesurfer.play();
+    if (wavesurfer) {
+        wavesurfer.seekTo(0);
+        wavesurfer.play();
+    }
 };
 
 // --- BAR CHUNK REGIONS ---
 function drawBarRegions() {
-    // Remove old
+    if (!wavesurfer) return;
     wavesurfer.clearRegions();
     barRegions = [];
     let secPerBar = 60 / bpm * 4;
@@ -111,15 +115,13 @@ function populateTrackSelector() {
     for (let i = 0; i < 10; i++) {
         let opt = document.createElement('option');
         opt.value = i;
-        opt.textContent = `Take ${i + 1}` + (videoBlobs[i] ? " (✔)" : "");
+        opt.textContent = `Take ${i + 1}` + (videoBlobs[i] ? " ✔" : "");
         trackSelect.appendChild(opt);
     }
-    // Default: select track 0
-    if (currentSelectedTrack === null) {
-        currentSelectedTrack = 0;
-        trackSelect.value = "0";
-    } else {
+    if (typeof currentSelectedTrack === 'number') {
         trackSelect.value = currentSelectedTrack;
+    } else {
+        trackSelect.value = "";
     }
 }
 trackSelect.addEventListener('change', () => {
@@ -136,9 +138,14 @@ mainRecordBtn.addEventListener('click', () => {
         alert("Select a video take to record.");
         return;
     }
-    // Find button in shown video track
     const recBtn = document.querySelector('.video-track .record-btn');
     if (recBtn) recBtn.click();
+});
+deleteBtn.addEventListener('click', () => {
+    if (typeof currentSelectedTrack === 'number') {
+        const delBtn = document.querySelector('.video-track .delete-btn');
+        if (delBtn) delBtn.click();
+    }
 });
 
 // --- VIDEO TRACKS UI ---
@@ -147,7 +154,6 @@ function createVideoTracks() {
     populateTrackSelector();
 
     if (currentSelectedTrack === null) {
-        // Show nothing if none selected
         return;
     }
     let i = currentSelectedTrack;
@@ -186,7 +192,13 @@ function createVideoTracks() {
     if (videoBlobs[i]) videoEl.src = URL.createObjectURL(videoBlobs[i]);
     trackDiv.appendChild(videoEl);
 
-    // Record button
+    if (!videoBlobs[i] && !isRecording[i]) {
+        const msg = document.createElement('div');
+        msg.className = 'no-video-msg';
+        msg.textContent = "No video recorded yet.";
+        trackDiv.appendChild(msg);
+    }
+
     const recBtn = document.createElement('button');
     recBtn.className = 'record-btn';
     recBtn.textContent = videoBlobs[i] ? 'Re-record' : 'Record';
@@ -194,7 +206,6 @@ function createVideoTracks() {
     if (isRecording[i]) recBtn.classList.add('recording');
     trackDiv.appendChild(recBtn);
 
-    // Delete button
     const delBtn = document.createElement('button');
     delBtn.className = 'delete-btn';
     delBtn.innerHTML = '🗑️';
@@ -203,20 +214,16 @@ function createVideoTracks() {
     delBtn.style.display = videoBlobs[i] ? '' : 'none';
     trackDiv.appendChild(delBtn);
 
-    // Set .recording class if this track is recording
     if (isRecording[i]) trackDiv.classList.add('recording');
-
     videosGrid.appendChild(trackDiv);
 }
-createVideoTracks(); // On load
+createVideoTracks();
 populateTrackSelector();
 
 // --- VIDEO RECORDING HANDLER ---
 async function handleRecord(trackIdx, btn, videoEl, thumb, trackDiv, recInd) {
-    // Prevent double recording
     if (isRecording[trackIdx]) return;
 
-    // Camera access
     let stream;
     try {
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -225,7 +232,6 @@ async function handleRecord(trackIdx, btn, videoEl, thumb, trackDiv, recInd) {
         return;
     }
 
-    // Highlight UI
     btn.textContent = 'Recording...';
     btn.classList.add('recording');
     btn.disabled = true;
@@ -234,11 +240,9 @@ async function handleRecord(trackIdx, btn, videoEl, thumb, trackDiv, recInd) {
     isRecording[trackIdx] = true;
     currentRecordingTrack = trackIdx;
 
-    // Hide video/thumbnail during recording
     videoEl.style.display = 'none';
     thumb.classList.add('hidden');
 
-    // Play audio in "record mode"
     let audioPlay;
     if (audioUrl) {
         audioPlay = new Audio(audioUrl);
@@ -246,7 +250,6 @@ async function handleRecord(trackIdx, btn, videoEl, thumb, trackDiv, recInd) {
         audioPlay.play();
     }
 
-    // Start recording
     let chunks = [];
     const recorder = new MediaRecorder(stream);
     recorder.ondataavailable = (e) => chunks.push(e.data);
@@ -255,7 +258,6 @@ async function handleRecord(trackIdx, btn, videoEl, thumb, trackDiv, recInd) {
         videoBlobs[trackIdx] = blob;
         videoEl.src = URL.createObjectURL(blob);
         videoEl.style.display = '';
-        // Thumbnail
         thumb.src = URL.createObjectURL(blob);
         thumb.classList.remove('hidden');
         btn.textContent = 'Re-record';
@@ -267,12 +269,11 @@ async function handleRecord(trackIdx, btn, videoEl, thumb, trackDiv, recInd) {
         trackDiv.classList.remove('recording');
         recInd.style.display = 'none';
         trackDiv.querySelector('.delete-btn').style.display = '';
-        if (audioPlay) audioPlay.pause();
         populateTrackSelector();
+        createVideoTracks();
     };
     recorder.start();
 
-    // Stop after audio ends or 30s max
     let recDuration = audioBuffer ? audioBuffer.duration * 1000 : 30000;
     setTimeout(() => {
         if (isRecording[trackIdx]) recorder.stop();
@@ -291,6 +292,7 @@ function deleteTake(idx, videoEl, recBtn, thumb, trackDiv) {
     trackDiv.classList.remove('recording');
     isRecording[idx] = false;
     populateTrackSelector();
+    createVideoTracks();
 }
 
 // DICE EDIT (SIMULATED FOR NOW)
@@ -305,7 +307,6 @@ function diceEdit(fullSong = true) {
         const available = videoBlobs.map((b, idx) => b ? idx : null).filter(i => i !== null);
         selectedTakes.push(available[Math.floor(Math.random() * available.length)]);
     }
-    // For MVP, just show the first selected take
     const first = videoBlobs[selectedTakes[0]];
     if (first) outputVideo.src = URL.createObjectURL(first);
     outputVideo.load();
@@ -313,7 +314,6 @@ function diceEdit(fullSong = true) {
 fullDiceBtn.onclick = () => diceEdit(true);
 barDiceBtn.onclick = () => diceEdit(false);
 
-// EXPORT
 exportBtn.onclick = () => {
     if (!outputVideo.src) {
         alert('Nothing to export!');
@@ -325,5 +325,4 @@ exportBtn.onclick = () => {
     a.click();
 };
 
-// Responsive: re-create video tracks on resize for optimal size
 window.addEventListener('resize', createVideoTracks);
