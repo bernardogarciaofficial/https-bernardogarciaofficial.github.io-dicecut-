@@ -1,5 +1,3 @@
-// DiceCut Enhanced MVP - Visual polish, thumbnails, 8-bar regions, working multi-track video recording, delete/re-record, clear recording state
-
 let wavesurfer = null;
 let audioUrl = '';
 let audioBuffer = null;
@@ -12,6 +10,7 @@ let isRecPlayMode = false;
 let currentRecordingTrack = null;
 let videoBlobs = Array(10).fill(null);
 let isRecording = Array(10).fill(false);
+let currentSelectedTrack = null;
 
 // DOM
 const audioInput = document.getElementById('audio-upload');
@@ -27,8 +26,11 @@ const outputVideo = document.getElementById('output-video');
 const exportBtn = document.getElementById('export-btn');
 const exportFormat = document.getElementById('export-format');
 const exportResolution = document.getElementById('export-resolution');
+const trackSelect = document.getElementById('video-track-select');
+const deselectBtn = document.getElementById('deselect-btn');
+const mainRecordBtn = document.getElementById('main-record-btn');
 
-// AUDIO & WAVEFORM LOADING
+// --- AUDIO & WAVEFORM LOADING ---
 audioInput.addEventListener('change', async function () {
     if (!audioInput.files[0]) return;
     const file = audioInput.files[0];
@@ -66,7 +68,7 @@ audioInput.addEventListener('change', async function () {
     });
 });
 
-// WAVEFORM CONTROLS
+// --- WAVEFORM CONTROLS ---
 function enableWaveformControls() {
     playBtn.disabled = false;
     pauseBtn.disabled = false;
@@ -82,7 +84,7 @@ recPlayBtn.onclick = () => {
     wavesurfer.play();
 };
 
-// BAR CHUNK REGIONS
+// --- BAR CHUNK REGIONS ---
 function drawBarRegions() {
     // Remove old
     wavesurfer.clearRegions();
@@ -95,7 +97,7 @@ function drawBarRegions() {
         let region = wavesurfer.addRegion({
             start: start,
             end: end,
-            color: (i % 2 === 0) ? 'var(--bar-region)' : 'var(--bar-region-alt)',
+            color: (i % 2 === 0) ? 'rgba(255,205,56,0.13)' : 'rgba(84, 19, 136, 0.08)',
             drag: false,
             resize: false
         });
@@ -103,71 +105,113 @@ function drawBarRegions() {
     }
 }
 
-// VIDEO TRACKS UI
-function createVideoTracks() {
-    videosGrid.innerHTML = '';
+// --- VIDEO TRACK SELECTOR ---
+function populateTrackSelector() {
+    trackSelect.innerHTML = '';
     for (let i = 0; i < 10; i++) {
-        const trackDiv = document.createElement('div');
-        trackDiv.className = 'video-track';
-        trackDiv.dataset.track = i;
-
-        // Track label
-        const label = document.createElement('span');
-        label.className = 'track-label';
-        label.textContent = `Take ${i + 1}`;
-        trackDiv.appendChild(label);
-
-        // Recording indicator
-        const recInd = document.createElement('span');
-        recInd.className = 'recording-indicator';
-        recInd.textContent = '● Recording...';
-        trackDiv.appendChild(recInd);
-
-        // Thumbnail preview
-        const thumb = document.createElement('img');
-        thumb.className = 'thumb-preview hidden';
-        thumb.alt = 'Preview';
-        if (videoBlobs[i]) {
-            thumb.src = URL.createObjectURL(videoBlobs[i]);
-            thumb.classList.remove('hidden');
-        }
-        trackDiv.appendChild(thumb);
-
-        // Video element (hidden until has blob)
-        const videoEl = document.createElement('video');
-        videoEl.setAttribute('playsinline', true);
-        videoEl.setAttribute('controls', true);
-        videoEl.id = `video-take-${i}`;
-        videoEl.style.display = videoBlobs[i] ? '' : 'none';
-        if (videoBlobs[i]) videoEl.src = URL.createObjectURL(videoBlobs[i]);
-        trackDiv.appendChild(videoEl);
-
-        // Record button
-        const recBtn = document.createElement('button');
-        recBtn.className = 'record-btn';
-        recBtn.textContent = videoBlobs[i] ? 'Re-record' : 'Record';
-        recBtn.onclick = () => handleRecord(i, recBtn, videoEl, thumb, trackDiv, recInd);
-        if (isRecording[i]) recBtn.classList.add('recording');
-        trackDiv.appendChild(recBtn);
-
-        // Delete button
-        const delBtn = document.createElement('button');
-        delBtn.className = 'delete-btn';
-        delBtn.innerHTML = '🗑️';
-        delBtn.title = 'Delete this take';
-        delBtn.onclick = () => deleteTake(i, videoEl, recBtn, thumb, trackDiv);
-        delBtn.style.display = videoBlobs[i] ? '' : 'none';
-        trackDiv.appendChild(delBtn);
-
-        // Set .recording class if this track is recording
-        if (isRecording[i]) trackDiv.classList.add('recording');
-
-        videosGrid.appendChild(trackDiv);
+        let opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `Take ${i + 1}` + (videoBlobs[i] ? " (✔)" : "");
+        trackSelect.appendChild(opt);
+    }
+    // Default: select track 0
+    if (currentSelectedTrack === null) {
+        currentSelectedTrack = 0;
+        trackSelect.value = "0";
+    } else {
+        trackSelect.value = currentSelectedTrack;
     }
 }
-createVideoTracks();
+trackSelect.addEventListener('change', () => {
+    currentSelectedTrack = parseInt(trackSelect.value, 10);
+    createVideoTracks();
+});
+deselectBtn.addEventListener('click', () => {
+    currentSelectedTrack = null;
+    trackSelect.value = "";
+    createVideoTracks();
+});
+mainRecordBtn.addEventListener('click', () => {
+    if (currentSelectedTrack === null) {
+        alert("Select a video take to record.");
+        return;
+    }
+    // Find button in shown video track
+    const recBtn = document.querySelector('.video-track .record-btn');
+    if (recBtn) recBtn.click();
+});
 
-// VIDEO RECORDING HANDLER
+// --- VIDEO TRACKS UI ---
+function createVideoTracks() {
+    videosGrid.innerHTML = '';
+    populateTrackSelector();
+
+    if (currentSelectedTrack === null) {
+        // Show nothing if none selected
+        return;
+    }
+    let i = currentSelectedTrack;
+    const trackDiv = document.createElement('div');
+    trackDiv.className = 'video-track';
+    trackDiv.dataset.track = i;
+
+    // Track label
+    const label = document.createElement('span');
+    label.className = 'track-label';
+    label.textContent = `Take ${i + 1}`;
+    trackDiv.appendChild(label);
+
+    // Recording indicator
+    const recInd = document.createElement('span');
+    recInd.className = 'recording-indicator';
+    recInd.textContent = '● Recording...';
+    trackDiv.appendChild(recInd);
+
+    // Thumbnail preview
+    const thumb = document.createElement('img');
+    thumb.className = 'thumb-preview hidden';
+    thumb.alt = 'Preview';
+    if (videoBlobs[i]) {
+        thumb.src = URL.createObjectURL(videoBlobs[i]);
+        thumb.classList.remove('hidden');
+    }
+    trackDiv.appendChild(thumb);
+
+    // Video element (hidden until has blob)
+    const videoEl = document.createElement('video');
+    videoEl.setAttribute('playsinline', true);
+    videoEl.setAttribute('controls', true);
+    videoEl.id = `video-take-${i}`;
+    videoEl.style.display = videoBlobs[i] ? '' : 'none';
+    if (videoBlobs[i]) videoEl.src = URL.createObjectURL(videoBlobs[i]);
+    trackDiv.appendChild(videoEl);
+
+    // Record button
+    const recBtn = document.createElement('button');
+    recBtn.className = 'record-btn';
+    recBtn.textContent = videoBlobs[i] ? 'Re-record' : 'Record';
+    recBtn.onclick = () => handleRecord(i, recBtn, videoEl, thumb, trackDiv, recInd);
+    if (isRecording[i]) recBtn.classList.add('recording');
+    trackDiv.appendChild(recBtn);
+
+    // Delete button
+    const delBtn = document.createElement('button');
+    delBtn.className = 'delete-btn';
+    delBtn.innerHTML = '🗑️';
+    delBtn.title = 'Delete this take';
+    delBtn.onclick = () => deleteTake(i, videoEl, recBtn, thumb, trackDiv);
+    delBtn.style.display = videoBlobs[i] ? '' : 'none';
+    trackDiv.appendChild(delBtn);
+
+    // Set .recording class if this track is recording
+    if (isRecording[i]) trackDiv.classList.add('recording');
+
+    videosGrid.appendChild(trackDiv);
+}
+createVideoTracks(); // On load
+populateTrackSelector();
+
+// --- VIDEO RECORDING HANDLER ---
 async function handleRecord(trackIdx, btn, videoEl, thumb, trackDiv, recInd) {
     // Prevent double recording
     if (isRecording[trackIdx]) return;
@@ -224,6 +268,7 @@ async function handleRecord(trackIdx, btn, videoEl, thumb, trackDiv, recInd) {
         recInd.style.display = 'none';
         trackDiv.querySelector('.delete-btn').style.display = '';
         if (audioPlay) audioPlay.pause();
+        populateTrackSelector();
     };
     recorder.start();
 
@@ -245,6 +290,7 @@ function deleteTake(idx, videoEl, recBtn, thumb, trackDiv) {
     trackDiv.querySelector('.delete-btn').style.display = 'none';
     trackDiv.classList.remove('recording');
     isRecording[idx] = false;
+    populateTrackSelector();
 }
 
 // DICE EDIT (SIMULATED FOR NOW)
