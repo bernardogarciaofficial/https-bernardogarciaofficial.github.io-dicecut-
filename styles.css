@@ -1,271 +1,117 @@
+:root {
+    --primary: #541388;
+    --secondary: #ff6b6b;
+    --bg: #f8f8f8;
+    --card: #fff;
+    --accent: #ffcd38;
+    --text: #222;
+    --border-radius: 12px;
+}
+
 body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: #18181b;
-  color: #f3f3f7;
-  margin: 0;
-  padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
 header {
-  padding: 1.5rem 2rem 0.5rem 2rem;
-  background: #232326;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #34343a;
-}
-
-h1 {
-  margin: 0;
-  font-size: 2.2rem;
-  letter-spacing: 1px;
-}
-
-.members-online {
-  font-size: 1.1rem;
-  color: #b6e356;
+    background: var(--primary);
+    color: white;
+    padding: 2rem 1rem 1rem 1rem;
+    text-align: center;
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
 }
 
 main {
-  padding: 1.5rem 2vw;
-  max-width: 1200px;
-  margin: auto;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background: var(--card);
+    border-radius: var(--border-radius);
+    box-shadow: 0 3px 18px rgba(0,0,0,0.04);
 }
 
-.audio-section {
-  margin-bottom: 2.2rem;
+section {
+    margin-bottom: 2rem;
 }
 
-.transport-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+.button {
+    background: var(--secondary);
+    color: white;
+    border: none;
+    padding: 0.7em 1.2em;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 1em;
+    margin-right: 0.5em;
+    transition: background 0.15s;
+    text-decoration: none;
+    display: inline-block;
+}
+.button:hover {
+    background: var(--accent);
+    color: var(--primary);
 }
 
-.transport-controls button {
-  background: #33334a;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 0.6em 1.2em;
-  font-size: 1.1em;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.18s;
-}
-.transport-controls button:active {
-  background: #b6e356;
-  color: #232326;
+input[type="file"] {
+    display: none;
 }
 
-#audio-timeline-container {
-  position: relative;
-  margin-top: 0.2rem;
-  height: 120px;
-  background: #23232d;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px #0002;
-  overflow: hidden;
+#videos-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-#waveform {
-  width: 100%;
-  min-width: 400px;
-  height: 120px;
-  background: transparent;
-  position: relative;
-  z-index: 1;
-}
-
-#bars-overlay {
-  pointer-events: none;
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 2;
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.lock-segment {
-  position: absolute;
-  top: 0; bottom: 0;
-  border-left: 2px solid #b6e356;
-  border-right: 2px solid #b6e356;
-  background: rgba(182,227,86,0.13);
-  pointer-events: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-start;
-  height: 100%;
-  transition: background 0.2s;
-  z-index: 2;
-}
-.lock-segment.locked {
-  background: rgba(182,227,86,0.31);
-}
-
-.lock-segment .lock-btn {
-  background: #b6e356;
-  color: #232326;
-  border: none;
-  border-radius: 5px;
-  font-size: 0.95em;
-  margin: 8px 8px 0 0;
-  padding: 0.1em 0.7em;
-  cursor: pointer;
-  opacity: 0.88;
-  z-index: 5;
-  pointer-events: auto;
-}
-.lock-segment .lock-btn.locked {
-  background: #888;
-  color: #fff;
-}
-
-.lock-segment .segment-label {
-  position: absolute;
-  left: 10px;
-  top: 8px;
-  color: #b6e356;
-  font-size: 0.93em;
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Video tracks */
-#video-tracks-container {
-  margin-bottom: 1.5rem;
-}
-#video-tracks-container h2 {
-  margin-bottom: 0.5rem;
-}
 .video-track {
-  background: #23232d;
-  border-radius: 12px;
-  margin-bottom: 1.7rem;
-  padding: 1.2rem 1rem 2.3rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 260px;
-  box-shadow: 0 2px 8px #0001;
-  font-size: 1.13em;
-  position: relative;
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--primary);
+    border-radius: var(--border-radius);
+    background: #f2edfa;
+    padding: 0.7rem;
+    gap: 1rem;
 }
-.video-label {
-  font-weight: bold;
-  margin-bottom: 0.6rem;
-  font-size: 1.18em;
-  align-self: flex-start;
+.video-track video {
+    width: 180px;
+    height: 100px;
+    background: #888;
+    border-radius: var(--border-radius);
 }
-.video-monitor {
-  width: 540px;
-  height: 300px;
-  background: #19191c;
-  border: 3px solid #2a2a3a;
-  border-radius: 10px;
-  margin-bottom: 1rem;
-  object-fit: cover;
-  position: relative;
-  display: block;
+.video-track .record-btn {
+    background: var(--accent);
+    color: var(--primary);
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0.5em 1em;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.15s;
 }
-.select-btn, .record-btn {
-  background: #b6e356;
-  color: #232326;
-  border: none;
-  border-radius: 6px;
-  font-size: 1.1em;
-  padding: 0.45em 1.3em;
-  cursor: pointer;
-  margin: 0 0.35em 0 0;
-  transition: background 0.17s;
-  font-weight: 600;
+.video-track .record-btn.recording {
+    background: var(--secondary);
+    color: white;
 }
-.select-btn:active, .record-btn:active {
-  background: #88b032;
+
+.dice-controls {
+    margin-bottom: 1rem;
 }
-.record-btn {
-  background: #e33636;
-  color: #fff;
-  animation: recflash 1s infinite;
-}
-@keyframes recflash {
-  0%, 100% { background: #e33636; }
-  50% { background: #fca7a7; color: #e33636; }
-}
-/* Countdown overlay */
-.countdown-overlay {
-  position: absolute;
-  top: 0; left: 0; bottom: 0; right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 6em;
-  color: #b6e356;
-  background: rgba(0,0,0,0.45);
-  z-index: 10;
-  pointer-events: none;
-}
-.rec-indicator {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  background: #e33636;
-  color: #fff;
-  font-weight: 700;
-  border-radius: 18px;
-  padding: 0.13em 1.1em 0.13em 1.35em;
-  font-size: 1.16em;
-  box-shadow: 0 0 10px #e33636c0;
-  animation: recflash 1s infinite;
-  z-index: 12;
-}
-.final-output-container {
-  margin-bottom: 2rem;
-}
-.output-track {
-  background: #26263a;
-  border-radius: 8px;
-  padding: 1.3rem;
-  margin-top: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
+
 #output-video {
-  width: 350px;
-  max-width: 98vw;
-  border-radius: 6px;
-  background: #101012;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 1rem;
+    border-radius: var(--border-radius);
+    background: #111;
 }
 
-/* Dicecut controls at the bottom */
-.dicecut-controls-bottom {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  margin: 2.5rem 0 2.5rem 0;
-}
-.dicecut-controls-bottom button {
-  background: #33334a;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 0.7em 2em;
-  font-size: 1.18em;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.18s;
-}
-.dicecut-controls-bottom button:active {
-  background: #b6e356;
-  color: #232326;
-}
-
-@media (max-width: 900px) {
-  .video-monitor { width: 98vw; height: 42vw; max-width: 540px; max-height: 300px;}
-  .video-track { min-height: 180px; }
+footer {
+    text-align: center;
+    color: #777;
+    font-size: 0.95rem;
+    margin: 2rem 0 1rem 0;
 }
