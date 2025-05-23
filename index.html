@@ -5,6 +5,8 @@
     <title>DiceCut – Music Video Editing Made Easy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <!-- wavesurfer.js CDN for waveform display -->
+    <script src="https://unpkg.com/wavesurfer.js"></script>
 </head>
 <body>
     <header>
@@ -18,6 +20,22 @@
             <label for="audio-upload" class="button">Upload Your Song</label>
             <input type="file" id="audio-upload" accept="audio/*">
             <div id="waveform"></div>
+        </section>
+
+        <!-- User Guidance and Progress -->
+        <section id="user-guidance">
+            <div id="progress-indicator"></div>
+            <button id="help-btn" class="button small">?</button>
+            <div id="help-overlay" class="hidden">
+                <h3>Welcome to DiceCut!</h3>
+                <ol>
+                    <li>Upload your song to see the waveform.</li>
+                    <li>Record up to 10 different video takes.</li>
+                    <li>Use the dice editor to randomly cut your video.</li>
+                    <li>Preview and export your polished music video.</li>
+                </ol>
+                <button id="close-help" class="button small">Close</button>
+            </div>
         </section>
 
         <!-- Video Recording Section -->
@@ -42,7 +60,23 @@
         <section id="preview-section">
             <h2>Preview & Export</h2>
             <video id="output-video" controls></video>
+            <div class="export-opts">
+                <label for="export-format">Format:</label>
+                <select id="export-format">
+                    <option value="webm">WEBM</option>
+                    <option value="mp4" disabled>MP4 (coming soon)</option>
+                </select>
+                <label for="export-resolution">Resolution:</label>
+                <select id="export-resolution">
+                    <option value="720">720p</option>
+                    <option value="1080">1080p</option>
+                </select>
+            </div>
             <button id="export-btn" class="button">Export Music Video</button>
+            <div id="export-progress" class="hidden">
+                <span>Exporting...</span>
+                <div class="progress-bar"><div class="progress-fill"></div></div>
+            </div>
         </section>
     </main>
 
