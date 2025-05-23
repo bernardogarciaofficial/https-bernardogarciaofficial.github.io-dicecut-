@@ -4,13 +4,18 @@
     <meta charset="UTF-8">
     <title>DiceCut – Music Video Editing Made Easy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <!-- Style and libraries -->
+    <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/wavesurfer.js"></script>
     <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.regions.min.js"></script>
 </head>
 <body>
-    <header>
+    <header style="position:relative;">
         <h1>🎲 DiceCut</h1>
+        <!-- Member counter widget -->
+        <div id="member-counter" style="position: absolute; top: 1.5rem; right: 2.5rem; font-size: 1.2em; color: #fff;">
+            <!-- Member count will load here -->
+        </div>
         <p>The Easiest Music Video Editing Platform for Musicians</p>
     </header>
 
@@ -27,9 +32,10 @@
                 <button id="stop-btn" class="waveform-btn" disabled>⏹️ Stop</button>
                 <button id="rec-play-btn" class="waveform-btn" disabled>🔴 Record Mode Play</button>
             </div>
-            <div id="waveform"></div>
+            <div id="waveform" style="position:relative;"></div>
         </section>
 
+        <!-- Video Track Selector (optional, still here for UX) -->
         <section id="video-selector-section">
             <div class="video-selector-bar">
                 <label for="video-track-select"><b>Select Take:</b></label>
@@ -40,12 +46,14 @@
             </div>
         </section>
 
+        <!-- Video Tracks Section (now shows all 10 tracks stacked vertically) -->
         <section id="video-section">
             <div class="videos-grid" id="videos-grid">
-                <!-- Only one video track (selected) is shown at a time -->
+                <!-- Video tracks will be dynamically inserted here -->
             </div>
         </section>
 
+        <!-- Dice Edit Feature -->
         <section id="dice-section">
             <h2>🎲 Dice Edit</h2>
             <div class="dice-controls">
@@ -54,6 +62,7 @@
             </div>
         </section>
 
+        <!-- Preview and Export Section -->
         <section id="preview-section">
             <h2>Preview & Export</h2>
             <video id="output-video" controls></video>
@@ -73,10 +82,7 @@
         </section>
     </main>
 
-    <footer>
-        <p>Made with ❤️ by Musicians, for Musicians. Founder: Bernardo Garcia</p>
-    </footer>
-
+    <!-- Scripts -->
     <script src="script.js"></script>
 </body>
 </html>
