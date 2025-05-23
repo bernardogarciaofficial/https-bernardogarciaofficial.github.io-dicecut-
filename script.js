@@ -1,18 +1,23 @@
-// DiceCut Enhanced MVP Script
-// Visual improvements, real waveform, dynamic progress, thumbnails, countdown, help overlay, re-record/delete, better mobile, export options
-
-let audioBuffer = null;
+// Globals
+let wavesurfer = null;
 let audioUrl = '';
-let videoStreams = Array(10).fill(null);
+let audioBuffer = null;
+let duration = 0;
+let barCount = 0;
+let barRegions = [];
+let bpm = 120; // Default, can be user input for more accuracy
+let barsPerChunk = 8;
+let isRecPlayMode = false;
+let currentRecordingTrack = null;
 let videoBlobs = Array(10).fill(null);
-let mediaRecorders = Array(10).fill(null);
 let isRecording = Array(10).fill(false);
-let audioContext = null;
-let progressStep = 0;
-let recordedCount = 0;
 
-// DOM Elements
+// DOM
 const audioInput = document.getElementById('audio-upload');
+const playBtn = document.getElementById('play-btn');
+const pauseBtn = document.getElementById('pause-btn');
+const stopBtn = document.getElementById('stop-btn');
+const recPlayBtn = document.getElementById('rec-play-btn');
 const waveformDiv = document.getElementById('waveform');
 const videosGrid = document.getElementById('videos-grid');
 const fullDiceBtn = document.getElementById('full-dice-btn');
@@ -21,45 +26,83 @@ const outputVideo = document.getElementById('output-video');
 const exportBtn = document.getElementById('export-btn');
 const exportFormat = document.getElementById('export-format');
 const exportResolution = document.getElementById('export-resolution');
-const exportProgress = document.getElementById('export-progress');
-const progressFill = document.querySelector('.progress-fill');
-const progressIndicator = document.getElementById('progress-indicator');
-const helpBtn = document.getElementById('help-btn');
-const helpOverlay = document.getElementById('help-overlay');
-const closeHelp = document.getElementById('close-help');
 
-// --- 1. Visual: Real Waveform with wavesurfer.js
-let wavesurfer = null;
-function createWaveform(file) {
+// --- AUDIO & WAVEFORM LOADING ---
+audioInput.addEventListener('change', async function () {
+    if (!audioInput.files[0]) return;
+    const file = audioInput.files[0];
+    audioUrl = URL.createObjectURL(file);
+
+    // Load into AudioContext for precise timing if needed
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const arrayBuffer = await file.arrayBuffer();
+    audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+    duration = audioBuffer.duration;
+
+    // Guess bar count (user can edit BPM support later)
+    barCount = Math.round((duration / 60) * bpm / 4); // 4 beats per bar
+    barsPerChunk = 8;
+
+    // WaveSurfer setup
     if (wavesurfer) wavesurfer.destroy();
-    waveformDiv.innerHTML = '';
     wavesurfer = WaveSurfer.create({
         container: waveformDiv,
         waveColor: '#b39ddb',
         progressColor: '#ff6b6b',
         barWidth: 2,
-        height: 60,
-        responsive: true
+        height: 70,
+        responsive: true,
+        plugins: [
+            WaveSurfer.regions.create()
+        ]
     });
-    const url = URL.createObjectURL(file);
-    wavesurfer.load(url);
-}
+    wavesurfer.load(audioUrl);
 
-// --- 2. User Guidance and Progress
-function updateProgress() {
-    recordedCount = videoBlobs.filter(Boolean).length;
-    if (!audioUrl) {
-        progressIndicator.textContent = 'Step 1: Upload your song 🎵';
-    } else if (recordedCount < 1) {
-        progressIndicator.textContent = 'Step 2: Record your first video take';
-    } else if (recordedCount < 10) {
-        progressIndicator.textContent = `Step 2: Record your video takes (${recordedCount}/10 recorded)`;
-    } else {
-        progressIndicator.textContent = 'Step 3: Try Dice Edit or Export your music video!';
+    // When ready, add 8-bar regions
+    wavesurfer.on('ready', () => {
+        drawBarRegions();
+        enableWaveformControls();
+    });
+});
+
+// --- WAVEFORM CONTROLS ---
+function enableWaveformControls() {
+    playBtn.disabled = false;
+    pauseBtn.disabled = false;
+    stopBtn.disabled = false;
+    recPlayBtn.disabled = false;
+}
+playBtn.onclick = () => { isRecPlayMode = false; wavesurfer.play(); };
+pauseBtn.onclick = () => wavesurfer.pause();
+stopBtn.onclick = () => wavesurfer.stop();
+recPlayBtn.onclick = () => {
+    isRecPlayMode = true;
+    wavesurfer.seekTo(0);
+    wavesurfer.play();
+};
+
+// --- BAR CHUNK REGIONS ---
+function drawBarRegions() {
+    // Remove old
+    wavesurfer.clearRegions();
+    barRegions = [];
+    let secPerBar = 60 / bpm * 4;
+    let regionCount = Math.ceil(barCount / barsPerChunk);
+    for (let i = 0; i < regionCount; i++) {
+        let start = i * barsPerChunk * secPerBar;
+        let end = Math.min((i + 1) * barsPerChunk * secPerBar, duration);
+        let region = wavesurfer.addRegion({
+            start: start,
+            end: end,
+            color: (i % 2 === 0) ? 'rgba(255,205,56,0.08)' : 'rgba(255,107,107,0.09)',
+            drag: false,
+            resize: false
+        });
+        barRegions.push(region);
     }
 }
 
-// --- 3. Video Recording with Countdown, Thumbnails, Delete, Re-record
+// --- VIDEO TRACKS UI ---
 function createVideoTracks() {
     videosGrid.innerHTML = '';
     for (let i = 0; i < 10; i++) {
@@ -67,152 +110,114 @@ function createVideoTracks() {
         trackDiv.className = 'video-track';
         trackDiv.dataset.track = i;
 
-        // Thumbnail Preview
-        const thumb = document.createElement('img');
-        thumb.className = 'thumb-preview';
-        thumb.alt = 'Preview';
-        thumb.style.display = 'none';
-        trackDiv.appendChild(thumb);
+        // Track label
+        const label = document.createElement('span');
+        label.className = 'track-label';
+        label.textContent = `Take ${i + 1}`;
+        trackDiv.appendChild(label);
 
-        // Countdown
-        const countdown = document.createElement('span');
-        countdown.className = 'countdown';
-        countdown.style.display = 'none';
-        trackDiv.appendChild(countdown);
-
-        // Video Element
+        // Video element
         const videoEl = document.createElement('video');
         videoEl.setAttribute('playsinline', true);
         videoEl.setAttribute('controls', true);
         videoEl.id = `video-take-${i}`;
-        videoEl.style.display = 'none';
+        videoEl.style.display = videoBlobs[i] ? '' : 'none';
+        if (videoBlobs[i]) videoEl.src = URL.createObjectURL(videoBlobs[i]);
         trackDiv.appendChild(videoEl);
 
-        // Record Button
+        // Record button
         const recBtn = document.createElement('button');
         recBtn.className = 'record-btn';
-        recBtn.textContent = 'Record';
-        recBtn.onclick = () => handleRecord(i, recBtn, videoEl, thumb, countdown, trackDiv);
+        recBtn.textContent = videoBlobs[i] ? 'Re-record' : 'Record';
+        recBtn.onclick = () => handleRecord(i, recBtn, videoEl, trackDiv);
         trackDiv.appendChild(recBtn);
 
-        // Delete/Re-record Button
+        // Delete button
         const delBtn = document.createElement('button');
         delBtn.className = 'delete-btn';
-        delBtn.innerHTML = '⟲';
-        delBtn.title = 'Delete/Redo this take';
-        delBtn.onclick = () => deleteTake(i, videoEl, thumb, recBtn, trackDiv);
-        delBtn.style.display = 'none';
+        delBtn.innerHTML = '🗑️';
+        delBtn.title = 'Delete this take';
+        delBtn.onclick = () => deleteTake(i, videoEl, recBtn, trackDiv);
+        delBtn.style.display = videoBlobs[i] ? '' : 'none';
         trackDiv.appendChild(delBtn);
-
-        // Show preview if exists
-        if (videoBlobs[i]) {
-            thumb.src = URL.createObjectURL(videoBlobs[i]);
-            thumb.style.display = '';
-            videoEl.src = URL.createObjectURL(videoBlobs[i]);
-            videoEl.style.display = '';
-            recBtn.textContent = 'Re-record';
-            delBtn.style.display = '';
-        }
 
         videosGrid.appendChild(trackDiv);
     }
 }
+createVideoTracks();
 
-// --- Video Recording Handler (with Countdown)
-async function handleRecord(trackIdx, btn, videoEl, thumb, countdown, trackDiv) {
-    if (isRecording[trackIdx]) {
-        mediaRecorders[trackIdx]?.stop();
-        return;
-    }
+// --- VIDEO RECORDING HANDLER ---
+async function handleRecord(trackIdx, btn, videoEl, trackDiv) {
+    // Prevent double recording
+    if (isRecording[trackIdx]) return;
 
     // Camera access
-    let stream = null;
+    let stream;
     try {
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        videoStreams[trackIdx] = stream;
     } catch (e) {
         alert('Camera access denied!');
         return;
     }
 
-    // Visual highlight
-    trackDiv.classList.add('recording');
-    btn.classList.add('recording');
-
-    // Countdown
-    countdown.style.display = '';
-    let count = 3;
-    countdown.textContent = count;
-    btn.disabled = true;
-    for (let i = 0; i < 3; i++) {
-        await new Promise(res => setTimeout(res, 500));
-        count--;
-        countdown.textContent = count > 0 ? count : 'Go!';
-    }
-    await new Promise(res => setTimeout(res, 400));
-    countdown.style.display = 'none';
-    btn.disabled = false;
-
-    // Start Recording
+    // Highlight UI
     btn.textContent = 'Recording...';
+    btn.disabled = true;
+    trackDiv.classList.add('recording');
     isRecording[trackIdx] = true;
+    currentRecordingTrack = trackIdx;
 
-    // Play audio if available
-    let audio;
+    // Play audio in "record mode"
+    let audioPlay;
     if (audioUrl) {
-        audio = new Audio(audioUrl);
-        audio.currentTime = 0;
-        audio.play();
+        audioPlay = new Audio(audioUrl);
+        audioPlay.currentTime = 0;
+        audioPlay.play();
     }
 
-    // Record
+    // Start recording
     let chunks = [];
     const recorder = new MediaRecorder(stream);
-    mediaRecorders[trackIdx] = recorder;
     recorder.ondataavailable = (e) => chunks.push(e.data);
     recorder.onstop = () => {
         const blob = new Blob(chunks, { type: 'video/webm' });
         videoBlobs[trackIdx] = blob;
-        thumb.src = URL.createObjectURL(blob);
-        thumb.style.display = '';
         videoEl.src = URL.createObjectURL(blob);
         videoEl.style.display = '';
         btn.textContent = 'Re-record';
+        btn.disabled = false;
         isRecording[trackIdx] = false;
+        currentRecordingTrack = null;
         stream.getTracks().forEach(track => track.stop());
         trackDiv.classList.remove('recording');
-        btn.classList.remove('recording');
         trackDiv.querySelector('.delete-btn').style.display = '';
-        if (audio) audio.pause();
-        updateProgress();
+        if (audioPlay) audioPlay.pause();
     };
     recorder.start();
 
     // Stop after audio ends or 30s max
-    let duration = audioBuffer ? audioBuffer.duration * 1000 : 30000;
+    let recDuration = audioBuffer ? audioBuffer.duration * 1000 : 30000;
     setTimeout(() => {
         if (isRecording[trackIdx]) recorder.stop();
-    }, duration);
+    }, recDuration);
 }
 
-function deleteTake(idx, videoEl, thumb, recBtn, trackDiv) {
+// --- DELETE TAKE ---
+function deleteTake(idx, videoEl, recBtn, trackDiv) {
     videoBlobs[idx] = null;
     videoEl.src = '';
     videoEl.style.display = 'none';
-    thumb.src = '';
-    thumb.style.display = 'none';
     recBtn.textContent = 'Record';
     trackDiv.querySelector('.delete-btn').style.display = 'none';
-    updateProgress();
 }
 
-// --- Dice Edit: Simulated for now (randomly selects takes)
+// --- DICE EDIT (SIMULATED FOR NOW) ---
 function diceEdit(fullSong = true) {
     if (!videoBlobs.some(Boolean)) {
         alert('Record at least one video take.');
         return;
     }
-    let segmentCount = fullSong ? 30 : 4;
+    let segmentCount = fullSong ? Math.ceil(barCount / barsPerChunk) : 1;
     let selectedTakes = [];
     for (let i = 0; i < segmentCount; i++) {
         const available = videoBlobs.map((b, idx) => b ? idx : null).filter(i => i !== null);
@@ -223,57 +228,20 @@ function diceEdit(fullSong = true) {
     if (first) outputVideo.src = URL.createObjectURL(first);
     outputVideo.load();
 }
+fullDiceBtn.onclick = () => diceEdit(true);
+barDiceBtn.onclick = () => diceEdit(false);
 
-// --- Export: Simulated progress, download current output video
-function exportWithProgress() {
+// --- EXPORT ---
+exportBtn.onclick = () => {
     if (!outputVideo.src) {
         alert('Nothing to export!');
         return;
     }
-    exportProgress.classList.remove('hidden');
-    progressFill.style.width = '0%';
-    let progress = 0;
-    let intv = setInterval(() => {
-        progress += Math.random() * 30 + 10;
-        if (progress >= 100) progress = 100;
-        progressFill.style.width = progress + '%';
-        if (progress === 100) {
-            clearInterval(intv);
-            setTimeout(() => {
-                exportProgress.classList.add('hidden');
-                // Download
-                const a = document.createElement('a');
-                a.href = outputVideo.src;
-                a.download = `dicecut-music-video.${exportFormat.value}`;
-                a.click();
-            }, 400);
-        }
-    }, 400);
-}
+    const a = document.createElement('a');
+    a.href = outputVideo.src;
+    a.download = `dicecut-music-video.${exportFormat.value}`;
+    a.click();
+};
 
-// --- Help Overlay
-helpBtn.onclick = () => { helpOverlay.classList.remove('hidden'); };
-closeHelp.onclick = () => { helpOverlay.classList.add('hidden'); };
-
-// --- Initialization
-audioInput.addEventListener('change', async function () {
-    if (!audioInput.files[0]) return;
-    const file = audioInput.files[0];
-    audioUrl = URL.createObjectURL(file);
-    createWaveform(file);
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const arrayBuffer = await file.arrayBuffer();
-    audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-    updateProgress();
-});
-
-fullDiceBtn.addEventListener('click', () => diceEdit(true));
-barDiceBtn.addEventListener('click', () => diceEdit(false));
-exportBtn.addEventListener('click', exportWithProgress);
-
-// Mobile: re-create video tracks on resize for better layout
+// --- Re-create video tracks on resize for better layout ---
 window.addEventListener('resize', createVideoTracks);
-
-// On page load
-createVideoTracks();
-updateProgress();
