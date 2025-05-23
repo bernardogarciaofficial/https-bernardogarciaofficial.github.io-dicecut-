@@ -5,7 +5,6 @@
     <title>DiceCut – Music Video Editing Made Easy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <!-- wavesurfer.js CDN for waveform display -->
     <script src="https://unpkg.com/wavesurfer.js"></script>
     <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.regions.min.js"></script>
 </head>
@@ -29,11 +28,22 @@
             <div id="waveform"></div>
         </section>
 
+        <!-- Video Track Selector Section -->
+        <section id="video-selector-section">
+            <div class="video-selector-bar">
+                <label for="video-track-select"><b>Select Take:</b></label>
+                <select id="video-track-select">
+                    <!-- dynamically filled -->
+                </select>
+                <button id="deselect-btn" class="button small">Deselect</button>
+                <button id="main-record-btn" class="button">Record</button>
+            </div>
+        </section>
+
         <!-- Video Recording Section -->
         <section id="video-section">
-            <h2>Record Your 10 Video Takes</h2>
             <div class="videos-grid" id="videos-grid">
-                <!-- 10 video tracks will be dynamically generated here -->
+                <!-- Only one video track (selected) is shown at a time -->
             </div>
         </section>
 
