@@ -28,7 +28,7 @@ header {
 }
 
 main {
-    max-width: 900px;
+    max-width: 1100px;
     margin: 2rem auto;
     padding: 1rem;
     background: var(--card);
@@ -54,10 +54,6 @@ section {
     text-decoration: none;
     display: inline-block;
 }
-.button.small {
-    font-size: 0.9rem;
-    padding: 0.3em 0.7em;
-}
 .button:hover, .button:focus {
     background: var(--accent);
     color: var(--primary);
@@ -68,58 +64,81 @@ input[type="file"] {
     display: none;
 }
 
-#videos-grid {
+#waveform-controls {
+    margin: 1em 0 0.5em 0;
+    display: flex;
+    gap: 0.7em;
+}
+.waveform-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.42em 1.2em;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background 0.15s;
+    opacity: 0.95;
+}
+.waveform-btn:disabled {
+    background: #d1c4e9;
+    color: #bdbdbd;
+    cursor: not-allowed;
+}
+#waveform {
+    margin: 1em 0 0.5em 0;
+    background: #f4effc;
+    border-radius: 8px;
+    min-height: 72px;
+    max-width: 100%;
+    overflow-x: auto;
+    box-shadow: 0 2px 7px 0 #ddd;
+}
+
+.videos-grid {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
+    width: 100%;
 }
 
 .video-track {
     display: flex;
     align-items: center;
-    border: 2px solid var(--primary);
+    border: 3px solid var(--primary);
     border-radius: var(--border-radius);
     background: var(--track-highlight);
-    padding: 0.7rem;
-    gap: 1rem;
+    padding: 1.1rem 0.7rem;
+    gap: 2.5rem;
+    width: 100%;
+    max-width: 100%;
+    min-height: 210px;
+    box-sizing: border-box;
     transition: background 0.2s, border 0.2s;
     position: relative;
 }
 .video-track.recording {
-    border: 2px solid var(--recording);
+    border: 3px solid var(--recording);
     background: #fffde7;
     box-shadow: 0 0 15px 0 var(--recording);
 }
-.video-track .countdown {
-    font-size: 1.8rem;
-    color: var(--secondary);
-    margin-right: 1em;
-    width: 2em;
-    text-align: center;
-}
 .video-track video {
-    width: 120px;
-    height: 68px;
-    background: #888;
+    width: 94vw;
+    max-width: 980px;
+    height: 200px;
+    background: #222;
     border-radius: var(--border-radius);
-    object-fit: cover;
-}
-.video-track .thumb-preview {
-    width: 70px;
-    height: 40px;
-    background: #ccc;
-    border-radius: 5px;
-    object-fit: cover;
-    margin-right: .5em;
+    object-fit: contain;
+    border: 2px solid #bbb;
 }
 .video-track .record-btn {
     background: var(--accent);
     color: var(--primary);
     border: none;
     border-radius: var(--border-radius);
-    padding: 0.5em 1em;
+    padding: 1em 1.8em;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 1.15rem;
     transition: background 0.15s;
 }
 .video-track .record-btn.recording {
@@ -132,22 +151,33 @@ input[type="file"] {
     70% { box-shadow: 0 0 0 10px rgba(255,107,107,0); }
     100% { box-shadow: 0 0 0 0 rgba(255,107,107,0); }
 }
-
 .video-track .delete-btn {
     background: #eee;
     color: var(--secondary);
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    width: 2em;
-    height: 2em;
-    font-size: 1.3em;
-    margin-left: .5em;
+    width: 2.7em;
+    height: 2.7em;
+    font-size: 2em;
+    margin-left: .7em;
     transition: background 0.15s;
 }
 .video-track .delete-btn:hover {
     background: var(--secondary);
     color: white;
+}
+.video-track .track-label {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    font-size: 1.25em;
+    color: var(--primary);
+    font-weight: bold;
+    background: #fffde7;
+    border-radius: 5px;
+    padding: 0.2em 0.5em;
+    opacity: 0.8;
 }
 
 .dice-controls {
@@ -175,30 +205,12 @@ input[type="file"] {
 
 #output-video {
     width: 100%;
-    max-width: 600px;
+    max-width: 850px;
+    min-height: 220px;
     margin-top: 1rem;
     border-radius: var(--border-radius);
     background: #111;
-}
-
-#export-progress {
-    margin-top: 1em;
-    display: flex;
-    align-items: center;
-    gap: 1em;
-}
-.progress-bar {
-    width: 200px;
-    height: 12px;
-    background: #eee;
-    border-radius: 6px;
-    overflow: hidden;
-}
-.progress-fill {
-    background: var(--primary);
-    width: 0%;
-    height: 100%;
-    transition: width 0.3s;
+    border: 2px solid #c2b5da;
 }
 
 footer {
@@ -208,54 +220,31 @@ footer {
     margin: 2rem 0 1rem 0;
 }
 
-/* Help Overlay */
-#help-overlay {
-    position: fixed;
-    left: 0; top: 0;
-    width: 100vw; height: 100vh;
-    background: rgba(40, 18, 68, 0.95);
-    color: white;
-    z-index: 1001;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-#help-overlay h3 {
-    margin-top: 0;
-}
-#help-overlay ol {
-    text-align: left;
-    margin: 2em auto;
-    max-width: 320px;
-    font-size: 1.1em;
-}
-#help-overlay.hidden {
-    display: none;
-}
-
-#progress-indicator {
-    font-weight: 600;
-    color: var(--primary);
-    margin-bottom: 1em;
-    font-size: 1.15em;
-}
-
 /* Responsive */
-@media (max-width: 700px) {
+@media (max-width: 1100px) {
     main {
-        padding: 0.4em;
+        max-width: 98vw;
+        padding: 0.2em;
         border-radius: 0;
     }
+    .video-track video {
+        width: 98vw;
+        height: 24vw;
+        max-width: 98vw;
+        min-height: 170px;
+    }
     #output-video {
-        max-width: 100vw;
+        width: 98vw;
+        min-height: 170px;
+        max-width: 99vw;
     }
-    .video-track video,
-    .video-track .thumb-preview {
-        width: 85px;
-        height: 48px;
+}
+@media (max-width: 600px) {
+    .video-track video {
+        min-height: 120px;
+        height: 24vw;
     }
-    .export-opts label, .export-opts select {
-        font-size: 0.98em;
+    #output-video {
+        min-height: 120px;
     }
 }
