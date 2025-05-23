@@ -4,6 +4,7 @@
     --bg: #f8f8f8;
     --card: #fff;
     --accent: #ffcd38;
+    --danger: #e74c3c;
     --text: #222;
     --border-radius: 12px;
     --track-highlight: #d1c4e9;
@@ -40,6 +41,9 @@ section {
     margin-bottom: 2rem;
 }
 
+.audio-controls-bar {
+    margin-bottom: 1em;
+}
 .button {
     background: var(--secondary);
     color: white;
@@ -59,6 +63,12 @@ section {
     padding: 0.4em 1em;
     margin-bottom: 0;
 }
+.button.danger {
+    background: var(--danger);
+}
+.button.danger:hover {
+    background: #ba2d1e;
+}
 .button:hover, .button:focus {
     background: var(--accent);
     color: var(--primary);
@@ -69,10 +79,11 @@ input[type="file"] {
     display: none;
 }
 
-#waveform-controls {
+#waveform-controls, .waveform-controls {
     margin: 1em 0 0.5em 0;
     display: flex;
     gap: 0.7em;
+    flex-wrap: wrap;
 }
 .waveform-btn {
     background: var(--primary);
@@ -111,7 +122,8 @@ input[type="file"] {
     padding: 0.3em 1em;
     border-radius: 6px;
     border: 1.5px solid var(--primary);
-    min-width: 130px;
+    min-width: 180px;
+    font-weight: bold;
 }
 #deselect-btn {
     margin-right: 1.2em;
@@ -131,7 +143,7 @@ input[type="file"] {
     border: 3px solid var(--primary);
     border-radius: var(--border-radius);
     background: var(--track-highlight);
-    padding: 2rem 0.7rem 1.2rem 0.7rem;
+    padding: 2.2rem 0.7rem 1.2rem 0.7rem;
     width: 100%;
     min-height: 350px;
     max-width: 100vw;
@@ -191,25 +203,6 @@ input[type="file"] {
     70% { box-shadow: 0 0 0 10px rgba(255,107,107,0); }
     100% { box-shadow: 0 0 0 0 rgba(255,107,107,0); }
 }
-.video-track .delete-btn {
-    background: #eee;
-    color: var(--secondary);
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    width: 2.5em;
-    height: 2.5em;
-    font-size: 2em;
-    margin-left: 1.2em;
-    margin-top: 1em;
-    transition: background 0.15s;
-    z-index: 2;
-    position: relative;
-}
-.video-track .delete-btn:hover {
-    background: var(--secondary);
-    color: white;
-}
 .video-track .track-label {
     position: absolute;
     left: 16px;
@@ -240,6 +233,11 @@ input[type="file"] {
 }
 .video-track.recording .recording-indicator {
     display: block;
+}
+.video-track .no-video-msg {
+    color: #666;
+    font-size: 1.3em;
+    margin: 2.5em 0 1em 0;
 }
 
 .dice-controls {
