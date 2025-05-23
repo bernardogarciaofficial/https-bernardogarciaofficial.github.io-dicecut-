@@ -1,6 +1,5 @@
-// Add at the end or in a suitable place for DOMContentLoaded
+// Member counter AJAX fetch
 document.addEventListener('DOMContentLoaded', function () {
-    // --- MEMBER COUNTER ---
     fetch('get_member_count.php')
         .then(response => response.text())
         .then(count => {
@@ -16,9 +15,16 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-    // --- VIDEO TRACKS: Show all 10 video tracks, vertically stacked ---
+    // Populate the video grid with 10 stacked tracks
     createAllVideoTracks();
 });
+
+// The following are placeholders for your video/audio logic
+// You need to fill these with your actual logic if you have it; these are examples for structure.
+
+let videosGrid = document.getElementById('videos-grid');
+let videoBlobs = Array(10).fill(null); // Should be replaced with your actual blobs
+let isRecording = Array(10).fill(false); // Should be replaced with your actual recording state
 
 function createAllVideoTracks() {
     videosGrid.innerHTML = '';
@@ -69,7 +75,7 @@ function createAllVideoTracks() {
         const recBtn = document.createElement('button');
         recBtn.className = 'record-btn';
         recBtn.textContent = videoBlobs[i] ? 'Re-record' : 'Record';
-        recBtn.onclick = () => handleRecord(i, recBtn, videoEl, thumb, trackDiv, recInd);
+        // recBtn.onclick = () => handleRecord(i, recBtn, videoEl, thumb, trackDiv, recInd); // Fill in your logic here
         if (isRecording[i]) recBtn.classList.add('recording');
         trackDiv.appendChild(recBtn);
 
@@ -77,7 +83,7 @@ function createAllVideoTracks() {
         delBtn.className = 'delete-btn';
         delBtn.innerHTML = '🗑️';
         delBtn.title = 'Delete this take';
-        delBtn.onclick = () => deleteTake(i, videoEl, recBtn, thumb, trackDiv);
+        // delBtn.onclick = () => deleteTake(i, videoEl, recBtn, thumb, trackDiv); // Fill in your logic here
         delBtn.style.display = videoBlobs[i] ? '' : 'none';
         trackDiv.appendChild(delBtn);
 
@@ -87,11 +93,20 @@ function createAllVideoTracks() {
 }
 
 // --- WAVEFORM: Improved 8-bar lines and labels ---
+// You must have a global wavesurfer, waveformDiv, bpm, and barCount variable set from your app logic
+let wavesurfer; // Your WaveSurfer instance
+let waveformDiv = document.getElementById('waveform');
+let bpm = 120; // Replace with actual BPM
+let barCount = 32; // Replace with actual bar count
+let barRegions = [];
+
 function drawBarRegions() {
     if (!wavesurfer) return;
     wavesurfer.clearRegions();
     barRegions = [];
     let secPerBar = 60 / bpm * 4;
+    // Remove existing labels
+    document.querySelectorAll('.bar-label').forEach(lbl => lbl.remove());
     for (let i = 0; i < barCount; i++) {
         let color = (i % 8 === 0) ? 'rgba(255, 107, 107, 0.35)' : 'rgba(84, 19, 136, 0.11)';
         let region = wavesurfer.addRegion({
@@ -105,12 +120,7 @@ function drawBarRegions() {
         if (i % 8 === 0) {
             let barLabel = document.createElement('div');
             barLabel.className = 'bar-label';
-            barLabel.style.position = 'absolute';
             barLabel.style.left = `${(i / barCount) * 100}%`;
-            barLabel.style.top = '0';
-            barLabel.style.fontSize = '0.9em';
-            barLabel.style.color = '#ff6b6b';
-            barLabel.style.fontWeight = 'bold';
             barLabel.textContent = `Bar ${i + 1}`;
             waveformDiv.appendChild(barLabel);
         }
