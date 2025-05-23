@@ -6,6 +6,8 @@
     --accent: #ffcd38;
     --text: #222;
     --border-radius: 12px;
+    --track-highlight: #d1c4e9;
+    --recording: #ffb300;
 }
 
 body {
@@ -52,9 +54,14 @@ section {
     text-decoration: none;
     display: inline-block;
 }
-.button:hover {
+.button.small {
+    font-size: 0.9rem;
+    padding: 0.3em 0.7em;
+}
+.button:hover, .button:focus {
     background: var(--accent);
     color: var(--primary);
+    outline: none;
 }
 
 input[type="file"] {
@@ -72,15 +79,38 @@ input[type="file"] {
     align-items: center;
     border: 2px solid var(--primary);
     border-radius: var(--border-radius);
-    background: #f2edfa;
+    background: var(--track-highlight);
     padding: 0.7rem;
     gap: 1rem;
+    transition: background 0.2s, border 0.2s;
+    position: relative;
+}
+.video-track.recording {
+    border: 2px solid var(--recording);
+    background: #fffde7;
+    box-shadow: 0 0 15px 0 var(--recording);
+}
+.video-track .countdown {
+    font-size: 1.8rem;
+    color: var(--secondary);
+    margin-right: 1em;
+    width: 2em;
+    text-align: center;
 }
 .video-track video {
-    width: 180px;
-    height: 100px;
+    width: 120px;
+    height: 68px;
     background: #888;
     border-radius: var(--border-radius);
+    object-fit: cover;
+}
+.video-track .thumb-preview {
+    width: 70px;
+    height: 40px;
+    background: #ccc;
+    border-radius: 5px;
+    object-fit: cover;
+    margin-right: .5em;
 }
 .video-track .record-btn {
     background: var(--accent);
@@ -95,10 +125,52 @@ input[type="file"] {
 .video-track .record-btn.recording {
     background: var(--secondary);
     color: white;
+    animation: pulse 1s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 var(--secondary); }
+    70% { box-shadow: 0 0 0 10px rgba(255,107,107,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,107,107,0); }
+}
+
+.video-track .delete-btn {
+    background: #eee;
+    color: var(--secondary);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 2em;
+    height: 2em;
+    font-size: 1.3em;
+    margin-left: .5em;
+    transition: background 0.15s;
+}
+.video-track .delete-btn:hover {
+    background: var(--secondary);
+    color: white;
 }
 
 .dice-controls {
     margin-bottom: 1rem;
+}
+
+.export-opts {
+    margin: 1em 0;
+    gap: 1em;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.export-opts label {
+    margin-right: .5em;
+    font-weight: 500;
+}
+.export-opts select {
+    font-size: 1rem;
+    padding: 0.2em 0.6em;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    margin-right: 1.5em;
 }
 
 #output-video {
@@ -109,9 +181,81 @@ input[type="file"] {
     background: #111;
 }
 
+#export-progress {
+    margin-top: 1em;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+.progress-bar {
+    width: 200px;
+    height: 12px;
+    background: #eee;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.progress-fill {
+    background: var(--primary);
+    width: 0%;
+    height: 100%;
+    transition: width 0.3s;
+}
+
 footer {
     text-align: center;
     color: #777;
     font-size: 0.95rem;
     margin: 2rem 0 1rem 0;
+}
+
+/* Help Overlay */
+#help-overlay {
+    position: fixed;
+    left: 0; top: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(40, 18, 68, 0.95);
+    color: white;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+#help-overlay h3 {
+    margin-top: 0;
+}
+#help-overlay ol {
+    text-align: left;
+    margin: 2em auto;
+    max-width: 320px;
+    font-size: 1.1em;
+}
+#help-overlay.hidden {
+    display: none;
+}
+
+#progress-indicator {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 1em;
+    font-size: 1.15em;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+    main {
+        padding: 0.4em;
+        border-radius: 0;
+    }
+    #output-video {
+        max-width: 100vw;
+    }
+    .video-track video,
+    .video-track .thumb-preview {
+        width: 85px;
+        height: 48px;
+    }
+    .export-opts label, .export-opts select {
+        font-size: 0.98em;
+    }
 }
